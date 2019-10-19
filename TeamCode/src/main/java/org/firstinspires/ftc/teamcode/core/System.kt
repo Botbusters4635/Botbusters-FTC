@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.core
 
-abstract class System: Module() {
+abstract class System {
+    abstract fun update ()
 
 }
+
