@@ -36,6 +36,10 @@ void TwoJointArm::setTargetCoordEnd(sf::Vector2i target) {
     double timeStep = std::chrono::duration<double> (std::chrono::high_resolution_clock::now() - lastTimeUpdate).count();
 
     TwoJointArmValues values = kinematics->calcInverseKinematics(target.x - lowerArm.getPosition().x, target.y - lowerArm.getPosition().y);
+    /**
+     * On FTC Robot we would give the targets directly and not add "values.lowerAngle" to "values.upperAngle", I will
+     * explain once we test with robot or someone asks. :D
+     */
     targetLowerArmAngle = values.lowerAngle * 180.0 / M_PI;
     targetUpperArmAngle = targetLowerArmAngle + values.upperAngle * 180.0 / M_PI;
 
