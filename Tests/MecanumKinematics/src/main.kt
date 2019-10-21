@@ -12,7 +12,7 @@ import kotlin.math.PI
 
 class KotlinGameApp : GameApplication() {
     private var driveTrainEntity = Entity()
-    private var driveTrain = DriveTrain(100.0,100.0, 20.0, 30.0)
+    private var driveTrain = DriveTrain(100.0,100.0, 20.0, 15.0)
     private var settings = GameSettings()
 
     override fun initSettings(settings: GameSettings) {

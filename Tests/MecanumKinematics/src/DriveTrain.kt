@@ -39,10 +39,10 @@ class DriveTrain (frameWidth : Double, frameHeight : Double, wheelWidth : Double
         frame.fill = null
         frame.stroke = Color.BLACK
 
-        val topRightWheel = Rectangle(0.0, 0.0, wheelWidth, wheelRadius)
-        val topLeftWheel = Rectangle(0.0, 0.0, wheelWidth, wheelRadius)
-        val bottomRightWheel = Rectangle(0.0, 0.0, wheelWidth, wheelRadius)
-        val bottomLeftWheel = Rectangle(0.0, 0.0, wheelWidth, wheelRadius)
+        val topRightWheel = Rectangle(0.0, 0.0, wheelWidth, wheelRadius * 2)
+        val topLeftWheel = Rectangle(0.0, 0.0, wheelWidth, wheelRadius * 2)
+        val bottomRightWheel = Rectangle(0.0, 0.0, wheelWidth, wheelRadius * 2)
+        val bottomLeftWheel = Rectangle(0.0, 0.0, wheelWidth, wheelRadius * 2)
 
         val orientationIndicator = Rectangle(0.0, 0.0, wheelRadius, wheelWidth)
         orientationIndicator.fill = null
