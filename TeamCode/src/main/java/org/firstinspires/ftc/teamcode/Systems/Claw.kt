@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.Systems
 
-import org.firstinspires.ftc.teamcode.core.System
+import org.firstinspires.ftc.teamcode.core.Mechanism
 
-class Claw: System(){
+class Claw: Mechanism(){
     override fun update () {
+
+    }
+    override fun init (){
 
     }
 }
