@@ -1,10 +1,6 @@
-package org.firstinspires.ftc.teamcode.systems
+package org.firstinspires.ftc.teamcode.Systems
+
+import org.firstinspires.ftc.teamcode.Core.Controller
 
 class Claw: Controller(){
-    override fun update () {
-
-    }
-    override fun init (){
-
-    }
 }

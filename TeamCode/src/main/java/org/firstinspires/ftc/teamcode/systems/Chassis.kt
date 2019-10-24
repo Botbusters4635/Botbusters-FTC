@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.systems
 
 
-import org.firstinspires.ftc.teamcode.core.Controller
+import org.firstinspires.ftc.teamcode.Core.Controller
 
 data class MecanumMotorState(var topLeftAngularSpeed: Double = 0.0, var topRightAngularSpeed: Double = 0.0, var downLeftAngularSpeed: Double = 0.0, var downRightAngularSpeed: Double = 0.0)
 
 data class MecanumMotorValues(var topLeftSpeed: Double = 0.0, var topRightSpeed: Double = 0.0, var downLeftSpeed: Double = 0.0, var downRightSpeed: Double = 0.0)
 
-data class Twist2D(var vx: Double = 0., var vy: Double = 0.0, var w: Double = 0.0)
+data class Twist2D(var vx: Double = 0.0, var vy: Double = 0.0, var w: Double = 0.0)
 
 
 class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFromWheelToCenter: Double, var wheelRadius: Double) {
