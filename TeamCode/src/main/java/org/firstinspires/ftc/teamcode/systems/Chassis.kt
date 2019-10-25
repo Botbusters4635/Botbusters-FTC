@@ -36,10 +36,10 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 
 
 class Chassis : Controller() {
-    lateinit var topLeftMotor: DcMotor
-    lateinit var topRightMotor: DcMotor
-    lateinit var downRightMotor: DcMotor
-    lateinit var downLeftMotor: DcMotor
+    var topLeftMotor: DcMotor
+    var topRightMotor: DcMotor
+    var downRightMotor: DcMotor
+    var downLeftMotor: DcMotor
 
 
     init {
@@ -48,12 +48,16 @@ class Chassis : Controller() {
         downLeftMotor = hardwareMap.get (DcMotor:: class.java, "downLeftMotor")
         downRightMotor = hardwareMap.get (DcMotor:: class.java, "downRightMotor")
     }
-    fun move(vx: Double, vy: Double, w: Double) {
-        val values = kinematics.calcInverseKinematics(vx, vy, w)
+    fun move(twist2D: Twist2D) {
+        val values = kinematics.calcInverseKinematics(twist2D.vx, twist2D.vy, twist2D.w)
         writeMotors(values)
     }
 
     fun writeMotors(values: MecanumMotorValues) {
+        topLeftMotor.power = values.topLeftSpeed
+        topRightMotor.power = values.topRightSpeed
+        downLeftMotor.power = values.downLeftSpeed
+        downRightMotor.power = values.downRightSpeed
 
     }
 
