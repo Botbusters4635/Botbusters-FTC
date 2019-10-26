@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.systems
 
 import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.Core.Controller
 
 data class MecanumMotorState(var topLeftAngularSpeed: Double = 0.0, var topRightAngularSpeed: Double = 0.0, var downLeftAngularSpeed: Double = 0.0, var downRightAngularSpeed: Double = 0.0)
@@ -36,13 +37,13 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 
 
 class Chassis : Controller() {
-    var topLeftMotor: DcMotor
-    var topRightMotor: DcMotor
-    var downRightMotor: DcMotor
-    var downLeftMotor: DcMotor
+    lateinit var topLeftMotor: DcMotor
+    lateinit var topRightMotor: DcMotor
+    lateinit var downRightMotor: DcMotor
+    lateinit var downLeftMotor: DcMotor
 
 
-    init {
+    override fun init(hardwareMap: HardwareMap) {
         topLeftMotor = hardwareMap.get(DcMotor::class.java, "topLeftMotor")
         topRightMotor = hardwareMap.get (DcMotor:: class.java, "topRightMotor")
         downLeftMotor = hardwareMap.get (DcMotor:: class.java, "downLeftMotor")
