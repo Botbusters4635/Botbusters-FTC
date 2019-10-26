@@ -13,7 +13,9 @@ class TeleOp: EctoOpMode() {
     }
 
     override fun loop() {
-        chassis.move(Twist2D(vx = gamepad1.left_stick_y.toDouble(), vy = gamepad1.left_stick_x.toDouble(), w = gamepad1.right_stick_x.toDouble()))
+        chassis.move(Twist2D(vx = 0.0, vy = 0.0, w = 0.0))
+telemetry.addData("current heading", chassis.getHeading()
+)
     }
 
 }
