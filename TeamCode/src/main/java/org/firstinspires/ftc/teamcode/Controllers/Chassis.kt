@@ -83,7 +83,6 @@ class Chassis : Controller() {
         topRightMotor.power = values.topRightSpeed
         downLeftMotor.power = values.downLeftSpeed
         downRightMotor.power = values.downRightSpeed
-
     }
 
 }

@@ -1,9 +1,14 @@
 package org.firstinspires.ftc.teamcode
 
+import android.os.SystemClock
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.Core.EctoOpMode
 import org.firstinspires.ftc.teamcode.systems.Chassis
 import org.firstinspires.ftc.teamcode.systems.Twist2D
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.max
 
 @TeleOp(name = "TeleOp")
 class TeleOp: EctoOpMode() {
@@ -11,11 +16,72 @@ class TeleOp: EctoOpMode() {
     init {
         addController(chassis)
     }
+    var targetHeading = 0.0
+    val maxTargetHeadingRate = 180.0
+    var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
+    var lastError = 0.0
+    var kP = 0.03
+    var kD = 0.01
+    var fieldOrientedEnabled = false
 
+    override fun init_loop() {
+
+        telemetry.msTransmissionInterval = 20
+    }
     override fun loop() {
-        chassis.move(Twist2D(vx = 0.0, vy = 0.0, w = 0.0))
-telemetry.addData("current heading", chassis.getHeading()
-)
+        val timeStep = (SystemClock.elapsedRealtime() / 1000.0) - lastTimeRun
+
+
+        val targetHeadingDelta = -gamepad1.right_stick_x * maxTargetHeadingRate
+
+        targetHeading += targetHeadingDelta * timeStep
+
+
+        if(targetHeading > 180){
+            targetHeading -= 360
+        }
+        if(targetHeading < -180){
+            targetHeading += 360
+        }
+
+
+        var error = targetHeading - chassis.getHeading()
+        val headingRadians = chassis.getHeading() * PI / 180.0
+
+        if(error > 180){
+            error -= 360
+        }
+        if(error < -180){
+            error += 360
+        }
+
+        val errorDelta = (error - lastError) / timeStep
+
+        val output = error * kP + errorDelta * kD
+
+        val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = output)
+
+        if(fieldOrientedEnabled){
+            val temp = twist.vx * cos(headingRadians) + twist.vy * sin(headingRadians)
+            twist.vy = twist.vy * cos(headingRadians) - twist.vx * sin(headingRadians)
+            twist.vx = temp
+        }
+
+        if(gamepad1.right_bumper){
+            fieldOrientedEnabled = true
+        }
+
+        if(gamepad1.left_bumper){
+            fieldOrientedEnabled = false
+        }
+
+        chassis.move(twist)
+        lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
+        lastError = error
+        telemetry.addData("Heading", chassis.getHeading())
+        telemetry.addData("Error Heading", error)
+
+        SystemClock.sleep(20)
     }
 
 }
