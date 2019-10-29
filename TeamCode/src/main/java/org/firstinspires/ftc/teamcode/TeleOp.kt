@@ -17,11 +17,11 @@ class TeleOp: EctoOpMode() {
         addController(chassis)
     }
     var targetHeading = 0.0
-    val maxTargetHeadingRate = 180.0
+    val maxTargetHeadingRate = 270
     var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
     var lastError = 0.0
-    var kP = 0.03
-    var kD = 0.01
+    var kP = 0.029
+    var kD = 0.0001
     var fieldOrientedEnabled = false
 
     override fun init_loop() {
