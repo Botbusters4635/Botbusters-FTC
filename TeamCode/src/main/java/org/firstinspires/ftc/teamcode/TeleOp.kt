@@ -20,8 +20,8 @@ class TeleOp: EctoOpMode() {
     val maxTargetHeadingRate = 270
     var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
     var lastError = 0.0
-    var kP = 0.029
-    var kD = 0.0001
+    var kP = 0.03
+    var kD = 0
     var fieldOrientedEnabled = false
 
     override fun init_loop() {
@@ -29,37 +29,37 @@ class TeleOp: EctoOpMode() {
         telemetry.msTransmissionInterval = 20
     }
     override fun loop() {
-        val timeStep = (SystemClock.elapsedRealtime() / 1000.0) - lastTimeRun
+//        val timeStep = (SystemClock.elapsedRealtime() / 1000.0) - lastTimeRun
+//
 
+//        val targetHeadingDelta = -gamepad1.right_stick_x * maxTargetHeadingRate
 
-        val targetHeadingDelta = -gamepad1.right_stick_x * maxTargetHeadingRate
-
-        targetHeading += targetHeadingDelta * timeStep
-
-
-        if(targetHeading > 180){
-            targetHeading -= 360
-        }
-        if(targetHeading < -180){
-            targetHeading += 360
-        }
-
-
-        var error = targetHeading - chassis.getHeading()
+//        targetHeading += targetHeadingDelta * timeStep
+//
+//
+//        if(targetHeading > 180){
+//            targetHeading -= 360
+//        }
+//        if(targetHeading < -180){
+//            targetHeading += 360
+//        }
+//
+//
+//        var error = targetHeading - chassis.getHeading()
         val headingRadians = chassis.getHeading() * PI / 180.0
+//
+//        if(error > 180){
+//            error -= 360
+//        }
+//        if(error < -180){
+//            error += 360
+//        }
+//
+//        val errorDelta = (error - lastError) / timeStep
+//
+//        val output = error * kP + errorDelta * kDgit s
 
-        if(error > 180){
-            error -= 360
-        }
-        if(error < -180){
-            error += 360
-        }
-
-        val errorDelta = (error - lastError) / timeStep
-
-        val output = error * kP + errorDelta * kD
-
-        val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = output)
+        val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = -gamepad1.right_stick_x.toDouble())
 
         if(fieldOrientedEnabled){
             val temp = twist.vx * cos(headingRadians) + twist.vy * sin(headingRadians)
@@ -76,12 +76,12 @@ class TeleOp: EctoOpMode() {
         }
 
         chassis.move(twist)
-        lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
-        lastError = error
-        telemetry.addData("Heading", chassis.getHeading())
-        telemetry.addData("Error Heading", error)
+//        lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
+//        lastError = error
+//        telemetry.addData("Heading", chassis.getHeading())
+//        telemetry.addData("Error Heading", error)
 
-        SystemClock.sleep(20)
+//        SystemClock.sleep(20)
     }
 
 }
