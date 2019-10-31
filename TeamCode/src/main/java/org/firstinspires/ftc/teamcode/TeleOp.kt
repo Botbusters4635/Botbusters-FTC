@@ -67,7 +67,7 @@ class TeleOp: EctoOpMode() {
         var downRightMotor = chassis.downRightMotor.power
 
         if((topLeftMotor in -0.1..0.1 && topRightMotor in -0.1..0.1 && downLeftMotor in -0.1..0.1 && downRightMotor in -0.1..0.1) || (topLeftMotor > 0 && topRightMotor > 0 && downLeftMotor > 0 && downRightMotor > 0) || (topLeftMotor < 0  && topRightMotor < 0 && downLeftMotor < 0 && downRightMotor < 0)){
-            twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = -gamepad1.right_stick_x.toDouble())next
+            twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = -gamepad1.right_stick_x.toDouble())
         } else {
             twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = output)
         }
