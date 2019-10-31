@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode.systems
 
 import com.qualcomm.hardware.bosch.BNO055IMU
-import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.DcMotorSimple
-import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.teamcode.Core.Controller
+import com.qualcomm.robotcore.hardware.PIDCoefficients
+
+
 
 data class MecanumMotorState(var topLeftAngularSpeed: Double = 0.0, var topRightAngularSpeed: Double = 0.0, var downLeftAngularSpeed: Double = 0.0, var downRightAngularSpeed: Double = 0.0)
 
@@ -41,20 +42,29 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 
 
 class Chassis : Controller() {
-    lateinit var topLeftMotor: DcMotor
-    lateinit var topRightMotor: DcMotor
-    lateinit var downRightMotor: DcMotor
-    lateinit var downLeftMotor: DcMotor
+    lateinit var topLeftMotor: DcMotorEx
+    lateinit var topRightMotor: DcMotorEx
+    lateinit var downRightMotor: DcMotorEx
+    lateinit var downLeftMotor: DcMotorEx
     lateinit var imu: BNO055IMU
 
     var kinematics = MecanumKinematics(0.5, 0.5, 1.0)
 
 
     override fun init(hardwareMap: HardwareMap) {
-        topLeftMotor = hardwareMap.get(DcMotor::class.java, "topLeftMotor")
-        topRightMotor = hardwareMap.get(DcMotor::class.java, "topRightMotor")
-        downLeftMotor = hardwareMap.get(DcMotor::class.java, "downLeftMotor")
-        downRightMotor = hardwareMap.get(DcMotor::class.java, "downRightMotor")
+        topLeftMotor = hardwareMap.get(DcMotor::class.java, "topLeftMotor") as DcMotorEx
+        topRightMotor = hardwareMap.get(DcMotor::class.java, "topRightMotor") as DcMotorEx
+        downLeftMotor = hardwareMap.get(DcMotor::class.java, "downLeftMotor") as DcMotorEx
+        downRightMotor = hardwareMap.get(DcMotor::class.java, "downRightMotor") as DcMotorEx
+
+//        val pidSettings: PIDFCoefficients = PIDFCoefficients(10.0, 1.0, 0.0, 0.0)
+
+//        topLeftMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidSettings)
+
+        topLeftMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        topRightMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        downRightMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        downLeftMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
 
         topLeftMotor.direction = DcMotorSimple.Direction.REVERSE
         downLeftMotor.direction = DcMotorSimple.Direction.REVERSE

@@ -11,8 +11,8 @@ abstract class EctoOpMode: OpMode() {
 
     final override fun init() {
         controllers.forEach {
-            it.init(hardwareMap)
             it.telemetry = telemetry
+            it.init(hardwareMap)
         }
     }
 }

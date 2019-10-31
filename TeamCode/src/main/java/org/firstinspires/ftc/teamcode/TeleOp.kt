@@ -5,10 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.Core.EctoOpMode
 import org.firstinspires.ftc.teamcode.systems.Chassis
 import org.firstinspires.ftc.teamcode.systems.Twist2D
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.max
+import kotlin.math.*
 
 @TeleOp(name = "TeleOp")
 class TeleOp: EctoOpMode() {
@@ -25,7 +22,6 @@ class TeleOp: EctoOpMode() {
     var fieldOrientedEnabled = false
 
     override fun init_loop() {
-
         telemetry.msTransmissionInterval = 20
     }
     override fun loop() {
@@ -59,18 +55,17 @@ class TeleOp: EctoOpMode() {
 //
         val output = error * kP + errorDelta * kD
 
-        var twist = Twist2D()
-
         var topLeftMotor = chassis.topLeftMotor.power
         var topRightMotor = chassis.topRightMotor.power
         var downLeftMotor = chassis.downLeftMotor.power
         var downRightMotor = chassis.downRightMotor.power
 
-        if((topLeftMotor in -0.1..0.1 && topRightMotor in -0.1..0.1 && downLeftMotor in -0.1..0.1 && downRightMotor in -0.1..0.1) || (topLeftMotor > 0 && topRightMotor > 0 && downLeftMotor > 0 && downRightMotor > 0) || (topLeftMotor < 0  && topRightMotor < 0 && downLeftMotor < 0 && downRightMotor < 0)){
-            twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = -gamepad1.right_stick_x.toDouble())
-        } else {
-            twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = output)
-        }
+
+        val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = -gamepad1.right_stick_x.toDouble())
+
+//        if(twist.vx.absoluteValue < twist.vy.absoluteValue){
+            twist.w = output
+//        }
 
 //        if(fieldOrientedEnabled){
 //            val temp = twist.vx * cos(headingRadians) + twist.vy * sin(headingRadians)
@@ -91,10 +86,10 @@ class TeleOp: EctoOpMode() {
         lastError = error
 //        telemetry.addData("Heading", chassis.getHeading())
 //        telemetry.addData("Error Heading", error)
-        telemetry.addData("topRight",  chassis.topRightMotor.power)
-        telemetry.addData("topLeft",  chassis.topLeftMotor.power)
-        telemetry.addData("downRight",  chassis.downRightMotor.power)
-        telemetry.addData("downLeft",  chassis.downLeftMotor.power)
+        telemetry.addData("topRight",  chassis.topRightMotor.currentPosition)
+        telemetry.addData("topLeft",  chassis.topLeftMotor.currentPosition)
+        telemetry.addData("downRight",  chassis.downRightMotor.currentPosition)
+        telemetry.addData("downLeft",  chassis.downLeftMotor.currentPosition)
 //
         SystemClock.sleep(20)
     }
