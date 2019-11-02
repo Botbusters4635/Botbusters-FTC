@@ -8,16 +8,17 @@ import kotlinx.coroutines.channels.SendChannel
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
+import org.firstinspires.ftc.teamcode.Core.Twist2D
+
 import org.firstinspires.ftc.teamcode.core.Controller
 import org.firstinspires.ftc.teamcode.core.PID
 import org.firstinspires.ftc.teamcode.core.PIDSettings
 
 
+
 data class MecanumMotorState(var topLeftAngularSpeed: Double = 0.0, var topRightAngularSpeed: Double = 0.0, var downLeftAngularSpeed: Double = 0.0, var downRightAngularSpeed: Double = 0.0)
 
 data class MecanumMotorValues(var topLeftSpeed: Double = 0.0, var topRightSpeed: Double = 0.0, var downLeftSpeed: Double = 0.0, var downRightSpeed: Double = 0.0)
-
-data class Twist2D(var vx: Double = 0.0, var vy: Double = 0.0, var w: Double = 0.0)
 
 
 class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFromWheelToCenter: Double, var wheelRadius: Double) {
@@ -45,17 +46,17 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 
 
 class Chassis : Controller() {
-    protected val scope = CoroutineScope(Job())
-    lateinit var topLeftMotor: DcMotorEx
-    lateinit var topRightMotor: DcMotorEx
-    lateinit var downRightMotor: DcMotorEx
-    lateinit var downLeftMotor: DcMotorEx
+    private val scope = CoroutineScope(Job())
+    private lateinit var topLeftMotor: DcMotorEx
+    private lateinit var topRightMotor: DcMotorEx
+    private lateinit var downRightMotor: DcMotorEx
+    private lateinit var downLeftMotor: DcMotorEx
 
-    lateinit var angularPID: PID
+    private lateinit var angularPID: PID
 
-    lateinit var imu: BNO055IMU
+    private lateinit var imu: BNO055IMU
 
-    var kinematics = MecanumKinematics(0.5, 0.5, 1.0)
+    private var kinematics = MecanumKinematics(0.5, 0.5, 1.0)
 
     var movementTarget = Twist2D()
         set(value) {
