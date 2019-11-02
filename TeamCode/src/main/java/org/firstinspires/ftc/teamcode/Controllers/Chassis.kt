@@ -100,13 +100,13 @@ class Chassis : Controller() {
 
     @ExperimentalCoroutinesApi
     override fun start() {
-//        scope.launch { headingProducer(angularPID.inputChannel) }
-//        scope.launch { angularPID.start() }
-//        scope.launch { motorReceiver(angularPID.outputChannel) }
+        scope.launch { headingProducer(angularPID.inputChannel) }
+        scope.launch { angularPID.start() }
+        scope.launch { motorReceiver(angularPID.outputChannel) }
     }
 
     override fun stop() {
-//        scope.cancel()
+        scope.cancel()
     }
 
     @ExperimentalCoroutinesApi

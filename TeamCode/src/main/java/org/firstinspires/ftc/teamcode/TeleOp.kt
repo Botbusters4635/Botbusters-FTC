@@ -33,9 +33,9 @@ class TeleOp : EctoOpMode() {
             targetHeading += 360
         }
 
-//        val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = targetHeading)
-        chassis.moveWithoutPID(-gamepad1.left_stick_y.toDouble(), -gamepad1.left_stick_x.toDouble(), targetHeading)
-//        chassis.movementTarget = twist
+        val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = targetHeading)
+//        chassis.moveWithoutPID(-gamepad1.left_stick_y.toDouble(), -gamepad1.left_stick_x.toDouble(), targetHeading)
+        chassis.movementTarget = twist
         lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
         SystemClock.sleep(20)
