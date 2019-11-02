@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Core
+package org.firstinspires.ftc.teamcode.core
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 
@@ -10,9 +10,22 @@ abstract class EctoOpMode: OpMode() {
     }
 
     final override fun init() {
+        telemetry.msTransmissionInterval = 20
         controllers.forEach {
             it.telemetry = telemetry
             it.init(hardwareMap)
+        }
+    }
+
+    final override fun start() {
+        controllers.forEach {
+            it.start()
+        }
+    }
+
+    final override fun stop() {
+        controllers.forEach {
+            it.stop()
         }
     }
 }
