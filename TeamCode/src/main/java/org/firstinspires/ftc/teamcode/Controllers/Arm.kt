@@ -24,7 +24,8 @@ class ArmKinematics(val armLenght1: Double, val armLength2: Double) {
 class Arm : Controller() {
     lateinit var armMotor1: DcMotor
     lateinit var armMotor2: DcMotor
-    val kinematics = ArmKinematics(armLenght1 = 30, armLength2 = 30
+    val kinematics = ArmKinematics(armLenght1 = 26.0, armLength2 = 26.0
+
     )
 
     override fun init(hardwareMap: HardwareMap) {
