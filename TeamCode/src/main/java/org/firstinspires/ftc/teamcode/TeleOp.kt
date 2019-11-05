@@ -2,10 +2,9 @@ package org.firstinspires.ftc.teamcode
 
 import android.os.SystemClock
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.core.Twist2D
 import org.firstinspires.ftc.teamcode.core.EctoOpMode
 import org.firstinspires.ftc.teamcode.systems.Chassis
-import org.firstinspires.ftc.teamcode.systems.Twist2D
-import kotlin.math.*
 
 @TeleOp(name = "TeleOp")
 class TeleOp : EctoOpMode() {

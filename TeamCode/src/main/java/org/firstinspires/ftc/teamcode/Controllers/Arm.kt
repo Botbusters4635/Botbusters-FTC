@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Controllers
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
-import org.firstinspires.ftc.teamcode.Core.Controller
+import org.firstinspires.ftc.teamcode.core.Controller
 import kotlin.math.*
 
 data class ArmMotorValues(var angle1: Double = 0.00, var angle2: Double = 0.00 )
