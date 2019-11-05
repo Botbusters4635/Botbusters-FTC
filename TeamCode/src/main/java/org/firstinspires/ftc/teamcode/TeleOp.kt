@@ -44,8 +44,8 @@ class TeleOp : EctoOpMode() {
         lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
         //arm.writeMotors()
-        arm.intake(1.0)
-        arm.setClawHeading(0.2)
+//        arm.intake(1.0)
+//        arm.setClawHeading(0.2)
 
         SystemClock.sleep(20)
     }

@@ -66,10 +66,11 @@ class Chassis : Controller() {
     private lateinit var downLeftMotor: DcMotorEx
 
     private lateinit var angularPID: PID
-    private lateinit var vyPID: PID
+    private lateinit var pidSettingsNormal : PIDSettings
+    private lateinit var pidSettingsVy : PIDSettings
 
     private var lastMotorUpdate = SystemClock.elapsedRealtime() / 1000.0
-    private val maxMotorOutputChangePerSecond = 0.1
+    private val maxMotorOutputChangePerSecond = 3
     private  val maxMotorUpdateRate = 0.01
     private lateinit var imu: BNO055IMU
 
@@ -98,6 +99,12 @@ class Chassis : Controller() {
         downRightMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         downLeftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
+
+        topLeftMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        topRightMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        downRightMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        downLeftMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+
         // Reverse motors
         topLeftMotor.direction = DcMotorSimple.Direction.REVERSE
         downLeftMotor.direction = DcMotorSimple.Direction.REVERSE
@@ -112,8 +119,10 @@ class Chassis : Controller() {
 
         // Initialize the angularPID
 
-        val pidSettings = PIDSettings(kP = 0.0175, kI = 0.0, kD = 0.0005, continous = true, lowerBound = -180.0, upperBound = 180.0)
-        angularPID = PID(pidSettings)
+        pidSettingsNormal = PIDSettings(kP = 0.0275, kI = 0.0, kD = 0.0005, continous = true, lowerBound = -180.0, upperBound = 180.0)
+        pidSettingsVy = PIDSettings(kP = 0.0575, kI = 0.0, kD = 0.0015, continous = true, lowerBound = -180.0, upperBound = 180.0)
+
+        angularPID = PID(pidSettingsNormal)
 
     }
 
@@ -121,7 +130,6 @@ class Chassis : Controller() {
     override fun start() {
         scope.launch { headingProducer(angularPID.inputChannel) }
         scope.launch { angularPID.start() }
-        scope.launch { vyPID.start() }
         scope.launch { motorVelocityReceiver(angularPID.outputChannel) }
     }
 
@@ -139,6 +147,11 @@ class Chassis : Controller() {
 
     suspend fun motorVelocityReceiver(angularVelocityChannel: ReceiveChannel<Double>) {
         while (scope.isActive) {
+            if(Math.abs(movementTarget.vy) > Math.abs(movementTarget.vx)){
+                angularPID.pidSettings = pidSettingsVy
+            }else{
+                angularPID.pidSettings = pidSettingsNormal
+            }
             val motorValues = kinematics.calcInverseKinematics(movementTarget.vx, movementTarget.vy, angularVelocityChannel.receive())
             writeMotors(motorValues)
         }
@@ -165,7 +178,7 @@ class Chassis : Controller() {
 
         var maxChange = maxMotorOutputChangePerSecond * timeStep
 
-        var desiredChange = currentMotorState - values
+        var desiredChange = values - currentMotorState
 
         telemetry.addData("TimeStep", timeStep)
         telemetry.addData("Change", desiredChange.topLeftSpeed * timeStep)
@@ -193,10 +206,15 @@ class Chassis : Controller() {
         currentMotorOutput.downLeftSpeed = currentMotorState.downLeftSpeed + desiredChange.downLeftSpeed
         currentMotorOutput.downRightSpeed = currentMotorState.downRightSpeed + desiredChange.downRightSpeed
 
-        topLeftMotor.power = currentMotorOutput.topLeftSpeed
-        topRightMotor.power = currentMotorOutput.topRightSpeed
-        downLeftMotor.power = currentMotorOutput.topRightSpeed
-        downRightMotor.power = currentMotorOutput.downRightSpeed
+        topLeftMotor.power = values.topLeftSpeed
+        topRightMotor.power = values.topRightSpeed
+        downLeftMotor.power = values.downLeftSpeed
+        downRightMotor.power = values.downRightSpeed
+//
+//        topLeftMotor.power = 0.0
+//        topRightMotor.power = 0.25
+//        downLeftMotor.power = 0.75
+//        downRightMotor.power = 1.0
 
 
         currentMotorState = currentMotorOutput
