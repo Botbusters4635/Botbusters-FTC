@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.systems
+package org.firstinspires.ftc.teamcode.Controllers
 
 import android.os.SystemClock
 import com.qualcomm.hardware.bosch.BNO055IMU
@@ -10,7 +10,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.teamcode.core.Twist2D
-
 import org.firstinspires.ftc.teamcode.core.Controller
 import org.firstinspires.ftc.teamcode.core.PID
 import org.firstinspires.ftc.teamcode.core.PIDSettings
@@ -92,16 +91,12 @@ class Chassis : Controller() {
         topRightMotor = hardwareMap.get(DcMotor::class.java, "topRightMotor") as DcMotorEx
         downLeftMotor = hardwareMap.get(DcMotor::class.java, "downLeftMotor") as DcMotorEx
         downRightMotor = hardwareMap.get(DcMotor::class.java, "downRightMotor") as DcMotorEx
-//
-////        val pidSettings: PIDFCoefficients = PIDFCoefficients(10.0, 1.0, 0.0, 0.0)
-//
-////        topLeftMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidSettings)
-//
+
         // Change mode to run by velocity ( RUN_USING_ENCODER)
-        topLeftMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
-        topRightMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
-        downRightMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
-        downLeftMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        topLeftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        topRightMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        downRightMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        downLeftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
         // Reverse motors
         topLeftMotor.direction = DcMotorSimple.Direction.REVERSE
@@ -116,11 +111,9 @@ class Chassis : Controller() {
         imu.initialize(parameters)
 
         // Initialize the angularPID
-        val angularPIDSettings = PIDSettings(kP = 0.05, kI = 0.0, kD = 0.0035, continous = false, lowerBound = -180.0, upperBound = 180.0)
-        angularPID = PID(angularPIDSettings)
 
-        val vyPIDSettings = PIDSettings(kP = 0.3)
-        vyPID = PID(vyPIDSettings)
+        val pidSettings = PIDSettings(kP = 0.0175, kI = 0.0, kD = 0.0005, continous = true, lowerBound = -180.0, upperBound = 180.0)
+        angularPID = PID(pidSettings)
 
     }
 

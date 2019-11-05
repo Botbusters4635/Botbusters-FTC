@@ -4,17 +4,23 @@ import android.os.SystemClock
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.core.Twist2D
 import org.firstinspires.ftc.teamcode.core.EctoOpMode
-import org.firstinspires.ftc.teamcode.systems.Chassis
+
+import org.firstinspires.ftc.teamcode.Controllers.Chassis
+import org.firstinspires.ftc.teamcode.Controllers.Arm
+import kotlin.math.*
 
 @TeleOp(name = "TeleOp")
 class TeleOp : EctoOpMode() {
     val chassis = Chassis()
+    val arm = Arm()
+
     var targetHeading = 0.0
     val maxTargetHeadingRate = 180
     var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
     init {
         addController(chassis)
+        addController(arm)
     }
 
     override fun loop() {
@@ -36,6 +42,10 @@ class TeleOp : EctoOpMode() {
 //        chassis.moveWithoutPID(-gamepad1.left_stick_y.toDouble(), -gamepad1.left_stick_x.toDouble(), targetHeading)
         chassis.movementTarget = twist
         lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
+
+        //arm.writeMotors()
+        arm.intake(1.0)
+        arm.setClawHeading(0.2)
 
         SystemClock.sleep(20)
     }

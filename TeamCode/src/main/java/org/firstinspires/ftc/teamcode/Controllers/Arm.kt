@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Controllers
 
-import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.teamcode.core.Controller
 import kotlin.math.*
 
@@ -51,11 +50,28 @@ class Arm : Controller() {
     lateinit var armMotor1: DcMotor
     lateinit var armMotor2: DcMotor
 
+    lateinit var intakeLeft: DcMotor
+    lateinit var intakeRight: DcMotor
+    lateinit var turningServo: CRServo
+    lateinit var clampServo: CRServo
+
     val kinematics = ArmKinematics(armLenght1 = .26, armLength2 = .26)
+
+    private var maxClampAngle = 0.0
 
     override fun init(hardwareMap: HardwareMap) {
         armMotor1 = hardwareMap.get(DcMotor::class.java, "armMotor1")
         armMotor2 = hardwareMap.get(DcMotor::class.java, "armMotor2")
+        intakeLeft = hardwareMap.get(DcMotor::class.java, "intakeLeft")
+        intakeRight = hardwareMap.get(DcMotor::class.java, "intakeRight")
+        turningServo = hardwareMap.get(CRServo::class.java, "turningServo")
+        clampServo = hardwareMap.get(CRServo::class.java, "clampServo")
+
+        armMotor1.direction = DcMotorSimple.Direction.REVERSE
+
+        intakeLeft.direction = DcMotorSimple.Direction.REVERSE
+        intakeRight.direction = DcMotorSimple.Direction.REVERSE
+
     }
 
     fun moveto(cordinates: ArmCordinates) {
@@ -67,6 +83,32 @@ class Arm : Controller() {
 
         angles.angle1 = 0.0
         angles.angle2 = 0.0
+    }
+
+    fun setClawHeading(heading : Double){
+        turningServo.power = heading
+    }
+
+    fun setClampForce(power : Double){
+        var outputPower = power
+
+        if(outputPower > 1.0){
+            outputPower = 1.0
+        }else if(outputPower < -1.0){
+            outputPower = -1.0
+        }
+
+        clampServo.power = maxClampAngle * outputPower
+    }
+
+    fun intake(power : Double){
+        intakeLeft.power = power
+        intakeRight.power = power
+    }
+
+    fun writeMotors(){
+        armMotor1.power = 0.0
+        armMotor2.power = 0.2
     }
 
 }
