@@ -70,13 +70,7 @@ class Chassis : Controller() {
     private lateinit var pidSettingsNormal : PIDSettings
     private lateinit var pidSettingsVy : PIDSettings
 
-    private var lastMotorUpdate = SystemClock.elapsedRealtime() / 1000.0
-    private val maxMotorOutputChangePerSecond = 3
-    private  val maxMotorUpdateRate = 0.01
     private lateinit var imu: BNO055IMU
-
-
-    private var currentMotorState = MecanumMotorValues()
 
     private var kinematics = MecanumKinematics(0.5, 0.5, 1.0)
 
