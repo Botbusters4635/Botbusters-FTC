@@ -164,56 +164,9 @@ class Chassis : Controller() {
 //    }
 
     suspend fun writeMotors(values: MecanumMotorValues) {
-        var currentTime = SystemClock.elapsedRealtime() / 1000.0
-        var timeStep = currentTime - lastMotorUpdate
-
-        if(timeStep  < maxMotorUpdateRate){
-            return
-        }
-
-        var maxChange = maxMotorOutputChangePerSecond * timeStep
-
-        var desiredChange = values - currentMotorState
-
-        telemetry.addData("TimeStep", timeStep)
-        telemetry.addData("Change", desiredChange.topLeftSpeed * timeStep)
-        telemetry.addData("Max Allowed Change", maxChange)
-
-        if(Math.abs(desiredChange.topLeftSpeed * timeStep) >  maxChange){
-            desiredChange.topLeftSpeed = maxChange.withSign(desiredChange.topLeftSpeed)
-        }
-
-        if(Math.abs(desiredChange.topRightSpeed * timeStep) >  maxChange){
-            desiredChange.topRightSpeed = maxChange.withSign(desiredChange.topRightSpeed)
-        }
-
-        if(Math.abs(desiredChange.downLeftSpeed * timeStep) >  maxChange){
-            desiredChange.downLeftSpeed = maxChange.withSign(desiredChange.downLeftSpeed)
-        }
-
-        if(Math.abs(desiredChange.downRightSpeed * timeStep) >  maxChange){
-            desiredChange.downRightSpeed = maxChange.withSign(desiredChange.downRightSpeed)
-        }
-
-        val currentMotorOutput = MecanumMotorValues()
-        currentMotorOutput.topLeftSpeed = currentMotorState.topLeftSpeed + desiredChange.topLeftSpeed
-        currentMotorOutput.topRightSpeed = currentMotorState.topRightSpeed + desiredChange.topRightSpeed
-        currentMotorOutput.downLeftSpeed = currentMotorState.downLeftSpeed + desiredChange.downLeftSpeed
-        currentMotorOutput.downRightSpeed = currentMotorState.downRightSpeed + desiredChange.downRightSpeed
-
         topLeftMotor.power = values.topLeftSpeed
         topRightMotor.power = values.topRightSpeed
         downLeftMotor.power = values.downLeftSpeed
         downRightMotor.power = values.downRightSpeed
-//
-//        topLeftMotor.power = 0.0
-//        topRightMotor.power = 0.25
-//        downLeftMotor.power = 0.75
-//        downRightMotor.power = 1.0
-
-
-        currentMotorState = currentMotorOutput
-
-        lastMotorUpdate = SystemClock.elapsedRealtime()  / 1000.0
     }
 }
