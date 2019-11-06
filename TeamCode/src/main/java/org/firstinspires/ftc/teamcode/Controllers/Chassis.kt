@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.core.Twist2D
 import org.firstinspires.ftc.teamcode.core.Controller
 import org.firstinspires.ftc.teamcode.core.PID
 import org.firstinspires.ftc.teamcode.core.PIDSettings
+import kotlin.math.withSign
 
 data class MecanumMotorValues(var topLeftSpeed: Double = 0.0, var topRightSpeed: Double = 0.0, var downLeftSpeed: Double = 0.0, var downRightSpeed: Double = 0.0){
     operator fun plus(other : MecanumMotorValues) : MecanumMotorValues {
@@ -93,12 +94,6 @@ class Chassis : Controller() {
         downLeftMotor = hardwareMap.get(DcMotor::class.java, "downLeftMotor") as DcMotorEx
         downRightMotor = hardwareMap.get(DcMotor::class.java, "downRightMotor") as DcMotorEx
 
-        // Change mode to run by velocity ( RUN_USING_ENCODER)
-        topLeftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        topRightMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        downRightMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        downLeftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-
 
         topLeftMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         topRightMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -119,8 +114,8 @@ class Chassis : Controller() {
 
         // Initialize the angularPID
 
-        pidSettingsNormal = PIDSettings(kP = 0.0275, kI = 0.0, kD = 0.0005, continous = true, lowerBound = -180.0, upperBound = 180.0)
-        pidSettingsVy = PIDSettings(kP = 0.0575, kI = 0.0, kD = 0.0015, continous = true, lowerBound = -180.0, upperBound = 180.0)
+        pidSettingsNormal = PIDSettings(kP = 0.032, kI = 0.0, kD = 0.0018, continous = true, lowerBound = -180.0, upperBound = 180.0)
+        pidSettingsVy = PIDSettings(kP = 0.08, kI = 0.0, kD = 0.0, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
         angularPID = PID(pidSettingsNormal)
 
@@ -185,19 +180,19 @@ class Chassis : Controller() {
         telemetry.addData("Max Allowed Change", maxChange)
 
         if(Math.abs(desiredChange.topLeftSpeed * timeStep) >  maxChange){
-            desiredChange.topLeftSpeed = Math.copySign(maxChange, desiredChange.topLeftSpeed)
+            desiredChange.topLeftSpeed = maxChange.withSign(desiredChange.topLeftSpeed)
         }
 
         if(Math.abs(desiredChange.topRightSpeed * timeStep) >  maxChange){
-            desiredChange.topRightSpeed = Math.copySign(maxChange, desiredChange.topRightSpeed)
+            desiredChange.topRightSpeed = maxChange.withSign(desiredChange.topRightSpeed)
         }
 
         if(Math.abs(desiredChange.downLeftSpeed * timeStep) >  maxChange){
-            desiredChange.downLeftSpeed = Math.copySign(maxChange, desiredChange.downLeftSpeed)
+            desiredChange.downLeftSpeed = maxChange.withSign(desiredChange.downLeftSpeed)
         }
 
         if(Math.abs(desiredChange.downRightSpeed * timeStep) >  maxChange){
-            desiredChange.downRightSpeed = Math.copySign(maxChange, desiredChange.downRightSpeed)
+            desiredChange.downRightSpeed = maxChange.withSign(desiredChange.downRightSpeed)
         }
 
         val currentMotorOutput = MecanumMotorValues()
