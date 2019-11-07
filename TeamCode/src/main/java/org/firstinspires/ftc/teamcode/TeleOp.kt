@@ -30,7 +30,6 @@ class TeleOp : EctoOpMode() {
 
         targetHeading += targetHeadingDelta * timeStep
 
-
         if (targetHeading > 180) {
             targetHeading -= 360
         }
@@ -39,13 +38,12 @@ class TeleOp : EctoOpMode() {
         }
 
         val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = targetHeading)
-//        chassis.moveWithoutPID(-gamepad1.left_stick_y.toDouble(), -gamepad1.left_stick_x.toDouble(), targetHeading)
         chassis.movementTarget = twist
         lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
-        //arm.writeMotors()
-//        arm.intake(1.0)
-//        arm.setClawHeading(0.2)
+        val angles = arm.getAngles()
+
+        telemetry.addData("angles", angles)
 
         SystemClock.sleep(20)
     }
