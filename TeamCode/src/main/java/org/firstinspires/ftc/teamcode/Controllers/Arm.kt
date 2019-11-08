@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.Controllers
 
 import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.teamcode.core.Controller
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import kotlin.math.*
 
 data class ArmMotorValues(var lowerAngle: Double = 0.00, var upperAngle: Double = 0.00)
@@ -84,14 +86,32 @@ class Arm : Controller() {
         var targetAngles = kinematics.calculateInversedKinematics(cordinates.x, cordinates.y)
     }
 
+    fun roundToDecimals(number: Double, numDecimalPlaces: Int): Double {
+        val factor = Math.pow(10.0, numDecimalPlaces.toDouble())
+        return Math.round(number * factor) / factor
+    }
+
     fun getAngles(): ArmMotorValues {
         val angles = ArmMotorValues()
+//        val df = DecimalFormat("#,##")
+//        df.roundingMode = RoundingMode.FLOOR
+
 
         // Change to radians/sec instead of ticks
-        angles.lowerAngle = (2.891 - lowerAngle.voltage) / 2.285 * 90
-        //angles.upperAngle = ((upperAngle.voltage - 1.62) / 0.163 * 90) - angles.lowerAngle * 1.25
-        val x = angles.lowerAngle
-        angles.upperAngle = /*((upperAngle.voltage - 1.658) / 0.186 * 90) - */-((0.006732198142415*x.pow(2)+0.312061403508772*x+4.09494324045409) + angles.lowerAngle)
+//        angles.lowerAngle = (2.942 - lowerAngle.voltage) / 2.314 * 90.0
+//        angles.lowerAngle = -45.8248 * lowerAngle.voltage + 154.2311 - 10.0
+        angles.lowerAngle = 165.0 - 49.0 * lowerAngle.voltage - 37.1 * Math.pow(lowerAngle.voltage, 2.0) + 26.1* Math.pow(lowerAngle.voltage, 3.0) - 4.58* Math.pow(lowerAngle.voltage, 4.0)
+//        angles.lowerAngle = lowerAngle.voltage
+
+        angles.upperAngle  = 214.0 - 1087.0 * upperAngle.voltage + 1057.0 * Math.pow(upperAngle.voltage, 2.0) - 357.0 * Math.pow(upperAngle.voltage, 3.0) + 42.1 * Math.pow(upperAngle.voltage, 4.0)
+        angles.upperAngle = angles.upperAngle - 90.0
+
+
+
+        angles.upperAngle = 547.0 - 40.0 * angles.upperAngle + 0.895 * Math.pow(angles.upperAngle, 2.0) - 8.38 * Math.pow(10.0, -3.0) * Math.pow(angles.upperAngle, 3.0) + 2.92 * Math.pow(10.0, -5.0) * Math.pow(angles.upperAngle, 4.0)
+//        547+-40x+0.895x^{2}-8.38\cdot10^{-3}x^{3}+2.92\cdot10^{-5}x^{4}
+        telemetry.addData("lowerVoltage", lowerAngle.voltage)
+        telemetry.addData("upperVoltage", upperAngle.voltage)
 
         return angles
     }
