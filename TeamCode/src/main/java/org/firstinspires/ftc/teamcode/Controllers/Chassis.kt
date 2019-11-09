@@ -120,7 +120,7 @@ class Chassis : Controller() {
     }
 
     override fun stop() {
-        scope.cancel()
+        scope.coroutineContext.cancelChildren()
     }
 
     fun headingProducer() = scope.launch {
