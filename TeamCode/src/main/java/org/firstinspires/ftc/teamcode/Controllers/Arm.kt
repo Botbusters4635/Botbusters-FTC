@@ -124,17 +124,16 @@ class Arm : Controller() {
     override fun start() {
         scope.launch { lowerAnglePID.start() }
         scope.launch { upperAnglePID.start() }
-        scope.launch { angleProducer() }
-        scope.launch { angleReceiver() }
+        angleProducer()
+        angleReceiver()
     }
 
     override fun stop() {
-        scope.cancel()
-        scope = CoroutineScope(Job())
+        scope.coroutineContext.cancelChildren()
     }
 
-    suspend fun angleProducer() {
-        while (scope.isActive) {
+    fun angleProducer()  = scope.launch{
+        while (isActive) {
             val currentAngle = getAngles()
             telemetry.addData("current angle", currentAngle)
             lowerAnglePID.inputChannel.send(currentAngle.lowerAngle)
@@ -142,8 +141,8 @@ class Arm : Controller() {
         }
     }
 
-    suspend fun angleReceiver() {
-        while (scope.isActive) {
+    fun angleReceiver() = scope.launch{
+        while (isActive) {
 
             val angles = kinematics.calculateInversedKinematics(targetCoordinates.x ,targetCoordinates.y)
 
