@@ -63,10 +63,14 @@ class Arm : Controller() {
     lateinit var intakeLeft: DcMotor
     lateinit var intakeRight: DcMotor
 
+    private lateinit var clampServo: Servo
+    private lateinit var turningServo: Servo
+
     val homeCoordinate: ArmCordinates= ArmCordinates(x = 0.20, y = 0.06)
     val topCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.4)
     val mediumCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.2)
     val lowCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.007)
+
 
     private var targetCoordinates: ArmCordinates = homeCoordinate
 
@@ -94,6 +98,10 @@ class Arm : Controller() {
         intakeLeft.direction = DcMotorSimple.Direction.REVERSE
         intakeRight.direction = DcMotorSimple.Direction.REVERSE
 
+        clampServo = hardwareMap.get (Servo::class.java, "clampServo")
+        turningServo = hardwareMap.get (Servo::class.java, "turningServo")
+        clampServo.direction = Servo.Direction.REVERSE
+        turningServo.direction = Servo.Direction.REVERSE
     }
 
     fun moveto(coordinates: ArmCordinates) {
@@ -128,7 +136,7 @@ class Arm : Controller() {
     suspend fun angleProducer() {
         while (scope.isActive) {
             val currentAngle = getAngles()
-//            telemetry.addData("current angle", currentAngle)
+            telemetry.addData("current angle", currentAngle)
             lowerAnglePID.inputChannel.send(currentAngle.lowerAngle)
             upperAnglePID.inputChannel.send(currentAngle.upperAngle)
         }
@@ -149,14 +157,14 @@ class Arm : Controller() {
 
             val targetCoord = kinematics.calculateFowardKinematics(currentAngles.lowerAngle * PI / 180, currentAngles.upperAngle * PI / 180)
 
-            telemetry.addData("lowerTarget", targetCoord)
+           telemetry.addData("lowerTarget", targetCoord)
 
             val lowerOutput = lowerAnglePID.outputChannel.receive()
             val upperOutput = upperAnglePID.outputChannel.receive()
 //            telemetry.addData("output:", lowerOutput)
 
-            lowerMotor.power = lowerOutput
-            upperMotor.power = upperOutput
+           // lowerMotor.power = lowerOutput
+            //upperMotor.power = upperOutput
         }
     }
 
@@ -165,10 +173,11 @@ class Arm : Controller() {
         intakeLeft.power = power
         intakeRight.power = power
     }
-
+    fun setClampPower(power: Double){
+        clampServo.position = power
+    }
+    fun setServoHeading(degrees: Double){
+        turningServo.position = degrees/ 180.0
+    }
 }
-// safety zone coord: y = 0.06(lo mas bajo que puede llegar)
-// coord home x = 0.20, y = 0.06
-// Preset top x = -0.26, y = 0.4
-// Preset medium x = 0.26 y =  0.2
-// Preset low x = 0.26, y = -0.007
+
