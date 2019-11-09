@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Controllers
 
+import android.os.SystemClock
 import com.qualcomm.robotcore.hardware.*
 import kotlinx.coroutines.*
 import org.firstinspires.ftc.teamcode.core.Controller
@@ -71,7 +72,9 @@ class Arm : Controller() {
     val mediumCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.2)
     val lowCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.007)
     val exchangeCoordinates: ArmCordinates= ArmCordinates(x = 0.18, y = 0.22)
-    val canClawMoveBack = false
+    var isClawClear = false
+    var isClawTurning = false
+    var clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
 
     private var targetCoordinates: ArmCordinates = homeCoordinate
 
@@ -150,8 +153,22 @@ class Arm : Controller() {
 
             var realTargetCoordinates = targetCoordinates
 
-            if (currentCoord.x > 0 && targetCoordinates.x <0){
+            if ((currentCoord.x > 0 && targetCoordinates.x < 0) && !isClawClear ){
+
                 realTargetCoordinates = exchangeCoordinates
+
+                if(currentCoord.y > exchangeCoordinates.y - 0.01){
+                    if(!isClawTurning){
+                        isClawTurning = true
+                        turningServo.position = 1.0
+                        clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
+                    }
+
+                    if(SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > 1.0){
+                        isClawTurning = false
+                        isClawClear = true
+                    }
+                }
             }
 
 
@@ -172,8 +189,8 @@ class Arm : Controller() {
             val upperOutput = upperAnglePID.outputChannel.receive()
 //            telemetry.addData("output:", lowerOutput)
 
-//            lowerMotor.power = lowerOutput
- //           upperMotor.power = upperOutput
+            lowerMotor.power = lowerOutput
+            upperMotor.power = upperOutput
         }
     }
 

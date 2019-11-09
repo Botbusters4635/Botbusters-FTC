@@ -56,7 +56,6 @@ class TeleOp : EctoOpMode() {
 
 
         arm.setClampPower(gamepad2.right_trigger.toDouble())
-        arm.setServoHeading (180.0)
         SystemClock.sleep(20)
     }
 
