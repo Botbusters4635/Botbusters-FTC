@@ -41,18 +41,22 @@ class TeleOp : EctoOpMode() {
         //chassis.movementTarget = twist
         lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
-        if (gamepad1.a){
+
+
+
+        if (gamepad2.y){
             arm.moveto(arm.topCoordinates)
-        }else if (gamepad1.b){
+        }else if (gamepad2.a){
             arm.moveto(arm.lowCoordinates)
-        }else if (gamepad1.x){
+        }else if (gamepad2.b){
             arm.moveto(arm.mediumCoordinates)
-        }else if (gamepad1.y){
-            arm.moveto(arm.topCoordinates)
-        }else{
+        }else if (gamepad2.x){
             arm.moveto(arm.homeCoordinate)
         }
 
+
+        arm.setClampPower(gamepad2.right_trigger.toDouble())
+        arm.setServoHeading(gamepad2.left_trigger.toDouble() * 180)
         SystemClock.sleep(20)
     }
 
