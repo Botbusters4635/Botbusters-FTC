@@ -103,23 +103,12 @@ class Arm : Controller() {
         var targetAngles = kinematics.calculateInversedKinematics(cordinates.x, cordinates.y)
     }
 
-    fun roundToDecimals(number: Double, numDecimalPlaces: Int): Double {
-        val factor = Math.pow(10.0, numDecimalPlaces.toDouble())
-        return Math.round(number * factor) / factor
-    }
-
     fun getAngles(): ArmMotorValues {
         val angles = ArmMotorValues()
 
         angles.lowerAngle = 165.0 - 49.0 * lowerAngle.voltage - 37.1 * Math.pow(lowerAngle.voltage, 2.0) + 26.1 * Math.pow(lowerAngle.voltage, 3.0) - 4.58 * Math.pow(lowerAngle.voltage, 4.0)
         val x = upperAngle.voltage
         angles.upperAngle = -1.66243031965927 * x.pow(3) - 9.090297864880776 * x.pow(2) + 130.359681271249 * x - 137.040643577643
-
-
-//        angles.upperAngle = 547.0 - 40.0 * angles.upperAngle + 0.895 * Math.pow(angles.upperAngle, 2.0) - 8.38 * Math.pow(10.0, -3.0) * Math.pow(angles.upperAngle, 3.0) + 2.92 * Math.pow(10.0, -5.0) * Math.pow(angles.upperAngle, 4.0)
-//        547+-40x+0.895x^{2}-8.38\cdot10^{-3}x^{3}+2.92\cdot10^{-5}x^{4}
-//        telemetry.addData("lowerVoltage", lowerAngle.voltage)
-//        telemetry.addData("upperVoltage", upperAngle.voltage)
 
         return angles
     }
@@ -176,11 +165,6 @@ class Arm : Controller() {
     fun intake(power: Double) {
         intakeLeft.power = power
         intakeRight.power = power
-    }
-
-    fun writeMotors() {
-        lowerMotor.power = 0.0
-        upperMotor.power = 0.2
     }
 
 }
