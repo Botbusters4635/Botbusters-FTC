@@ -57,9 +57,7 @@ class Arm : Controller() {
     lateinit var lowerMotor: DcMotor
     lateinit var upperMotor: DcMotor
 
-    lateinit var pot1: AnalogInput
     lateinit var lowerAngle: AnalogInput
-    lateinit var pot3: AnalogInput
     lateinit var upperAngle: AnalogInput
 
     lateinit var intakeLeft: DcMotor
@@ -86,9 +84,7 @@ class Arm : Controller() {
         intakeLeft = hardwareMap.get(DcMotor::class.java, "intakeLeft")
         intakeRight = hardwareMap.get(DcMotor::class.java, "intakeRight")
 
-        pot1 = hardwareMap.get(AnalogInput::class.java, "analog1")
         lowerAngle = hardwareMap.get(AnalogInput::class.java, "lowerAngle")
-        pot3 = hardwareMap.get(AnalogInput::class.java, "analog3")
         upperAngle = hardwareMap.get(AnalogInput::class.java, "upperAngle")
 
 
