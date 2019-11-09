@@ -5,7 +5,7 @@ import kotlinx.coroutines.channels.*
 
 data class PIDSettings(val kP: Double = 0.0, val kI: Double = 0.0, val kD: Double = 0.0, val timestep: Double = 10.0, val continous: Boolean = true, val lowerBound: Double = 0.0, val upperBound: Double = 0.0)
 
-class PID(var pidSettings: PIDSettings = PIDSettings()){
+class PID(var pidSettings: PIDSettings = PIDSettings(), var parentScope: CoroutineScope){
     var target: Double = 0.0
     val inputChannel = Channel<Double>(Channel.CONFLATED)
     val outputChannel = Channel<Double>(Channel.CONFLATED)
@@ -17,8 +17,7 @@ class PID(var pidSettings: PIDSettings = PIDSettings()){
     var iComponent = 0.0
     var dComponent = 0.0
 
-    @ExperimentalCoroutinesApi
-    fun start() = runBlocking {
+    fun start() = parentScope.launch {
         var lastError = 0.0
 
         while (isActive) {
