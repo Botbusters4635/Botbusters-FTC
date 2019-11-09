@@ -19,7 +19,7 @@ class TeleOp : EctoOpMode() {
     var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
     init {
-        addController(chassis)
+        //addController(chassis)
         addController(arm)
     }
 
@@ -38,12 +38,20 @@ class TeleOp : EctoOpMode() {
         }
 
         val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = targetHeading)
-        chassis.movementTarget = twist
+        //chassis.movementTarget = twist
         lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
-        val angles = arm.getAngles()
-
-//        telemetry.addData("angles", angles)
+        if (gamepad1.a){
+            arm.moveto(arm.topCoordinates)
+        }else if (gamepad1.b){
+            arm.moveto(arm.lowCoordinates)
+        }else if (gamepad1.x){
+            arm.moveto(arm.mediumCoordinates)
+        }else if (gamepad1.y){
+            arm.moveto(arm.topCoordinates)
+        }else{
+            arm.moveto(arm.homeCoordinate)
+        }
 
         SystemClock.sleep(20)
     }

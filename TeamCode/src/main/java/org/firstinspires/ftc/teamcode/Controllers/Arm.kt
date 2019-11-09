@@ -63,13 +63,14 @@ class Arm : Controller() {
     lateinit var intakeLeft: DcMotor
     lateinit var intakeRight: DcMotor
 
-    var upperAngleTarget: Double = 119.0
-    var lowerAngleTarget: Double = 119.0
+    val homeCoordinate: ArmCordinates= ArmCordinates(x = 0.20, y = 0.06)
+    val topCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.4)
+    val mediumCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.2)
+    val lowCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.007)
 
-//    var targetX: Double = -0.2
-//    var targetY: Double = 0.0
-    var targetX: Double = -100.0
-    var targetY: Double = 100.0
+    private var targetCoordinates: ArmCordinates = homeCoordinate
+
+
 
     val kinematics = ArmKinematics(armLenght1 = .26, armLength2 = .26)
 
@@ -95,8 +96,10 @@ class Arm : Controller() {
 
     }
 
-    fun moveto(cordinates: ArmCordinates) {
-        var targetAngles = kinematics.calculateInversedKinematics(cordinates.x, cordinates.y)
+    fun moveto(coordinates: ArmCordinates) {
+        val x = coordinates.x
+        val y = coordinates.y.coerceAtLeast(0.06)
+        targetCoordinates = ArmCordinates(x, y)
     }
 
     fun getAngles(): ArmMotorValues {
@@ -134,7 +137,7 @@ class Arm : Controller() {
     suspend fun angleReceiver() {
         while (scope.isActive) {
 
-            val angles = kinematics.calculateInversedKinematics(targetX, targetY)
+            val angles = kinematics.calculateInversedKinematics(targetCoordinates.x ,targetCoordinates.y)
 
             val lowerTarget = (angles.lowerAngle * 180 / PI).coerceIn(55.0, 132.0)
             val upperTarget = (angles.upperAngle * 180 / PI).coerceIn(-135.0, 134.0)
@@ -152,8 +155,8 @@ class Arm : Controller() {
             val upperOutput = upperAnglePID.outputChannel.receive()
 //            telemetry.addData("output:", lowerOutput)
 
-//            lowerMotor.power = lowerOutput
-//            upperMotor.power = upperOutput
+            lowerMotor.power = lowerOutput
+            upperMotor.power = upperOutput
         }
     }
 
@@ -164,3 +167,8 @@ class Arm : Controller() {
     }
 
 }
+// safety zone coord: y = 0.06(lo mas bajo que puede llegar)
+// coord home x = 0.20, y = 0.06
+// Preset top x = -0.26, y = 0.4
+// Preset medium x = 0.26 y =  0.2
+// Preset low x = 0.26, y = -0.007
