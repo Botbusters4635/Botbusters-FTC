@@ -1,15 +1,10 @@
 package org.firstinspires.ftc.teamcode.Controllers
 
 import com.qualcomm.robotcore.hardware.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.firstinspires.ftc.teamcode.core.Controller
 import org.firstinspires.ftc.teamcode.core.PID
 import org.firstinspires.ftc.teamcode.core.PIDSettings
-import java.math.RoundingMode
-import java.text.DecimalFormat
 import kotlin.math.*
 
 data class ArmMotorValues(var lowerAngle: Double = 0.00, var upperAngle: Double = 0.00)
@@ -32,10 +27,10 @@ class ArmKinematics(val armLenght1: Double, val armLength2: Double) {
 
         if (x > 0) {
             values.upperAngle = -acos(cosAngle)
-            values.lowerAngle = atan(y / x) + atan((armLength2 * sin(abs(values.upperAngle))) / (armLenght1 + armLength2 * cos(abs(values.upperAngle))))
+            values.lowerAngle = atan2(y, x) + atan2((armLength2 * sin(abs(values.upperAngle))) , (armLenght1 + armLength2 * cos(abs(values.upperAngle))))
         } else {
             values.upperAngle = acos(cosAngle)
-            values.lowerAngle = atan(y / x) - atan((armLength2 * sin(abs(values.upperAngle))) / (armLenght1 + armLength2 * cos(abs(values.upperAngle))))
+            values.lowerAngle = atan2(y, x) - atan2((armLength2 * sin(abs(values.upperAngle))) , (armLenght1 + armLength2 * cos(abs(values.upperAngle))))
         }
         return values
 
@@ -54,13 +49,13 @@ class ArmKinematics(val armLenght1: Double, val armLength2: Double) {
 
 
 class Arm : Controller() {
-    val lowerAnglePID = PID(PIDSettings(kP = 0.0, kI = 0.0, kD = 0.0))
-    val upperAnglePID = PID(PIDSettings(kP = 0.0, kI = 0.0, kD = 0.0))
-    private val scope = CoroutineScope(Job())
+    val lowerAnglePID = PID(PIDSettings(kP = 0.0425, kI = 0.0, kD = 0.0))
+    val upperAnglePID = PID(PIDSettings(kP = 0.0175, kI = 0.0, kD = 0.0001))
+    private var scope = CoroutineScope(Job())
 
 
-    lateinit var armMotor1: DcMotor
-    lateinit var armMotor2: DcMotor
+    lateinit var lowerMotor: DcMotor
+    lateinit var upperMotor: DcMotor
 
     lateinit var pot1: AnalogInput
     lateinit var lowerAngle: AnalogInput
@@ -70,13 +65,24 @@ class Arm : Controller() {
     lateinit var intakeLeft: DcMotor
     lateinit var intakeRight: DcMotor
 
+    var upperAngleTarget: Double = 119.0
+    var lowerAngleTarget: Double = 119.0
+
+//    var targetX: Double = -0.2
+//    var targetY: Double = 0.0
+    var targetX: Double = -100.0
+    var targetY: Double = 100.0
+
     val kinematics = ArmKinematics(armLenght1 = .26, armLength2 = .26)
 
     private var maxClampAngle = 0.0
 
     override fun init(hardwareMap: HardwareMap) {
-        armMotor1 = hardwareMap.get(DcMotor::class.java, "armMotor1")
-        armMotor2 = hardwareMap.get(DcMotor::class.java, "armMotor2")
+        lowerMotor = hardwareMap.get(DcMotor::class.java, "lowerMotor")
+        upperMotor = hardwareMap.get(DcMotor::class.java, "upperMotor")
+
+        upperMotor.direction = DcMotorSimple.Direction.REVERSE
+
         intakeLeft = hardwareMap.get(DcMotor::class.java, "intakeLeft")
         intakeRight = hardwareMap.get(DcMotor::class.java, "intakeRight")
 
@@ -86,7 +92,7 @@ class Arm : Controller() {
         upperAngle = hardwareMap.get(AnalogInput::class.java, "upperAngle")
 
 
-        armMotor1.direction = DcMotorSimple.Direction.REVERSE
+        lowerMotor.direction = DcMotorSimple.Direction.REVERSE
 
         intakeLeft.direction = DcMotorSimple.Direction.REVERSE
         intakeRight.direction = DcMotorSimple.Direction.REVERSE
@@ -106,27 +112,63 @@ class Arm : Controller() {
         val angles = ArmMotorValues()
 
         angles.lowerAngle = 165.0 - 49.0 * lowerAngle.voltage - 37.1 * Math.pow(lowerAngle.voltage, 2.0) + 26.1 * Math.pow(lowerAngle.voltage, 3.0) - 4.58 * Math.pow(lowerAngle.voltage, 4.0)
-        angles.upperAngle = (upperAngle.voltage - 1.65) / 3.3 * 180
+        val x = upperAngle.voltage
+        angles.upperAngle = -1.66243031965927 * x.pow(3) - 9.090297864880776 * x.pow(2) + 130.359681271249 * x - 137.040643577643
 
 
-        angles.upperAngle = 547.0 - 40.0 * angles.upperAngle + 0.895 * Math.pow(angles.upperAngle, 2.0) - 8.38 * Math.pow(10.0, -3.0) * Math.pow(angles.upperAngle, 3.0) + 2.92 * Math.pow(10.0, -5.0) * Math.pow(angles.upperAngle, 4.0)
+//        angles.upperAngle = 547.0 - 40.0 * angles.upperAngle + 0.895 * Math.pow(angles.upperAngle, 2.0) - 8.38 * Math.pow(10.0, -3.0) * Math.pow(angles.upperAngle, 3.0) + 2.92 * Math.pow(10.0, -5.0) * Math.pow(angles.upperAngle, 4.0)
 //        547+-40x+0.895x^{2}-8.38\cdot10^{-3}x^{3}+2.92\cdot10^{-5}x^{4}
-        telemetry.addData("lowerVoltage", lowerAngle.voltage)
-        telemetry.addData("upperVoltage", upperAngle.voltage)
+//        telemetry.addData("lowerVoltage", lowerAngle.voltage)
+//        telemetry.addData("upperVoltage", upperAngle.voltage)
 
         return angles
     }
 
+    @ExperimentalCoroutinesApi
     override fun start() {
         scope.launch { lowerAnglePID.start() }
         scope.launch { upperAnglePID.start() }
-        scope.launch { angleProducer()}
+        scope.launch { angleProducer() }
+        scope.launch { angleReceiver() }
     }
+
+    override fun stop() {
+        scope.cancel()
+        scope = CoroutineScope(Job())
+    }
+
     suspend fun angleProducer() {
-        while (scope.isActive){
+        while (scope.isActive) {
             val currentAngle = getAngles()
+//            telemetry.addData("current angle", currentAngle)
             lowerAnglePID.inputChannel.send(currentAngle.lowerAngle)
             upperAnglePID.inputChannel.send(currentAngle.upperAngle)
+        }
+    }
+
+    suspend fun angleReceiver() {
+        while (scope.isActive) {
+
+            val angles = kinematics.calculateInversedKinematics(targetX, targetY)
+
+            val lowerTarget = (angles.lowerAngle * 180 / PI).coerceIn(55.0, 132.0)
+            val upperTarget = (angles.upperAngle * 180 / PI).coerceIn(-135.0, 134.0)
+
+            lowerAnglePID.target = lowerTarget
+            upperAnglePID.target = upperTarget
+
+            val currentAngles = getAngles()
+
+            val targetCoord = kinematics.calculateFowardKinematics(currentAngles.lowerAngle * PI / 180, currentAngles.upperAngle * PI / 180)
+
+            telemetry.addData("lowerTarget", targetCoord)
+
+            val lowerOutput = lowerAnglePID.outputChannel.receive()
+            val upperOutput = upperAnglePID.outputChannel.receive()
+//            telemetry.addData("output:", lowerOutput)
+
+//            lowerMotor.power = lowerOutput
+//            upperMotor.power = upperOutput
         }
     }
 
@@ -137,8 +179,8 @@ class Arm : Controller() {
     }
 
     fun writeMotors() {
-        armMotor1.power = 0.0
-        armMotor2.power = 0.2
+        lowerMotor.power = 0.0
+        upperMotor.power = 0.2
     }
 
 }

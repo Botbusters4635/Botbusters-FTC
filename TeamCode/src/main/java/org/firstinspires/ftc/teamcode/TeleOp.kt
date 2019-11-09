@@ -43,7 +43,7 @@ class TeleOp : EctoOpMode() {
 
         val angles = arm.getAngles()
 
-        telemetry.addData("angles", angles)
+//        telemetry.addData("angles", angles)
 
         SystemClock.sleep(20)
     }
