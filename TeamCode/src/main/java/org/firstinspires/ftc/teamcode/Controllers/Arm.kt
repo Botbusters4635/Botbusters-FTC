@@ -27,10 +27,10 @@ class ArmKinematics(val armLenght1: Double, val armLength2: Double) {
 
         if (x > 0) {
             values.upperAngle = -acos(cosAngle)
-            values.lowerAngle = atan2(y, x) + atan2((armLength2 * sin(abs(values.upperAngle))) , (armLenght1 + armLength2 * cos(abs(values.upperAngle))))
+            values.lowerAngle = atan2(y, x) + atan2((armLength2 * sin(abs(values.upperAngle))), (armLenght1 + armLength2 * cos(abs(values.upperAngle))))
         } else {
             values.upperAngle = acos(cosAngle)
-            values.lowerAngle = atan2(y, x) - atan2((armLength2 * sin(abs(values.upperAngle))) , (armLenght1 + armLength2 * cos(abs(values.upperAngle))))
+            values.lowerAngle = atan2(y, x) - atan2((armLength2 * sin(abs(values.upperAngle))), (armLenght1 + armLength2 * cos(abs(values.upperAngle))))
         }
         return values
 
@@ -49,10 +49,10 @@ class ArmKinematics(val armLenght1: Double, val armLength2: Double) {
 
 
 class Arm : Controller() {
-    val lowerAnglePID = PID(PIDSettings(kP = 0.0425, kI = 0.0, kD = 0.0))
-    val upperAnglePID = PID(PIDSettings(kP = 0.0175, kI = 0.0, kD = 0.0001))
     private var scope = CoroutineScope(Job())
 
+    val lowerAnglePID = PID(PIDSettings(kP = 0.0425, kI = 0.0, kD = 0.0), scope)
+    val upperAnglePID = PID(PIDSettings(kP = 0.0175, kI = 0.0, kD = 0.0001), scope)
 
     lateinit var lowerMotor: DcMotor
     lateinit var upperMotor: DcMotor
@@ -63,13 +63,12 @@ class Arm : Controller() {
     lateinit var intakeLeft: DcMotor
     lateinit var intakeRight: DcMotor
 
-    val homeCoordinate: ArmCordinates= ArmCordinates(x = 0.20, y = 0.06)
-    val topCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.4)
-    val mediumCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.2)
-    val lowCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.007)
+    val homeCoordinate: ArmCordinates = ArmCordinates(x = 0.20, y = 0.06)
+    val topCoordinates: ArmCordinates = ArmCordinates(x = -0.26, y = 0.4)
+    val mediumCoordinates: ArmCordinates = ArmCordinates(x = -0.26, y = 0.2)
+    val lowCoordinates: ArmCordinates = ArmCordinates(x = -0.26, y = 0.007)
 
     private var targetCoordinates: ArmCordinates = homeCoordinate
-
 
 
     val kinematics = ArmKinematics(armLenght1 = .26, armLength2 = .26)
@@ -114,8 +113,8 @@ class Arm : Controller() {
 
     @ExperimentalCoroutinesApi
     override fun start() {
-        scope.launch { lowerAnglePID.start() }
-        scope.launch { upperAnglePID.start() }
+        lowerAnglePID.start()
+        upperAnglePID.start()
         angleProducer()
         angleReceiver()
     }
@@ -124,7 +123,7 @@ class Arm : Controller() {
         scope.coroutineContext.cancelChildren()
     }
 
-    fun angleProducer()  = scope.launch{
+    fun angleProducer() = scope.launch {
         while (isActive) {
             val currentAngle = getAngles()
 //            telemetry.addData("current angle", currentAngle)
@@ -133,10 +132,10 @@ class Arm : Controller() {
         }
     }
 
-    fun angleReceiver() = scope.launch{
+    fun angleReceiver() = scope.launch {
         while (isActive) {
 
-            val angles = kinematics.calculateInversedKinematics(targetCoordinates.x ,targetCoordinates.y)
+            val angles = kinematics.calculateInversedKinematics(targetCoordinates.x, targetCoordinates.y)
 
             val lowerTarget = (angles.lowerAngle * 180 / PI).coerceIn(55.0, 132.0)
             val upperTarget = (angles.upperAngle * 180 / PI).coerceIn(-135.0, 134.0)

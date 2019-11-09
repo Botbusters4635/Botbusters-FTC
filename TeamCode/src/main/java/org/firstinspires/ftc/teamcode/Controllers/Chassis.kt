@@ -61,14 +61,16 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 
 class Chassis : Controller() {
     private val scope = CoroutineScope(Job())
+
+    private val pidSettingsNormal = PIDSettings(kP = 0.032, kI = 0.0, kD = 0.0018, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsVy = PIDSettings(kP = 0.08, kI = 0.0, kD = 0.0, continous = true, lowerBound = -180.0, upperBound = 180.0)
+
+    private val angularPID = PID(pidSettingsNormal, scope)
+
     private lateinit var topLeftMotor: DcMotorEx
     private lateinit var topRightMotor: DcMotorEx
     private lateinit var downRightMotor: DcMotorEx
     private lateinit var downLeftMotor: DcMotorEx
-
-    private lateinit var angularPID: PID
-    private lateinit var pidSettingsNormal : PIDSettings
-    private lateinit var pidSettingsVy : PIDSettings
 
     private lateinit var imu: BNO055IMU
 
@@ -108,40 +110,34 @@ class Chassis : Controller() {
 
         // Initialize the angularPID
 
-        pidSettingsNormal = PIDSettings(kP = 0.032, kI = 0.0, kD = 0.0018, continous = true, lowerBound = -180.0, upperBound = 180.0)
-        pidSettingsVy = PIDSettings(kP = 0.08, kI = 0.0, kD = 0.0, continous = true, lowerBound = -180.0, upperBound = 180.0)
-
-        angularPID = PID(pidSettingsNormal)
-
     }
 
     @ExperimentalCoroutinesApi
     override fun start() {
-        scope.launch { headingProducer(angularPID.inputChannel) }
-        scope.launch { angularPID.start() }
-        scope.launch { motorVelocityReceiver(angularPID.outputChannel) }
+        headingProducer()
+        angularPID.start()
+        motorVelocityReceiver()
     }
 
     override fun stop() {
         scope.cancel()
     }
 
-    @ExperimentalCoroutinesApi
-    suspend fun headingProducer(sendChannel: SendChannel<Double>) {
-        while (scope.isActive) {
-            sendChannel.send(getHeading())
+    fun headingProducer() = scope.launch {
+        while (isActive) {
+            angularPID.inputChannel.send(getHeading())
         }
     }
 
 
-    suspend fun motorVelocityReceiver(angularVelocityChannel: ReceiveChannel<Double>) {
-        while (scope.isActive) {
+    fun motorVelocityReceiver() = scope.launch {
+        while (isActive) {
             if(Math.abs(movementTarget.vy) > Math.abs(movementTarget.vx)){
                 angularPID.pidSettings = pidSettingsVy
             }else{
                 angularPID.pidSettings = pidSettingsNormal
             }
-            val motorValues = kinematics.calcInverseKinematics(movementTarget.vx, movementTarget.vy, angularVelocityChannel.receive())
+            val motorValues = kinematics.calcInverseKinematics(movementTarget.vx, movementTarget.vy, angularPID.outputChannel.receive())
             writeMotors(motorValues)
         }
 
@@ -151,13 +147,8 @@ class Chassis : Controller() {
     fun getHeading(): Double {
         return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle.toDouble()
     }
-//
-//    fun moveWithoutPID(vx: Double, vy: Double, w: Double) {
-//        val values = kinematics.calcInverseKinematics(vx, vy, w)
-//        writeMotors(values)
-//    }
 
-    suspend fun writeMotors(values: MecanumMotorValues) {
+    fun writeMotors(values: MecanumMotorValues) {
         topLeftMotor.power = values.topLeftSpeed
         topRightMotor.power = values.topRightSpeed
         downLeftMotor.power = values.downLeftSpeed
