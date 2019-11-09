@@ -1,13 +1,20 @@
 package org.firstinspires.ftc.teamcode.Controllers
 
 import com.qualcomm.robotcore.hardware.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import org.firstinspires.ftc.teamcode.core.Controller
+import org.firstinspires.ftc.teamcode.core.PID
+import org.firstinspires.ftc.teamcode.core.PIDSettings
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import kotlin.math.*
 
 data class ArmMotorValues(var lowerAngle: Double = 0.00, var upperAngle: Double = 0.00)
 data class ArmCordinates(var x: Double = 0.00, var y: Double = 0.00)
+
 
 class ArmKinematics(val armLenght1: Double, val armLength2: Double) {
 
@@ -47,6 +54,10 @@ class ArmKinematics(val armLenght1: Double, val armLength2: Double) {
 
 
 class Arm : Controller() {
+    val lowerAnglePID = PID(PIDSettings(kP = 0.0, kI = 0.0, kD = 0.0))
+    val upperAnglePID = PID(PIDSettings(kP = 0.0, kI = 0.0, kD = 0.0))
+    private val scope = CoroutineScope(Job())
+
 
     lateinit var armMotor1: DcMotor
     lateinit var armMotor2: DcMotor
@@ -93,19 +104,9 @@ class Arm : Controller() {
 
     fun getAngles(): ArmMotorValues {
         val angles = ArmMotorValues()
-//        val df = DecimalFormat("#,##")
-//        df.roundingMode = RoundingMode.FLOOR
 
-
-        // Change to radians/sec instead of ticks
-//        angles.lowerAngle = (2.942 - lowerAngle.voltage) / 2.314 * 90.0
-//        angles.lowerAngle = -45.8248 * lowerAngle.voltage + 154.2311 - 10.0
-        angles.lowerAngle = 165.0 - 49.0 * lowerAngle.voltage - 37.1 * Math.pow(lowerAngle.voltage, 2.0) + 26.1* Math.pow(lowerAngle.voltage, 3.0) - 4.58* Math.pow(lowerAngle.voltage, 4.0)
-//        angles.lowerAngle = lowerAngle.voltage
-
-        angles.upperAngle  = 214.0 - 1087.0 * upperAngle.voltage + 1057.0 * Math.pow(upperAngle.voltage, 2.0) - 357.0 * Math.pow(upperAngle.voltage, 3.0) + 42.1 * Math.pow(upperAngle.voltage, 4.0)
-        angles.upperAngle = angles.upperAngle - 90.0
-
+        angles.lowerAngle = 165.0 - 49.0 * lowerAngle.voltage - 37.1 * Math.pow(lowerAngle.voltage, 2.0) + 26.1 * Math.pow(lowerAngle.voltage, 3.0) - 4.58 * Math.pow(lowerAngle.voltage, 4.0)
+        angles.upperAngle = (upperAngle.voltage - 1.65) / 3.3 * 180
 
 
         angles.upperAngle = 547.0 - 40.0 * angles.upperAngle + 0.895 * Math.pow(angles.upperAngle, 2.0) - 8.38 * Math.pow(10.0, -3.0) * Math.pow(angles.upperAngle, 3.0) + 2.92 * Math.pow(10.0, -5.0) * Math.pow(angles.upperAngle, 4.0)
@@ -114,6 +115,19 @@ class Arm : Controller() {
         telemetry.addData("upperVoltage", upperAngle.voltage)
 
         return angles
+    }
+
+    override fun start() {
+        scope.launch { lowerAnglePID.start() }
+        scope.launch { upperAnglePID.start() }
+        scope.launch { angleProducer()}
+    }
+    suspend fun angleProducer() {
+        while (scope.isActive){
+            val currentAngle = getAngles()
+            lowerAnglePID.inputChannel.send(currentAngle.lowerAngle)
+            upperAnglePID.inputChannel.send(currentAngle.upperAngle)
+        }
     }
 
 
