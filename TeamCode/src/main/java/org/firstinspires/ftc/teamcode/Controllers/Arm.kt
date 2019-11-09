@@ -70,7 +70,8 @@ class Arm : Controller() {
     val topCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.4)
     val mediumCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.2)
     val lowCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.007)
-
+    val exchangeCoordinates: ArmCordinates= ArmCordinates(x = 0.18, y = 0.22)
+    val canClawMoveBack = false
 
     private var targetCoordinates: ArmCordinates = homeCoordinate
 
@@ -143,27 +144,36 @@ class Arm : Controller() {
 
     fun angleReceiver() = scope.launch{
         while (isActive) {
+            val currentAngles = getAngles()
 
-            val angles = kinematics.calculateInversedKinematics(targetCoordinates.x ,targetCoordinates.y)
+            val currentCoord = kinematics.calculateFowardKinematics(currentAngles.lowerAngle * PI / 180, currentAngles.upperAngle * PI / 180)
+
+            var realTargetCoordinates = targetCoordinates
+
+            if (currentCoord.x > 0 && targetCoordinates.x <0){
+                realTargetCoordinates = exchangeCoordinates
+            }
+
+
+            val angles = kinematics.calculateInversedKinematics(realTargetCoordinates.x ,realTargetCoordinates.y)
 
             val lowerTarget = (angles.lowerAngle * 180 / PI).coerceIn(55.0, 132.0)
             val upperTarget = (angles.upperAngle * 180 / PI).coerceIn(-135.0, 134.0)
 
+
+
+
             lowerAnglePID.target = lowerTarget
             upperAnglePID.target = upperTarget
 
-            val currentAngles = getAngles()
 
-            val targetCoord = kinematics.calculateFowardKinematics(currentAngles.lowerAngle * PI / 180, currentAngles.upperAngle * PI / 180)
-
-           telemetry.addData("lowerTarget", targetCoord)
 
             val lowerOutput = lowerAnglePID.outputChannel.receive()
             val upperOutput = upperAnglePID.outputChannel.receive()
 //            telemetry.addData("output:", lowerOutput)
 
-           // lowerMotor.power = lowerOutput
-            //upperMotor.power = upperOutput
+//            lowerMotor.power = lowerOutput
+ //           upperMotor.power = upperOutput
         }
     }
 
@@ -174,9 +184,14 @@ class Arm : Controller() {
     }
     fun setClampPower(power: Double){
         clampServo.position = power
+
     }
     fun setServoHeading(degrees: Double){
         turningServo.position = degrees/ 180.0
+        //telemetry.addData("PositionOfTurningSevro",turningServo.position * 180 )
     }
+
 }
+// x = 0.18
+// y = 0-22
 
