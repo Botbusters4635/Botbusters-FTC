@@ -9,7 +9,11 @@ import org.firstinspires.ftc.teamcode.core.PIDSettings
 import kotlin.math.*
 
 data class ArmMotorValues(var lowerAngle: Double = 0.00, var upperAngle: Double = 0.00)
-data class ArmCordinates(var x: Double = 0.00, var y: Double = 0.00)
+data class ArmCoordinates(var x: Double = 0.00, var y: Double = 0.00) {
+    fun closeTo(targetCoord: ArmCoordinates, nearness: Double = 10.0): Boolean {
+        return this.x in (targetCoord.x - targetCoord.x * nearness / 100) .. (targetCoord.x + targetCoord.x * nearness / 100) && this.y in (targetCoord.y - targetCoord.y * nearness / 100) .. (targetCoord.y + targetCoord.y * nearness/ 100)
+    }
+}
 
 
 class ArmKinematics(val armLenght1: Double, val armLength2: Double) {
@@ -37,8 +41,8 @@ class ArmKinematics(val armLenght1: Double, val armLength2: Double) {
 
     }
 
-    fun calculateFowardKinematics(angle1: Double, angle2: Double): ArmCordinates {
-        val values2 = ArmCordinates()
+    fun calculateFowardKinematics(angle1: Double, angle2: Double): ArmCoordinates {
+        val values2 = ArmCoordinates()
         values2.x = cos(angle1) * armLenght1 + cos(angle1 + angle2) * armLength2
         values2.y = sin(angle1) * armLenght1 + sin(angle1 + angle2) * armLength2
 
@@ -67,16 +71,16 @@ class Arm : Controller() {
     private lateinit var clampServo: Servo
     private lateinit var turningServo: Servo
 
-    val homeCoordinate: ArmCordinates= ArmCordinates(x = 0.20, y = 0.06)
-    val topCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.4)
-    val mediumCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.2)
-    val lowCoordinates: ArmCordinates= ArmCordinates(x = -0.26, y = 0.007)
-    val exchangeCoordinates: ArmCordinates= ArmCordinates(x = 0.18, y = 0.22)
+    val homeCoordinate: ArmCoordinates = ArmCoordinates(x = 0.20, y = 0.06)
+    val topCoordinates: ArmCoordinates = ArmCoordinates(x = -0.26, y = 0.4)
+    val mediumCoordinates: ArmCoordinates = ArmCoordinates(x = -0.26, y = 0.2)
+    val lowCoordinates: ArmCoordinates = ArmCoordinates(x = -0.26, y = 0.007)
+    val exchangeCoordinates: ArmCoordinates = ArmCoordinates(x = 0.18, y = 0.22)
     var isClawClear = false
     var isClawTurning = false
     var clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
 
-    private var targetCoordinates: ArmCordinates = homeCoordinate
+    private var targetCoordinates: ArmCoordinates = homeCoordinate
 
 
     val kinematics = ArmKinematics(armLenght1 = .26, armLength2 = .26)
@@ -101,16 +105,16 @@ class Arm : Controller() {
         intakeLeft.direction = DcMotorSimple.Direction.REVERSE
         intakeRight.direction = DcMotorSimple.Direction.REVERSE
 
-        clampServo = hardwareMap.get (Servo::class.java, "clampServo")
-        turningServo = hardwareMap.get (Servo::class.java, "turningServo")
+        clampServo = hardwareMap.get(Servo::class.java, "clampServo")
+        turningServo = hardwareMap.get(Servo::class.java, "turningServo")
         clampServo.direction = Servo.Direction.REVERSE
         turningServo.direction = Servo.Direction.REVERSE
     }
 
-    fun moveto(coordinates: ArmCordinates) {
+    fun moveto(coordinates: ArmCoordinates) {
         val x = coordinates.x
         val y = coordinates.y.coerceAtLeast(0.06)
-        targetCoordinates = ArmCordinates(x, y)
+        targetCoordinates = ArmCoordinates(x, y)
     }
 
     fun getAngles(): ArmMotorValues {
@@ -152,25 +156,41 @@ class Arm : Controller() {
 
             var realTargetCoordinates = targetCoordinates
 
-            if ((currentCoord.x > 0 && targetCoordinates.x < 0) && !isClawClear ){
+            if ((currentCoord.x > 0 && targetCoordinates.x < 0) && !isClawClear) {
 
                 realTargetCoordinates = exchangeCoordinates
 
-                if(currentCoord.y > exchangeCoordinates.y - 0.01){
-                    if(!isClawTurning){
+                if (currentCoord.closeTo(exchangeCoordinates)) {
+                    if (!isClawTurning) {
                         isClawTurning = true
                         turningServo.position = 1.0
                         clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
                     }
 
-                    if(SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > 1.0){
+                    if (SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > 1.0 && isClawTurning) {
                         isClawTurning = false
                         isClawClear = true
                     }
                 }
+            } else if ((currentCoord.x < 0 && targetCoordinates.x > 0) && isClawClear) {
+
+                realTargetCoordinates = exchangeCoordinates
+
+                if (currentCoord.closeTo(exchangeCoordinates)) {
+                    if (!isClawTurning) {
+                        isClawTurning = true
+                        turningServo.position = 0.0
+                        clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
+                    }
+
+                    if (SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > 1.0 && isClawTurning) {
+                        isClawTurning = false
+                        isClawClear = false
+                    }
+                }
             }
 
-            val angles = kinematics.calculateInversedKinematics(realTargetCoordinates.x ,realTargetCoordinates.y)
+            val angles = kinematics.calculateInversedKinematics(realTargetCoordinates.x, realTargetCoordinates.y)
 
             val lowerTarget = (angles.lowerAngle * 180 / PI).coerceIn(55.0, 132.0)
             val upperTarget = (angles.upperAngle * 180 / PI).coerceIn(-135.0, 134.0)
@@ -180,7 +200,6 @@ class Arm : Controller() {
 
             lowerAnglePID.target = lowerTarget
             upperAnglePID.target = upperTarget
-
 
 
             val lowerOutput = lowerAnglePID.outputChannel.receive()
@@ -197,12 +216,14 @@ class Arm : Controller() {
         intakeLeft.power = power
         intakeRight.power = power
     }
-    fun setClampPower(power: Double){
+
+    fun setClampPower(power: Double) {
         clampServo.position = power
 
     }
-    fun setServoHeading(degrees: Double){
-        turningServo.position = degrees/ 180.0
+
+    fun setServoHeading(degrees: Double) {
+        turningServo.position = degrees / 180.0
         //telemetry.addData("PositionOfTurningSevro",turningServo.position * 180 )
     }
 
