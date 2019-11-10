@@ -82,6 +82,7 @@ class Arm : Controller() {
 
     private var targetCoordinates: ArmCoordinates = homeCoordinate
 
+    var originCoordinates = ArmCoordinates()
 
     val kinematics = ArmKinematics(armLenght1 = .26, armLength2 = .26)
 
@@ -112,6 +113,10 @@ class Arm : Controller() {
     }
 
     fun moveto(coordinates: ArmCoordinates) {
+        if(coordinates != targetCoordinates){
+            val currentAngles = getAngles()
+            originCoordinates = kinematics.calculateFowardKinematics(currentAngles.lowerAngle, currentAngles.upperAngle)
+        }
         val x = coordinates.x
         val y = coordinates.y.coerceAtLeast(0.06)
         targetCoordinates = ArmCoordinates(x, y)
@@ -156,7 +161,7 @@ class Arm : Controller() {
 
             var realTargetCoordinates = targetCoordinates
 
-            if ((currentCoord.x > 0 && targetCoordinates.x < 0) && !isClawClear) {
+            if ((originCoordinates.x > 0 && targetCoordinates.x < 0) && !isClawClear) {
 
                 realTargetCoordinates = exchangeCoordinates
 
@@ -172,7 +177,7 @@ class Arm : Controller() {
                         isClawClear = true
                     }
                 }
-            } else if ((currentCoord.x < 0 && targetCoordinates.x > 0) && isClawClear) {
+            } else if ((originCoordinates.x < 0 && targetCoordinates.x > 0) && isClawClear) {
 
                 realTargetCoordinates = exchangeCoordinates
 
