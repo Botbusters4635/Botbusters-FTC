@@ -52,6 +52,10 @@ class ArmKinematics(val armLenght1: Double, val armLength2: Double) {
 
 }
 
+enum class armState {
+    TARGET , EXCHANGE
+
+}
 
 class Arm : Controller() {
     private var scope = CoroutineScope(Job())
