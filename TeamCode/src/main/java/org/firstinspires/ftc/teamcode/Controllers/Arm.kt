@@ -11,7 +11,7 @@ import kotlin.math.*
 data class ArmMotorValues(var lowerAngle: Double = 0.00, var upperAngle: Double = 0.00)
 data class ArmCoordinates(var x: Double = 0.00, var y: Double = 0.00) {
     fun closeTo(targetCoord: ArmCoordinates, nearness: Double = 10.0): Boolean {
-        return this.x in (targetCoord.x - targetCoord.x * nearness / 100) .. (targetCoord.x + targetCoord.x * nearness / 100) && this.y in (targetCoord.y - targetCoord.y * nearness / 100) .. (targetCoord.y + targetCoord.y * nearness/ 100)
+        return this.x in (targetCoord.x - targetCoord.x * nearness / 100)..(targetCoord.x + targetCoord.x * nearness / 100) && this.y in (targetCoord.y - targetCoord.y * nearness / 100)..(targetCoord.y + targetCoord.y * nearness / 100)
     }
 }
 
@@ -52,8 +52,8 @@ class ArmKinematics(val armLenght1: Double, val armLength2: Double) {
 
 }
 
-enum class armState {
-    TARGET , EXCHANGE
+enum class ArmState {
+    TARGET, EXCHANGE
 
 }
 
@@ -117,7 +117,7 @@ class Arm : Controller() {
     }
 
     fun moveto(coordinates: ArmCoordinates) {
-        if(coordinates != targetCoordinates){
+        if (coordinates != targetCoordinates) {
             val currentAngles = getAngles()
             originCoordinates = kinematics.calculateFowardKinematics(currentAngles.lowerAngle, currentAngles.upperAngle)
         }
@@ -158,65 +158,79 @@ class Arm : Controller() {
     }
 
     fun angleReceiver() = scope.launch {
+        var currentState = ArmState.TARGET
+        var lowerTarget = 0.0
+        var upperTarget = 0.0
         while (isActive) {
-            val currentAngles = getAngles()
-
-            val currentCoord = kinematics.calculateFowardKinematics(currentAngles.lowerAngle * PI / 180, currentAngles.upperAngle * PI / 180)
-
-            var realTargetCoordinates = targetCoordinates
-
-            if ((originCoordinates.x > 0 && targetCoordinates.x < 0) && !isClawClear) {
-
-                realTargetCoordinates = exchangeCoordinates
-
-                if (currentCoord.closeTo(exchangeCoordinates)) {
-                    if (!isClawTurning) {
-                        isClawTurning = true
-                        turningServo.position = 1.0
-                        clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
-                    }
-
-                    if (SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > 1.0 && isClawTurning) {
-                        isClawTurning = false
-                        isClawClear = true
+            when (currentState) {
+                ArmState.TARGET -> {
+                    val targetAngles = kinematics.calculateInversedKinematics(targetCoordinates.x, targetCoordinates.y)
+                    if (targetAngles.lowerAngle + targetAngles.upperAngle > 0) {
+                        currentState = ArmState.EXCHANGE
+                    } else {
+                        lowerTarget = (targetAngles.lowerAngle * 180 / PI).coerceIn(55.0, 132.0)
+                        upperTarget = (targetAngles.upperAngle * 180 / PI).coerceIn(-135.0, 134.0)
                     }
                 }
-            } else if ((originCoordinates.x < 0 && targetCoordinates.x > 0) && isClawClear) {
+                ArmState.EXCHANGE -> {
+                    val currentAngles = getAngles()
+                    val targetAngles = kinematics.calculateInversedKinematics(exchangeCoordinates.x, exchangeCoordinates.y)
+                    val currentCoord = kinematics.calculateFowardKinematics(currentAngles.lowerAngle * PI / 180, currentAngles.upperAngle * PI / 180)
 
-                realTargetCoordinates = exchangeCoordinates
+                    if (currentCoord.closeTo(exchangeCoordinates)) {
+                        if (!isClawTurning) {
+                            isClawTurning = true
+                            turningServo.position = 1.0
+                            clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
+                        }
 
-                if (currentCoord.closeTo(exchangeCoordinates)) {
-                    if (!isClawTurning) {
-                        isClawTurning = true
-                        turningServo.position = 0.0
-                        clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
-                    }
-
-                    if (SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > 1.0 && isClawTurning) {
-                        isClawTurning = false
-                        isClawClear = false
+                        if (SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > 1.0 && isClawTurning) {
+                            isClawTurning = false
+                            currentState = ArmState.TARGET
+                        }
                     }
                 }
             }
-
-            val angles = kinematics.calculateInversedKinematics(realTargetCoordinates.x, realTargetCoordinates.y)
-
-            val lowerTarget = (angles.lowerAngle * 180 / PI).coerceIn(55.0, 132.0)
-            val upperTarget = (angles.upperAngle * 180 / PI).coerceIn(-135.0, 134.0)
-
-
-
-
             lowerAnglePID.target = lowerTarget
             upperAnglePID.target = upperTarget
 
-
             val lowerOutput = lowerAnglePID.outputChannel.receive()
             val upperOutput = upperAnglePID.outputChannel.receive()
-//            telemetry.addData("output:", lowerOutput)
+            //telemetry.addData("output:", lowerOutput)
 
             lowerMotor.power = lowerOutput
             upperMotor.power = upperOutput
+//            val currentAngles = getAngles()
+//
+//
+//            var realTargetCoordinates = targetCoordinates
+//
+//            if ((originCoordinates.x > 0 && targetCoordinates.x < 0) && !isClawClear) {
+//
+//                realTargetCoordinates = exchangeCoordinates
+//
+
+//            } else if ((originCoordinates.x < 0 && targetCoordinates.x > 0) && isClawClear) {
+//
+//                realTargetCoordinates = exchangeCoordinates
+//
+//                if (currentCoord.closeTo(exchangeCoordinates)) {
+//                    if (!isClawTurning) {
+//                        isClawTurning = true
+//                        turningServo.position = 0.0
+//                        clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
+//                    }
+//
+//                    if (SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > 1.0 && isClawTurning) {
+//                        isClawTurning = false
+//                        isClawClear = false
+//                    }
+//                }
+//            }
+//
+//            val angles = kinematics.calculateInversedKinematics(realTargetCoordinates.x, realTargetCoordinates.y)
+//
+
         }
     }
 
