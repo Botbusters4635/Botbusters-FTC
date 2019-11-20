@@ -7,20 +7,24 @@ import org.firstinspires.ftc.teamcode.core.EctoOpMode
 
 import org.firstinspires.ftc.teamcode.Controllers.Chassis
 import org.firstinspires.ftc.teamcode.Controllers.Arm
-import kotlin.math.*
+import org.firstinspires.ftc.teamcode.Controllers.ArmPosition
+import org.firstinspires.ftc.teamcode.Controllers.Intake
+import kotlin.math.absoluteValue
 
 @TeleOp(name = "TeleOp")
 class TeleOp : EctoOpMode() {
     val chassis = Chassis()
     val arm = Arm()
+    val intake = Intake()
 
     var targetHeading = 0.0
     val maxTargetHeadingRate = 180
     var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
     init {
-        //addController(chassis)
+        addController(chassis)
         addController(arm)
+        addController(intake)
     }
 
     override fun loop() {
@@ -38,24 +42,24 @@ class TeleOp : EctoOpMode() {
         }
 
         val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = targetHeading)
-        //chassis.movementTarget = twist
+        chassis.movementTarget = twist
         lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
+        val intakePower = gamepad2.left_trigger - gamepad2.right_trigger.toDouble()
+        intake.power = intakePower
 
+        if (gamepad2.y)
+            arm.moveToPosition(ArmPosition.TOP)
+        else if (gamepad2.a)
+            arm.moveToPosition(ArmPosition.LOW)
+        else if (gamepad2.b)
+            arm.moveToPosition(ArmPosition.MEDIUM)
+        else if (gamepad2.x)
+            arm.moveToPosition(ArmPosition.HOME)
+        else if (gamepad2.right_bumper || (arm.targetCoordinates == ArmPosition.HOME.coordinates && intakePower != 0.0))
+            arm.moveToPosition(ArmPosition.EXCHANGE)
 
-
-        if (gamepad2.y){
-            arm.moveto(arm.topCoordinates)
-        }else if (gamepad2.a){
-            arm.moveto(arm.lowCoordinates)
-        }else if (gamepad2.b){
-            arm.moveto(arm.mediumCoordinates)
-        }else if (gamepad2.x){
-            arm.moveto(arm.homeCoordinate)
-        }
-
-
-        arm.setClampPower(gamepad2.right_trigger.toDouble())
+        arm.setClampPower(gamepad2.left_stick_y.absoluteValue.toDouble())
         SystemClock.sleep(20)
     }
 

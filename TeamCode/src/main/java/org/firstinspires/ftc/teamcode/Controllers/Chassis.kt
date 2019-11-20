@@ -1,11 +1,8 @@
 package org.firstinspires.ftc.teamcode.Controllers
 
-import android.os.SystemClock
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.robotcore.hardware.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.SendChannel
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
@@ -13,7 +10,6 @@ import org.firstinspires.ftc.teamcode.core.Twist2D
 import org.firstinspires.ftc.teamcode.core.Controller
 import org.firstinspires.ftc.teamcode.core.PID
 import org.firstinspires.ftc.teamcode.core.PIDSettings
-import kotlin.math.withSign
 
 data class MecanumMotorValues(var topLeftSpeed: Double = 0.0, var topRightSpeed: Double = 0.0, var downLeftSpeed: Double = 0.0, var downRightSpeed: Double = 0.0){
     operator fun plus(other : MecanumMotorValues) : MecanumMotorValues {
@@ -62,8 +58,7 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 class Chassis : Controller() {
     private val scope = CoroutineScope(Job())
 
-    private val pidSettingsNormal = PIDSettings(kP = 0.032, kI = 0.0, kD = 0.0018, continous = true, lowerBound = -180.0, upperBound = 180.0)
-    private val pidSettingsVy = PIDSettings(kP = 0.08, kI = 0.0, kD = 0.0, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.0185, kI = 0.0, kD = 0.0015, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
     private val angularPID = PID(pidSettingsNormal, scope)
 
@@ -129,14 +124,13 @@ class Chassis : Controller() {
         }
     }
 
+//    fun setSpeed(vx: Double, vy: Double, angularv: Double){
+//        writeMotors(kinematics.calcInverseKinematics(vx,vy, angularv))
+//    }
+
 
     fun motorVelocityReceiver() = scope.launch {
         while (isActive) {
-            if(Math.abs(movementTarget.vy) > Math.abs(movementTarget.vx)){
-                angularPID.pidSettings = pidSettingsVy
-            }else{
-                angularPID.pidSettings = pidSettingsNormal
-            }
             val motorValues = kinematics.calcInverseKinematics(movementTarget.vx, movementTarget.vy, angularPID.outputChannel.receive())
             writeMotors(motorValues)
         }
