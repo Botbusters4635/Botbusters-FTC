@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Controllers
 
+import android.os.SystemClock
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.robotcore.hardware.*
 import kotlinx.coroutines.*
@@ -10,9 +11,10 @@ import org.firstinspires.ftc.teamcode.core.Twist2D
 import org.firstinspires.ftc.teamcode.core.Controller
 import org.firstinspires.ftc.teamcode.core.PID
 import org.firstinspires.ftc.teamcode.core.PIDSettings
+import kotlin.math.PI
 
-data class MecanumMotorValues(var topLeftSpeed: Double = 0.0, var topRightSpeed: Double = 0.0, var downLeftSpeed: Double = 0.0, var downRightSpeed: Double = 0.0){
-    operator fun plus(other : MecanumMotorValues) : MecanumMotorValues {
+data class MecanumMotorValues(var topLeftSpeed: Double = 0.0, var topRightSpeed: Double = 0.0, var downLeftSpeed: Double = 0.0, var downRightSpeed: Double = 0.0) {
+    operator fun plus(other: MecanumMotorValues): MecanumMotorValues {
         val result = MecanumMotorValues()
         result.topLeftSpeed = this.topLeftSpeed + other.topLeftSpeed
         result.topRightSpeed = this.topRightSpeed + other.topRightSpeed
@@ -20,7 +22,8 @@ data class MecanumMotorValues(var topLeftSpeed: Double = 0.0, var topRightSpeed:
         result.downRightSpeed = this.downRightSpeed + other.downRightSpeed
         return result
     }
-    operator fun minus(other : MecanumMotorValues) : MecanumMotorValues {
+
+    operator fun minus(other: MecanumMotorValues): MecanumMotorValues {
         val result = MecanumMotorValues()
         result.topLeftSpeed = this.topLeftSpeed - other.topLeftSpeed
         result.topRightSpeed = this.topRightSpeed - other.topRightSpeed
@@ -54,11 +57,15 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
     }
 }
 
+enum class ChassisMode {
+    PID, OPEN
+}
+
 
 class Chassis : Controller() {
     private val scope = CoroutineScope(Job())
 
-    private val pidSettingsNormal = PIDSettings(kP = 0.0185, kI = 0.0, kD = 0.0015, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.04, kI = 0.0, kD = 0.00, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
     private val angularPID = PID(pidSettingsNormal, scope)
 
@@ -69,12 +76,28 @@ class Chassis : Controller() {
 
     private lateinit var imu: BNO055IMU
 
+    private var currentMode: ChassisMode = ChassisMode.OPEN
+
     private var kinematics = MecanumKinematics(0.5, 0.5, 1.0)
+
+    var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
     var movementTarget = Twist2D()
         set(value) {
+            val timeStep = (SystemClock.elapsedRealtime() / 1000.0) - lastTimeRun
             field = value
-            angularPID.target = field.w
+
+            var target = angularPID.target + field.w * timeStep
+
+            if (target > 180) {
+                target -= 360
+            }
+            if (target < -180) {
+                target += 360
+            }
+
+            angularPID.target = target
+            lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
         }
 
 
@@ -111,7 +134,7 @@ class Chassis : Controller() {
     override fun start() {
         headingProducer()
         angularPID.start()
-        motorVelocityReceiver()
+        headingReceiver()
     }
 
     override fun stop() {
@@ -124,17 +147,36 @@ class Chassis : Controller() {
         }
     }
 
-//    fun setSpeed(vx: Double, vy: Double, angularv: Double){
-//        writeMotors(kinematics.calcInverseKinematics(vx,vy, angularv))
-//    }
-
-
-    fun motorVelocityReceiver() = scope.launch {
+    fun headingReceiver() = scope.launch {
         while (isActive) {
-            val motorValues = kinematics.calcInverseKinematics(movementTarget.vx, movementTarget.vy, angularPID.outputChannel.receive())
-            writeMotors(motorValues)
-        }
+            var motorValues: MecanumMotorValues
+            telemetry.addData("currentMode", currentMode)
+            when (currentMode) {
+                ChassisMode.OPEN -> {
+                    if (movementTarget.vy != 0.0) {
+                        currentMode = ChassisMode.PID
+                        angularPID.target = getHeading()
+                        motorValues = MecanumMotorValues(0.0, 0.0, 0.0)
+                        writeMotors(motorValues)
+                        delay(10)
+                    } else {
+                        motorValues = kinematics.calcInverseKinematics(movementTarget.vx, 0.0, movementTarget.w)
+                        writeMotors(motorValues)
 
+                    }
+
+                }
+                ChassisMode.PID -> {
+                    if(movementTarget.vy == 0.0){
+                        currentMode = ChassisMode.OPEN
+                    } else {
+                        motorValues = kinematics.calcInverseKinematics(0.0, movementTarget.vy, angularPID.outputChannel.receive())
+                        writeMotors(motorValues)
+                    }
+                }
+            }
+
+        }
     }
 
 

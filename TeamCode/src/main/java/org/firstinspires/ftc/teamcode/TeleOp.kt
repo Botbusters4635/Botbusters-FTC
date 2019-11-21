@@ -18,8 +18,8 @@ class TeleOp : EctoOpMode() {
     val intake = Intake()
 
     var targetHeading = 0.0
-    val maxTargetHeadingRate = 180
-    var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
+    val maxTargetHeadingRate = 90
+
 
     init {
         addController(chassis)
@@ -28,22 +28,15 @@ class TeleOp : EctoOpMode() {
     }
 
     override fun loop() {
-        val timeStep = (SystemClock.elapsedRealtime() / 1000.0) - lastTimeRun
 
-        val targetHeadingDelta = -gamepad1.right_stick_x * maxTargetHeadingRate
 
-        targetHeading += targetHeadingDelta * timeStep
+        val targetVelocity = -gamepad1.right_stick_x * maxTargetHeadingRate.toDouble()
 
-        if (targetHeading > 180) {
-            targetHeading -= 360
-        }
-        if (targetHeading < -180) {
-            targetHeading += 360
-        }
 
-        val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = targetHeading)
+
+        val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = targetVelocity)
         chassis.movementTarget = twist
-        lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
+
 
         val intakePower = gamepad2.left_trigger - gamepad2.right_trigger.toDouble()
         intake.power = intakePower
