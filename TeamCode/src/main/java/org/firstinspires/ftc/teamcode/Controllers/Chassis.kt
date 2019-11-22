@@ -154,7 +154,7 @@ class Chassis : Controller() {
             when (currentMode) {
                 ChassisMode.OPEN -> {
                     if (movementTarget.vy != 0.0) {
-                        currentMode = ChassisMode.PID
+                         currentMode = ChassisMode.PID
                         angularPID.target = getHeading()
                         motorValues = MecanumMotorValues(0.0, 0.0, 0.0)
                         writeMotors(motorValues)
