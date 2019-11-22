@@ -65,7 +65,7 @@ enum class ChassisMode {
 class Chassis : Controller() {
     private val scope = CoroutineScope(Job())
 
-    private val pidSettingsNormal = PIDSettings(kP = 0.04, kI = 0.0, kD = 0.00, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.03, kI = 0.0, kD = 0.001, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
     private val angularPID = PID(pidSettingsNormal, scope)
 
@@ -160,17 +160,17 @@ class Chassis : Controller() {
                         writeMotors(motorValues)
                         delay(10)
                     } else {
-                        motorValues = kinematics.calcInverseKinematics(movementTarget.vx, 0.0, movementTarget.w)
+                        motorValues = kinematics.calcInverseKinematics(movementTarget.vx, movementTarget.vy, movementTarget.w)
                         writeMotors(motorValues)
 
                     }
 
                 }
                 ChassisMode.PID -> {
-                    if(movementTarget.vy == 0.0){
+                    if(Math.abs(movementTarget.vy) <= 0.1){
                         currentMode = ChassisMode.OPEN
                     } else {
-                        motorValues = kinematics.calcInverseKinematics(0.0, movementTarget.vy, angularPID.outputChannel.receive())
+                        motorValues = kinematics.calcInverseKinematics(movementTarget.vx, movementTarget.vy, angularPID.outputChannel.receive())
                         writeMotors(motorValues)
                     }
                 }

@@ -30,13 +30,12 @@ class TeleOp : EctoOpMode() {
     override fun loop() {
 
 
-        val targetVelocity = -gamepad1.right_stick_x * maxTargetHeadingRate.toDouble()
+        val targetVelocity = -gamepad1.right_stick_x.toDouble()
 
 
 
         val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = targetVelocity)
         chassis.movementTarget = twist
-
 
         val intakePower = gamepad2.left_trigger - gamepad2.right_trigger.toDouble()
         intake.power = intakePower
