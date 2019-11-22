@@ -167,7 +167,7 @@ class Chassis : Controller() {
 
                 }
                 ChassisMode.PID -> {
-                    if(movementTarget.vy == 0.0){
+                    if(Math.abs(movementTarget.vy) <= 0.1){
                         currentMode = ChassisMode.OPEN
                     } else {
                         motorValues = kinematics.calcInverseKinematics(movementTarget.vx, movementTarget.vy, angularPID.outputChannel.receive())
