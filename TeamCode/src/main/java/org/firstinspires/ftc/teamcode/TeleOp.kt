@@ -30,7 +30,7 @@ class TeleOp : EctoOpMode() {
     override fun loop() {
 
 
-        val targetVelocity = -gamepad1.right_stick_x * maxTargetHeadingRate.toDouble()
+        val targetVelocity = -gamepad1.right_stick_x.toDouble()
 
 
 

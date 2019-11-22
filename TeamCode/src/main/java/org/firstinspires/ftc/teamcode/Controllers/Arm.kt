@@ -57,7 +57,7 @@ enum class ArmState {
 }
 
 enum class ArmPosition(val coordinates: ArmCoordinates) {
-    HOME(ArmCoordinates(0.22, 0.1)), TOP(ArmCoordinates(-0.26, 0.4)), MEDIUM(ArmCoordinates(-0.26, 0.2)), LOW(ArmCoordinates(-0.26, 0.007)), EXCHANGE(ArmCoordinates(0.25, 0.27))
+    HOME(ArmCoordinates(0.22, 0.1)), TOP(ArmCoordinates(-0.26, 0.4)), MEDIUM(ArmCoordinates(-0.26, 0.2)), LOW(ArmCoordinates(-0.26, 0.1)), EXCHANGE(ArmCoordinates(0.25, 0.32))
 }
 
 class Arm : Controller() {
