@@ -12,6 +12,13 @@ import org.firstinspires.ftc.teamcode.core.Controller
 import org.firstinspires.ftc.teamcode.core.PID
 import org.firstinspires.ftc.teamcode.core.PIDSettings
 import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
+
+data class MecanumCordinates(var x: Double = 0.0, var y: Double = 0.0) {
+
+
+}
 
 data class MecanumMotorValues(var topLeftSpeed: Double = 0.0, var topRightSpeed: Double = 0.0, var downLeftSpeed: Double = 0.0, var downRightSpeed: Double = 0.0) {
     operator fun plus(other: MecanumMotorValues): MecanumMotorValues {
@@ -80,6 +87,8 @@ class Chassis : Controller() {
 
     private var kinematics = MecanumKinematics(0.5, 0.5, 1.0)
 
+    private var currentCoords = MecanumCordinates()
+
     var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
     var movementTarget = Twist2D()
@@ -135,10 +144,19 @@ class Chassis : Controller() {
         headingProducer()
         angularPID.start()
         headingReceiver()
+        odometryUpdater()
     }
 
     override fun stop() {
         scope.coroutineContext.cancelChildren()
+    }
+
+    fun odometryUpdater() = scope.launch {
+        while(isActive){
+            updateCurrentCoords()
+            delay(timeMillis = 10)
+        }
+
     }
 
     fun headingProducer() = scope.launch {
@@ -153,7 +171,7 @@ class Chassis : Controller() {
             when (currentMode) {
                 ChassisMode.OPEN -> {
                     if (movementTarget.vy != 0.0) {
-                         currentMode = ChassisMode.PID
+                        currentMode = ChassisMode.PID
                         angularPID.target = getHeading()
                         motorValues = MecanumMotorValues(0.0, 0.0, 0.0)
                         writeMotors(motorValues)
@@ -166,7 +184,7 @@ class Chassis : Controller() {
 
                 }
                 ChassisMode.PID -> {
-                    if(Math.abs(movementTarget.vy) <= 0.1){
+                    if (Math.abs(movementTarget.vy) <= 0.1) {
                         currentMode = ChassisMode.OPEN
                     } else {
                         motorValues = kinematics.calcInverseKinematics(movementTarget.vx, movementTarget.vy, angularPID.outputChannel.receive())
@@ -189,4 +207,48 @@ class Chassis : Controller() {
         downLeftMotor.power = values.downLeftSpeed
         downRightMotor.power = values.downRightSpeed
     }
+
+    fun getLocalVelocities(): Twist2D {
+        val wheelsSṕeed = MecanumMotorValues()
+
+        wheelsSṕeed.topLeftSpeed = topLeftMotor.getVelocity(AngleUnit.RADIANS)
+
+        wheelsSṕeed.topRightSpeed = topRightMotor.getVelocity(AngleUnit.RADIANS)
+
+        wheelsSṕeed.downLeftSpeed = downLeftMotor.getVelocity(AngleUnit.RADIANS)
+
+        wheelsSṕeed.downRightSpeed = downRightMotor.getVelocity(AngleUnit.RADIANS)
+
+        val localVelocities = kinematics.calcForwardKinematics(wheelsSṕeed)
+        return localVelocities
+    }
+
+    fun degreesToRadians(degrees: Double): Double {
+        return degrees * Math.PI / 180.0
+    }
+
+    fun getGlobalVelocities(): Twist2D {
+        val localVelocities = getLocalVelocities()
+
+        val headinginRadians = degreesToRadians(getHeading())
+
+        val globalVelocities = Twist2D()
+
+        globalVelocities.vx = localVelocities.vx * cos(headinginRadians) + localVelocities.vy * sin(headinginRadians)
+        globalVelocities.vy = localVelocities.vy * cos(headinginRadians) + localVelocities.vx * sin(headinginRadians)
+
+        return globalVelocities
+
+    }
+
+    fun updateCurrentCoords()  {
+        val globalVelocities = getGlobalVelocities()
+
+        currentCoords.x = currentCoords.x + (globalVelocities.vx * 0.01)
+        currentCoords.y = currentCoords.y + (globalVelocities.vy * 0.01)
+
+    }
+     fun getCurrentCords(): MecanumCordinates{
+         return currentCoords
+     }
 }

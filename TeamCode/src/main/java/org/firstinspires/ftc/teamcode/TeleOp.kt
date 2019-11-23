@@ -52,6 +52,7 @@ class TeleOp : EctoOpMode() {
             arm.moveToPosition(ArmPosition.EXCHANGE)
 
         arm.setClampPower(gamepad2.left_stick_y.absoluteValue.toDouble())
+        telemetry.addData("odometry", chassis.getCurrentCords())
         SystemClock.sleep(20)
     }
 
