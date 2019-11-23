@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.core
 
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlinx.coroutines.*
 
@@ -26,18 +27,15 @@ abstract class EctoLinearOpMode : EctoOpMode() {
 
 
     val isActive: Boolean
-    get() {
-        this.linearOpModeController.scope
-    }
+    get() = this.linearOpModeController.scope.isActive
+
 
     init {
         linearOpModeController = LinearOpModeController(::runOpMode)
         addController(linearOpModeController)
     }
 
-    override fun loop() {
-
-
+    final override fun loop() {
     }
 
     abstract fun runOpMode()

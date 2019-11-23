@@ -65,7 +65,7 @@ enum class ChassisMode {
 class Chassis : Controller() {
     private val scope = CoroutineScope(Job())
 
-    private val pidSettingsNormal = PIDSettings(kP = 0.03, kI = 0.0, kD = 0.001, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.05, kI = 0.00, kD = 0.001, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
     private val angularPID = PID(pidSettingsNormal, scope)
 
@@ -150,7 +150,6 @@ class Chassis : Controller() {
     fun headingReceiver() = scope.launch {
         while (isActive) {
             var motorValues: MecanumMotorValues
-            telemetry.addData("currentMode", currentMode)
             when (currentMode) {
                 ChassisMode.OPEN -> {
                     if (movementTarget.vy != 0.0) {
