@@ -72,7 +72,7 @@ enum class ChassisMode {
 class Chassis : Controller() {
     private val scope = CoroutineScope(Job())
 
-    private val pidSettingsNormal = PIDSettings(kP = 0.05, kI = 0.00, kD = 0.001, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.05, kI = 0.00, kD = 0.00095, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
     private val angularPID = PID(pidSettingsNormal, scope)
 
@@ -211,13 +211,13 @@ class Chassis : Controller() {
     fun getLocalVelocities(): Twist2D {
         val wheelsSṕeed = MecanumMotorValues()
 
-        wheelsSṕeed.topLeftSpeed = topLeftMotor.getVelocity(AngleUnit.RADIANS)
+        wheelsSṕeed.topLeftSpeed = topLeftMotor.getVelocity(AngleUnit.RADIANS) * 1.25
 
-        wheelsSṕeed.topRightSpeed = topRightMotor.getVelocity(AngleUnit.RADIANS)
+        wheelsSṕeed.topRightSpeed = topRightMotor.getVelocity(AngleUnit.RADIANS) * 1.25
 
-        wheelsSṕeed.downLeftSpeed = downLeftMotor.getVelocity(AngleUnit.RADIANS)
+        wheelsSṕeed.downLeftSpeed = downLeftMotor.getVelocity(AngleUnit.RADIANS) * 1.25
 
-        wheelsSṕeed.downRightSpeed = downRightMotor.getVelocity(AngleUnit.RADIANS)
+        wheelsSṕeed.downRightSpeed = downRightMotor.getVelocity(AngleUnit.RADIANS) * 1.25
 
         val localVelocities = kinematics.calcForwardKinematics(wheelsSṕeed)
         return localVelocities

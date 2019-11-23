@@ -64,7 +64,7 @@ class Arm : Controller() {
     private var scope = CoroutineScope(Job())
 
     val lowerAnglePID = PID(PIDSettings(kP = 0.0425, kI = 0.0, kD = 0.0), scope)
-    val upperAnglePID = PID(PIDSettings(kP = 0.0175, kI = 0.0, kD = 0.0001), scope)
+    val upperAnglePID = PID(PIDSettings(kP = 0.0175, kI = 0.0, kD = 0.0), scope)
 
     lateinit var lowerMotor: DcMotor
     lateinit var upperMotor: DcMotor
@@ -218,8 +218,8 @@ class Arm : Controller() {
 //
             val currentAngles = getAngles()
 ////
-            telemetry.addData("lowerAngle", currentAngles.lowerAngle)
-            telemetry.addData("upperAngle", currentAngles.upperAngle)
+//            telemetry.addData("lowerAngle", currentAngles.lowerAngle)
+//            telemetry.addData("upperAngle", currentAngles.upperAngle)
 
 
             lowerAnglePID.target = lowerTarget
