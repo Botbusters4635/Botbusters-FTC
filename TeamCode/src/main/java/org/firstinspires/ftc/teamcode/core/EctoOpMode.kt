@@ -17,6 +17,15 @@ abstract class EctoOpMode: OpMode() {
         }
     }
 
+    final override fun loop() {
+        controllers.forEach{
+            it.update()
+        }
+        update()
+    }
+
+    abstract fun update()
+
     final override fun start() {
         controllers.forEach {
             it.start()

@@ -10,5 +10,7 @@ abstract class Controller {
 
     open fun start() {}
 
+    abstract fun update()
+
     open fun stop() {}
 }

@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode
 
+import android.os.SystemClock
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.Controllers.Arm
 import org.firstinspires.ftc.teamcode.Controllers.ArmPosition
 import org.firstinspires.ftc.teamcode.Controllers.Chassis
@@ -18,8 +18,8 @@ class TeleOp : EctoOpMode() {
 
     var targetHeading = 0.0
     val maxTargetHeadingRate = 90
-    private val runtime = ElapsedTime()
 
+    private var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
     init {
         addController(chassis)
@@ -27,13 +27,24 @@ class TeleOp : EctoOpMode() {
         addController(intake)
     }
 
-    override fun loop() {
+    override fun update() {
+        var timeStep = SystemClock.elapsedRealtime() / 1000.0 - lastTimeRun
 
 
-        val targetVelocity = -gamepad1.right_stick_x.toDouble()
+        val desiredChange = -gamepad1.right_stick_x.toDouble()
+
+        targetHeading += desiredChange * 0.1 * maxTargetHeadingRate
+
+        if(targetHeading > 180.0){
+            targetHeading -= 360
+        }
+
+        if(targetHeading < -180.0){
+            targetHeading += 360
+        }
 
 
-        val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = targetVelocity)
+        val twist = Twist2D(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), w = targetHeading)
         chassis.movementTarget = twist
 
         val intakePower = gamepad2.left_trigger - gamepad2.right_trigger.toDouble()
@@ -47,14 +58,17 @@ class TeleOp : EctoOpMode() {
             arm.moveToPosition(ArmPosition.MEDIUM)
         else if (gamepad2.x)
             arm.moveToPosition(ArmPosition.HOME)
-        else if (gamepad2.right_bumper || (arm.targetCoordinates == ArmPosition.HOME.coordinates && intakePower != 0.0))
+        else if (gamepad2.right_bumper || (arm.targetCoordinate == ArmPosition.HOME.coordinate && intakePower != 0.0))
             arm.moveToPosition(ArmPosition.EXCHANGE)
 
         arm.setClampPower(gamepad2.left_stick_y.absoluteValue.toDouble())
         telemetry.addData("odometry", chassis.getCurrentCords())
+        telemetry.addData("Timestep",timeStep)
+
         // Show the elapsed game time and wheel power.
-        telemetry.addData("Status", "Run Time: $runtime")
-//        SystemClock.sleep(20)
+
+        lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
+
     }
 
 }
