@@ -17,7 +17,7 @@ class TeleOp : EctoOpMode() {
     val intake = Intake()
 
     var targetHeading = 0.0
-    val maxTargetHeadingRate = 90
+    val maxTargetHeadingRate = 90.0
 
     private var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
@@ -61,9 +61,13 @@ class TeleOp : EctoOpMode() {
         else if (gamepad2.right_bumper || (arm.targetCoordinate == ArmPosition.HOME.coordinate && intakePower != 0.0))
             arm.moveToPosition(ArmPosition.EXCHANGE)
 
-        arm.setClampPower(gamepad2.left_stick_y.absoluteValue.toDouble())
-        telemetry.addData("odometry", chassis.getCurrentCords())
-        telemetry.addData("Timestep",timeStep)
+        if(gamepad2.right_stick_button){
+            arm.setClampPower(1.0)
+        }
+
+        if(gamepad2.left_stick_button){
+            arm.setClampPower(0.0)
+        }
 
         // Show the elapsed game time and wheel power.
 

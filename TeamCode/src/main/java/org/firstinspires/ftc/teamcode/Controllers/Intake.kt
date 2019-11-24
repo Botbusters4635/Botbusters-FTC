@@ -13,7 +13,7 @@ class Intake : Controller() {
         set(value) {
             field = value
             leftIntake.power = field
-            rightIntake.power = -field
+            rightIntake.power = -field * 0.7
         }
 
     override fun init(hardwareMap: HardwareMap) {

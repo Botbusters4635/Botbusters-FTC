@@ -113,6 +113,8 @@ class Arm : Controller() {
 
         turningServo.position = 1.0
 
+        clampServo.position = 0.0
+
     }
 
     fun moveToCoordinate(x: Double, y: Double) {

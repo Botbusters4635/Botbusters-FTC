@@ -3,12 +3,10 @@ package org.firstinspires.ftc.teamcode.Controllers
 import android.os.SystemClock
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.robotcore.hardware.*
-import kotlinx.coroutines.*
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.teamcode.core.*
-import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -132,7 +130,6 @@ open class Chassis : Controller() {
 
         updateCurrentCoords(timeStep)
 
-        telemetry.addData("Movement Target", movementTarget)
         angularPID.target = movementTarget.w
 
         val motorValues: MecanumMotorValues = kinematics.calcInverseKinematics(
@@ -158,17 +155,20 @@ open class Chassis : Controller() {
     }
 
     fun getLocalVelocities(): Twist2D {
-        val wheelsSṕeed = MecanumMotorValues()
+        val wheelsSpeed = MecanumMotorValues()
 
-        wheelsSṕeed.topLeftSpeed = topLeftMotor.getVelocity(AngleUnit.RADIANS) * 1.25
+        wheelsSpeed.topLeftSpeed = topLeftMotor.getVelocity(AngleUnit.RADIANS) * 1.25
 
-        wheelsSṕeed.topRightSpeed = topRightMotor.getVelocity(AngleUnit.RADIANS) * 1.25
+        wheelsSpeed.topRightSpeed = topRightMotor.getVelocity(AngleUnit.RADIANS) * 1.25
 
-        wheelsSṕeed.downLeftSpeed = downLeftMotor.getVelocity(AngleUnit.RADIANS) * 1.25
+        wheelsSpeed.downLeftSpeed = downLeftMotor.getVelocity(AngleUnit.RADIANS) * 1.25
 
-        wheelsSṕeed.downRightSpeed = downRightMotor.getVelocity(AngleUnit.RADIANS) * 1.25
+        wheelsSpeed.downRightSpeed = downRightMotor.getVelocity(AngleUnit.RADIANS) * 1.25
 
-        val localVelocities = kinematics.calcForwardKinematics(wheelsSṕeed)
+        val localVelocities = kinematics.calcForwardKinematics(wheelsSpeed)
+
+        telemetry.addData("Local Velocities",localVelocities)
+
         return localVelocities
     }
 
