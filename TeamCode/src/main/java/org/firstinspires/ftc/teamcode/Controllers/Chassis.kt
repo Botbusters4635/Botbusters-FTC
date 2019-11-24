@@ -181,8 +181,11 @@ open class Chassis : Controller() {
 
         val globalVelocities = Twist2D()
 
-        globalVelocities.vx = localVelocities.vx * cos(headinginRadians) + localVelocities.vy * sin(headinginRadians)
-        globalVelocities.vy = localVelocities.vy * cos(headinginRadians) + localVelocities.vx * sin(headinginRadians)
+        /**
+         * Removed Vx because tires slip, may give cleaner output for autonomous period
+         */
+        globalVelocities.vx = localVelocities.vx * cos(headinginRadians) /*+ localVelocities.vy * sin(headinginRadians)*/
+        globalVelocities.vy = /*localVelocities.vy * cos(headinginRadians) + */localVelocities.vx * sin(headinginRadians)
 
         return globalVelocities
 
