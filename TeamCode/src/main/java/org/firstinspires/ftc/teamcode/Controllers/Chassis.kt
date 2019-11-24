@@ -128,8 +128,6 @@ open class Chassis : Controller() {
 
         updateCurrentCoords(timeStep)
 
-        angularPID.target = movementTarget.theta
-
         val motorValues: MecanumMotorValues = kinematics.calcInverseKinematics(
                 movementTarget.vx,
                 movementTarget.vy,
