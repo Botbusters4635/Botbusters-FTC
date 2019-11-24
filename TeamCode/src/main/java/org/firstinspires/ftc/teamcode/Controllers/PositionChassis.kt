@@ -23,9 +23,17 @@ class PositionChassis : Chassis() {
     override fun update() {
         super.update()
 
-        xPID.target = 0.0
+        val distanceToTarget = Math.sqrt(Math.pow(targetCoords.x - currentCoords.x, 2.0) + Math.pow(targetCoords.y - currentCoords.y, 2.0))
 
-        var targetVx = xPID.update(Math.sqrt(Math.pow(targetCoords.x - currentCoords.x, 2.0) + Math.pow(targetCoords.y - currentCoords.y, 2.0)))
+        if(distanceToTarget < 0.05){
+            movementTarget.vx = 0.0
+            movementTarget.vy = 0.0
+            movementTarget.theta = getHeading()
+            return
+        }
+
+        xPID.target = 0.0
+        var targetVx = xPID.update(distanceToTarget)
 
         targetVx = targetVx.coerceIn(-maxVx, maxVx)
 
