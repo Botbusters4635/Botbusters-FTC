@@ -49,7 +49,6 @@ class PositionChassis : Chassis() {
 
         movementTarget.vx = currentVx
         movementTarget.vy = 0.0
-        movementTarget.w = targetHeading
-
+        movementTarget.theta = targetHeading
     }
 }

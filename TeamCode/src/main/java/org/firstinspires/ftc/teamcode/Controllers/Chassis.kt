@@ -30,7 +30,7 @@ data class MecanumMotorValues(var topLeftSpeed: Double = 0.0, var topRightSpeed:
         return result
     }
 }
-
+data class MecanumMoveCommand(var vx: Double = 0.0, var vy : Double = 0.0, var theta : Double = 0.0)
 
 class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFromWheelToCenter: Double, var wheelRadius: Double) {
 
@@ -75,12 +75,12 @@ open class Chassis : Controller() {
     private var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
     var timeStep = 0.0
 
-    var movementTarget = Twist2D()
+    var movementTarget = MecanumMoveCommand()
         set(value) {
             val timeStep = (SystemClock.elapsedRealtime() / 1000.0) - lastTimeRun
             field = value
 
-            var target = angularPID.target + field.w * timeStep
+            var target = angularPID.target + field.theta * timeStep
 
             if (target > 180) {
                 target -= 360
@@ -130,7 +130,7 @@ open class Chassis : Controller() {
 
         updateCurrentCoords(timeStep)
 
-        angularPID.target = movementTarget.w
+        angularPID.target = movementTarget.theta
 
         val motorValues: MecanumMotorValues = kinematics.calcInverseKinematics(
                 movementTarget.vx,
@@ -167,8 +167,6 @@ open class Chassis : Controller() {
 
         val localVelocities = kinematics.calcForwardKinematics(wheelsSpeed)
 
-        telemetry.addData("Local Velocities",localVelocities)
-
         return localVelocities
     }
 
@@ -195,7 +193,6 @@ open class Chassis : Controller() {
 
         currentCoords.x = currentCoords.x + (globalVelocities.vx * timeStep)
         currentCoords.y = currentCoords.y + (globalVelocities.vy * timeStep)
-
     }
 
     fun getCurrentCords(): Coordinate {
