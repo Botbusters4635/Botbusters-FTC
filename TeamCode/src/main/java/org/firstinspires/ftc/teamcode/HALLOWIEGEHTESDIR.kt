@@ -13,7 +13,7 @@ class HALLOWIEGEHTESDIR : EctoOpMode() {
         addController(AAAAAAAAAAAAAAAa)
     }
     override fun update() {
-        AAAAAAAAAAAAAAAa.targetCoords = Coordinate(0.0,-1.0)
+        AAAAAAAAAAAAAAAa.targetCoords = Coordinate(1.0,-1.0)
     }
 
 }
