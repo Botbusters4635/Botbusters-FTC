@@ -77,10 +77,9 @@ open class Chassis : Controller() {
 
     var movementTarget = MecanumMoveCommand()
         set(value) {
-            val timeStep = (SystemClock.elapsedRealtime() / 1000.0) - lastTimeRun
             field = value
 
-            var target = angularPID.target + field.theta * timeStep
+            var target = field.theta
 
             if (target > 180) {
                 target -= 360
@@ -90,7 +89,6 @@ open class Chassis : Controller() {
             }
 
             angularPID.target = target
-            lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
         }
 
 
