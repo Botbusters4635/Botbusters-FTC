@@ -7,10 +7,6 @@ import org.firstinspires.ftc.teamcode.core.PIDSettings
 class PositionChassis : Chassis() {
 
     var targetCoords = Coordinate(0.0, 0.0)
-        set(value){
-            field = value
-            xPID.target = targetCoords.x
-        }
 
     val xPID = PID(PIDSettings(1.5, 0.0, 0.0))
 
