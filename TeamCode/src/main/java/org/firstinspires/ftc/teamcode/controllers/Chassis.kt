@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Controllers
+package org.firstinspires.ftc.teamcode.controllers
 
 import android.os.SystemClock
 import com.qualcomm.hardware.bosch.BNO055IMU

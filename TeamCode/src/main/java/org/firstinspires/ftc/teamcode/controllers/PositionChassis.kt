@@ -1,8 +1,12 @@
-package org.firstinspires.ftc.teamcode.Controllers
+package org.firstinspires.ftc.teamcode.controllers
 
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.runBlocking
 import org.firstinspires.ftc.teamcode.core.Coordinate
 import org.firstinspires.ftc.teamcode.core.PID
 import org.firstinspires.ftc.teamcode.core.PIDSettings
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class PositionChassis : Chassis() {
 
@@ -16,15 +20,20 @@ class PositionChassis : Chassis() {
 
     var maxVx = 0.5
 
+    var onTarget = false
+
     override fun update() {
         super.update()
 
-        val distanceToTarget = Math.sqrt(Math.pow(targetCoords.x - currentCoords.x, 2.0) + Math.pow(targetCoords.y - currentCoords.y, 2.0))
+        val distanceToTarget = sqrt((targetCoords.x - currentCoords.x).pow(2.0) + Math.pow(targetCoords.y - currentCoords.y, 2.0))
 
-        if(distanceToTarget < 0.05){
+        onTarget = distanceToTarget < 0.05
+
+        if(onTarget){
             movementTarget.vx = 0.0
             movementTarget.vy = 0.0
             movementTarget.theta = getHeading()
+            onTarget = true
             return
         }
 
@@ -50,9 +59,15 @@ class PositionChassis : Chassis() {
         if(targetHeading < -180.0){
             targetHeading += 360.0
         }
-
         movementTarget.vx = currentVx
         movementTarget.vy = 0.0
         movementTarget.theta = targetHeading
+    }
+
+    fun runToPosition(target: Coordinate) = runBlocking{
+        targetCoords = target
+        while(!onTarget && isActive){
+        }
+
     }
 }
