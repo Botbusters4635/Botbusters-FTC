@@ -28,7 +28,6 @@ class PositionChassis : Chassis() {
         val distanceToTarget = sqrt((targetCoords.x - currentCoords.x).pow(2.0) + Math.pow(targetCoords.y - currentCoords.y, 2.0))
 
         onTarget = distanceToTarget < 0.05
-
         if(onTarget){
             movementTarget.vx = 0.0
             movementTarget.vy = 0.0
@@ -38,9 +37,9 @@ class PositionChassis : Chassis() {
         }
 
         xPID.target = 0.0
-        var targetVx = xPID.update(distanceToTarget)
+        var targetVx = xPID.update(-distanceToTarget)
 
-        targetVx = targetVx.coerceIn(-maxVx, maxVx)
+        targetVx = targetVx.coerceIn(0.0, maxVx)
 
         if(Math.abs(targetVx - currentVx) * timeStep > maxVelocityChange * timeStep){
             currentVx += Math.copySign(maxVelocityChange * timeStep, targetVx)
@@ -50,7 +49,7 @@ class PositionChassis : Chassis() {
 
 
         val angle = Math.atan2(targetCoords.y - currentCoords.y, targetCoords.x - currentCoords.x) * 180.0 / Math.PI
-        var targetHeading = getHeading() + angle
+        var targetHeading = angle
 
         if(targetHeading > 180.0){
             targetHeading -= 360.0
@@ -59,9 +58,17 @@ class PositionChassis : Chassis() {
         if(targetHeading < -180.0){
             targetHeading += 360.0
         }
+
+        telemetry.addData("current angle", getHeading())
+        telemetry.addData("target angle", targetHeading)
+        telemetry.addData("error angle", targetHeading - getHeading())
+        telemetry.addData("currentVx", currentVx)
+        telemetry.addData("targetVx", targetVx)
+        telemetry.addData("distance", distanceToTarget)
+
         movementTarget.vx = currentVx
         movementTarget.vy = 0.0
-        movementTarget.theta = targetHeading
+        movementTarget.theta = angle
     }
 
     fun runToPosition(target: Coordinate) = runBlocking{
