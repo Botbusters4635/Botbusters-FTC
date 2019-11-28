@@ -57,7 +57,7 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 
 
 open class Chassis : Controller() {
-    private val pidSettingsNormal = PIDSettings(kP = 0.022, kI = 0.00, kD = 0.0025, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.15, kI = 0.00, kD = 0.0025, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
     private val angularPID = PID(pidSettingsNormal)
 
@@ -68,7 +68,7 @@ open class Chassis : Controller() {
 
     private lateinit var imu: BNO055IMU
 
-    private var kinematics = MecanumKinematics(0.5, 0.5, 1.0)
+    private var kinematics = MecanumKinematics(0.25/2, 0.27/2, 0.1016)
 
     protected var currentCoords = Coordinate()
 
@@ -84,6 +84,7 @@ open class Chassis : Controller() {
         topRightMotor = hardwareMap.get(DcMotor::class.java, "topRightMotor") as DcMotorEx
         downLeftMotor = hardwareMap.get(DcMotor::class.java, "downLeftMotor") as DcMotorEx
         downRightMotor = hardwareMap.get(DcMotor::class.java, "downRightMotor") as DcMotorEx
+
 
 
         topLeftMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -124,6 +125,8 @@ open class Chassis : Controller() {
         writeMotors(motorValues)
         lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
+        telemetry.addData("Current Coords", currentCoords)
+
     }
 
 
@@ -132,10 +135,15 @@ open class Chassis : Controller() {
     }
 
     fun writeMotors(values: MecanumMotorValues) {
-        topLeftMotor.power = values.topLeftSpeed
-        topRightMotor.power = values.topRightSpeed
-        downLeftMotor.power = values.downLeftSpeed
-        downRightMotor.power = values.downRightSpeed
+//        topLeftMotor.power = values.topLeftSpeed
+//        topRightMotor.power = values.topRightSpeed
+//        downLeftMotor.power = values.downLeftSpeed
+//        downRightMotor.power = values.downRightSpeed
+
+        topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
+        topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
+        downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
+        downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
     }
 
     fun getLocalVelocities(): Twist2D {
@@ -150,7 +158,7 @@ open class Chassis : Controller() {
         wheelsSpeed.downRightSpeed = downRightMotor.getVelocity(AngleUnit.RADIANS)
 
         val localVelocities = kinematics.calcForwardKinematics(wheelsSpeed)
-
+        telemetry.addData("localVel", localVelocities)
         return localVelocities
     }
 
@@ -165,11 +173,12 @@ open class Chassis : Controller() {
 
         val globalVelocities = Twist2D()
 
+
         /**
          * Removed Vy because tires slip, may give cleaner output for autonomous period
          */
-        globalVelocities.vx = localVelocities.vx * cos(headinginRadians) /*+ localVelocities.vy * sin(headinginRadians)*/
-        globalVelocities.vy = /*localVelocities.vy * cos(headinginRadians) + */localVelocities.vx * sin(headinginRadians)
+        globalVelocities.vx = localVelocities.vx * cos(headinginRadians) - localVelocities.vy * sin(headinginRadians)
+        globalVelocities.vy = localVelocities.vy * cos(headinginRadians) + localVelocities.vx * sin(headinginRadians)
 
         return globalVelocities
 
@@ -178,8 +187,8 @@ open class Chassis : Controller() {
     fun updateCurrentCoords(timeStep: Double) {
         val globalVelocities = getGlobalVelocities()
 
-        currentCoords.x = currentCoords.x + (globalVelocities.vx * timeStep * 0.143)
-        currentCoords.y = currentCoords.y + (globalVelocities.vy * timeStep * 0.143)
+        currentCoords.x = currentCoords.x + (globalVelocities.vx * timeStep)
+        currentCoords.y = currentCoords.y + (globalVelocities.vy * timeStep)
     }
 
     fun getCurrentCords(): Coordinate {

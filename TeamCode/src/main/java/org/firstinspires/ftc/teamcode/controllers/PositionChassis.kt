@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.controllers
 
 import android.os.SystemClock
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
 import org.firstinspires.ftc.teamcode.core.Coordinate
@@ -17,12 +16,14 @@ class PositionChassis : Chassis() {
     var targetCoords = Coordinate(0.0, 0.0)
 
     val xPID = PID(PIDSettings(2.5, 0.0, 0.0))
+    val yPID = PID(PIDSettings(2.5, 0.0, 0.0))
 
     val maxVelocityChange = 0.5
 
     var currentVx = 0.0
+    var currentVy = 0.0
 
-    var maxVx = 0.5
+    var maxV = 0.5
 
     var followingPath = false
 
@@ -46,10 +47,14 @@ class PositionChassis : Chassis() {
             return
         }
 
-        xPID.target = 0.0
-        var targetVx = xPID.update(-distanceToTarget)
+        xPID.target = targetCoords.x
+        yPID.target = targetCoords.y
+        var targetVx = xPID.update(currentCoords.x)
+        var targetVy = yPID.update(currentCoords.y)
 
-        targetVx = targetVx.coerceIn(0.0, maxVx)
+        targetVx = targetVx.coerceIn(-maxV, maxV)
+        targetVy = targetVy.coerceIn(-maxV, maxV)
+
 
         if(Math.abs(targetVx - currentVx) * timeStep > maxVelocityChange * timeStep){
             currentVx += Math.copySign(maxVelocityChange * timeStep, targetVx)
@@ -58,25 +63,16 @@ class PositionChassis : Chassis() {
         }
 
 
-        val angle = Math.atan2(targetCoords.y - currentCoords.y, targetCoords.x - currentCoords.x) * 180.0 / Math.PI
-        var targetHeading = angle + if(runInverse) 180 else 0
-
-        telemetry.addData("angular.js", angle)
-        telemetry.addData("no u", targetHeading)
-        telemetry.update()
-
-        if(targetHeading > 180.0){
-            targetHeading -= 360.0
+        if(Math.abs(targetVy - currentVy) * timeStep > maxVelocityChange * timeStep){
+            currentVy += Math.copySign(maxVelocityChange * timeStep, targetVy)
+        }else{
+            currentVy = targetVy
         }
 
-        if(targetHeading < -180.0){
-            targetHeading += 360.0
-        }
+        val headingInRadians = degreesToRadians(getHeading())
 
-
-        movementTarget.vx = currentVx * if(runInverse) -1 else 1
-        movementTarget.vy = 0.0
-        movementTarget.theta = targetHeading
+        movementTarget.vx = currentVx * Math.cos(headingInRadians) + currentVy * Math.sin(headingInRadians)
+        movementTarget.vy = currentVy * Math.cos(headingInRadians) - currentVx * Math.sin(headingInRadians)
     }
 
     fun runToPosition(target: Coordinate, runInverse: Boolean = false) = runBlocking{
