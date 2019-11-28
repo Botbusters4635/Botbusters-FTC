@@ -32,7 +32,9 @@ abstract class EctoLinearOpMode : EctoOpMode() {
         }
 
         override fun update() {
-
+            runBlocking {
+                delay(20)
+            }
         }
 
         override fun stop() {

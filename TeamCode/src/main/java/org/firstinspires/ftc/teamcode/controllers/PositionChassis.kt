@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.core.Coordinate
 import org.firstinspires.ftc.teamcode.core.PID
 import org.firstinspires.ftc.teamcode.core.PIDSettings
 import org.firstinspires.ftc.teamcode.core.Path
+import kotlin.math.absoluteValue
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -14,7 +15,7 @@ class PositionChassis : Chassis() {
 
     var targetCoords = Coordinate(0.0, 0.0)
 
-    val xPID = PID(PIDSettings(1.5, 0.0, 0.0))
+    val xPID = PID(PIDSettings(2.5, 0.0, 0.0))
 
     val maxVelocityChange = 1.0
 
@@ -24,13 +25,19 @@ class PositionChassis : Chassis() {
 
     var onTarget = false
 
+    var followingPath = false
+
+    var runInverse = false
+
+    val distanceToTarget
+    get() = sqrt((targetCoords.x - currentCoords.x).pow(2.0) + Math.pow(targetCoords.y - currentCoords.y, 2.0))
+
     override fun update() {
         super.update()
 
-        val distanceToTarget = sqrt((targetCoords.x - currentCoords.x).pow(2.0) + Math.pow(targetCoords.y - currentCoords.y, 2.0))
+        if(!followingPath) return
 
         onTarget = distanceToTarget < 0.05
-
         if(onTarget){
             movementTarget.vx = 0.0
             movementTarget.vy = 0.0
@@ -42,7 +49,7 @@ class PositionChassis : Chassis() {
         xPID.target = 0.0
         var targetVx = xPID.update(-distanceToTarget)
 
-        targetVx = targetVx.coerceIn(-maxVx, maxVx)
+        targetVx = targetVx.coerceIn(0.0, maxVx)
 
         if(Math.abs(targetVx - currentVx) * timeStep > maxVelocityChange * timeStep){
             currentVx += Math.copySign(maxVelocityChange * timeStep, targetVx)
@@ -52,7 +59,11 @@ class PositionChassis : Chassis() {
 
 
         val angle = Math.atan2(targetCoords.y - currentCoords.y, targetCoords.x - currentCoords.x) * 180.0 / Math.PI
-        var targetHeading = getHeading() + angle
+        var targetHeading = angle + if(runInverse) 180 else 0
+
+        telemetry.addData("angular.js", angle)
+        telemetry.addData("no u", targetHeading)
+        telemetry.update()
 
         if(targetHeading > 180.0){
             targetHeading -= 360.0
@@ -61,24 +72,35 @@ class PositionChassis : Chassis() {
         if(targetHeading < -180.0){
             targetHeading += 360.0
         }
-        movementTarget.vx = currentVx
+
+
+        movementTarget.vx = currentVx * if(runInverse) -1 else 1
         movementTarget.vy = 0.0
         movementTarget.theta = targetHeading
     }
 
-    fun runToPosition(target: Coordinate) = runBlocking{
+    fun runToPosition(target: Coordinate, runInverse: Boolean = false) = runBlocking{
         targetCoords = target
-        while(!onTarget && isActive){
-            onTarget = currentCoords.closeTo(targetCoords)
+        followingPath = true
+        this@PositionChassis.runInverse = runInverse
+        while(distanceToTarget > 0.1 && isActive){
+
+        }
+        followingPath = false
+    }
+
+    fun turnToAngle(targetAngle: Double) = runBlocking {
+        movementTarget.theta = targetAngle
+        while((getHeading() - targetAngle).absoluteValue > 3 && isActive){
+
         }
     }
 
-    fun followPath(path: Path) = runBlocking {
+    fun followPath(path: Path, runInverse: Boolean = false) = runBlocking {
         for(coordinate in path){
-            runToPosition(coordinate)
+            runToPosition(coordinate, runInverse)
+
         }
-        telemetry.addData("FINISHED thing ", ":D")
-        delay(5000)
     }
 
 }
