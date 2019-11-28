@@ -111,10 +111,6 @@ class Arm : Controller() {
         clampServo.direction = Servo.Direction.REVERSE
         turningServo.direction = Servo.Direction.REVERSE
 
-        turningServo.position = 1.0
-
-        clampServo.position = 0.0
-
     }
 
     fun moveToCoordinate(x: Double, y: Double) {
@@ -138,6 +134,10 @@ class Arm : Controller() {
         angles.upperAngle = -1.66243031965927 * x.pow(3) - 9.090297864880776 * x.pow(2) + 130.359681271249 * x - 137.040643577643
 
         return angles
+    }
+
+    override fun start() {
+        turningServo.position = 1.0
     }
 
     override fun stop() {

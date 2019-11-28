@@ -136,6 +136,7 @@ open class Chassis : Controller() {
 
         writeMotors(motorValues)
         lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
+        telemetry.addData("currentCoords", currentCoords)
     }
 
 

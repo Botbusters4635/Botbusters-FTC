@@ -14,7 +14,6 @@ abstract class EctoLinearOpMode : EctoOpMode() {
     }
 
     override fun update() {
-
     }
 
     abstract fun runOpMode()
@@ -23,7 +22,6 @@ abstract class EctoLinearOpMode : EctoOpMode() {
         private var scope = CoroutineScope(Job())
 
         override fun init(hardwareMap: HardwareMap) {
-
         }
 
         override fun start() {

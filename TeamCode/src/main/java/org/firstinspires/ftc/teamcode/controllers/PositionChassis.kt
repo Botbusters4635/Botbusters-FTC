@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.controllers
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
 import org.firstinspires.ftc.teamcode.core.Coordinate
 import org.firstinspires.ftc.teamcode.core.PID
 import org.firstinspires.ftc.teamcode.core.PIDSettings
+import org.firstinspires.ftc.teamcode.core.Path
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -38,7 +40,7 @@ class PositionChassis : Chassis() {
         }
 
         xPID.target = 0.0
-        var targetVx = xPID.update(distanceToTarget)
+        var targetVx = xPID.update(-distanceToTarget)
 
         targetVx = targetVx.coerceIn(-maxVx, maxVx)
 
@@ -67,7 +69,16 @@ class PositionChassis : Chassis() {
     fun runToPosition(target: Coordinate) = runBlocking{
         targetCoords = target
         while(!onTarget && isActive){
+            onTarget = currentCoords.closeTo(targetCoords)
         }
-
     }
+
+    fun followPath(path: Path) = runBlocking {
+        for(coordinate in path){
+            runToPosition(coordinate)
+        }
+        telemetry.addData("FINISHED thing ", ":D")
+        delay(5000)
+    }
+
 }
