@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.controllers
 
+import android.os.SystemClock
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
@@ -17,13 +18,11 @@ class PositionChassis : Chassis() {
 
     val xPID = PID(PIDSettings(2.5, 0.0, 0.0))
 
-    val maxVelocityChange = 1.0
+    val maxVelocityChange = 0.5
 
     var currentVx = 0.0
 
     var maxVx = 0.5
-
-    var onTarget = false
 
     var followingPath = false
 
@@ -32,17 +31,18 @@ class PositionChassis : Chassis() {
     val distanceToTarget
     get() = sqrt((targetCoords.x - currentCoords.x).pow(2.0) + Math.pow(targetCoords.y - currentCoords.y, 2.0))
 
+    val onTarget
+    get() = distanceToTarget < 0.05
+
     override fun update() {
         super.update()
 
         if(!followingPath) return
 
-        onTarget = distanceToTarget < 0.05
         if(onTarget){
             movementTarget.vx = 0.0
             movementTarget.vy = 0.0
             movementTarget.theta = getHeading()
-            onTarget = true
             return
         }
 
@@ -83,7 +83,7 @@ class PositionChassis : Chassis() {
         targetCoords = target
         followingPath = true
         this@PositionChassis.runInverse = runInverse
-        while(distanceToTarget > 0.1 && isActive){
+        while(!onTarget && isActive){
 
         }
         followingPath = false
@@ -91,8 +91,14 @@ class PositionChassis : Chassis() {
 
     fun turnToAngle(targetAngle: Double) = runBlocking {
         movementTarget.theta = targetAngle
-        while((getHeading() - targetAngle).absoluteValue > 3 && isActive){
+        val startTime = SystemClock.elapsedRealtime() / 1000.0
+        var currentTime = 0.0
+        while((getHeading() - targetAngle).absoluteValue > 1 && isActive){
+            currentTime = SystemClock.elapsedRealtime() / 1000.0 - startTime
 
+            if(currentTime > 2.0){
+                break
+            }
         }
     }
 
