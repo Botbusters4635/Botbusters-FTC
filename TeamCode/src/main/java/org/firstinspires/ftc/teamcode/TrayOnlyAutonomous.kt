@@ -15,7 +15,6 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
         addController(chassis)
     }
 
-
     override fun runOpMode() {
         chassis.followPath(Path(
                 Coordinate(0.0, 0.0),
