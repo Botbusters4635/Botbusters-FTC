@@ -15,15 +15,15 @@ class PositionChassis : Chassis() {
 
     var targetCoords = Coordinate(0.0, 0.0)
 
-    val xPID = PID(PIDSettings(2.5, 0.0, 0.0))
-    val yPID = PID(PIDSettings(2.5, 0.0, 0.0))
+    val xPID = PID(PIDSettings(4.0, 0.0, 0.0))
+    val yPID = PID(PIDSettings(4.0, 0.0, 0.0))
 
-    val maxVelocityChange = 0.5
+    val maxVelocityChange = 1
 
     var currentVx = 0.0
     var currentVy = 0.0
 
-    var maxV = 0.5
+    var maxV = 1.0
 
     var followingPath = false
 
@@ -75,10 +75,9 @@ class PositionChassis : Chassis() {
         movementTarget.vy = currentVy * Math.cos(headingInRadians) - currentVx * Math.sin(headingInRadians)
     }
 
-    fun runToPosition(target: Coordinate, runInverse: Boolean = false) = runBlocking{
+    fun runToPosition(target: Coordinate) = runBlocking{
         targetCoords = target
         followingPath = true
-        this@PositionChassis.runInverse = runInverse
         while(!onTarget && isActive){
 
         }
@@ -98,9 +97,9 @@ class PositionChassis : Chassis() {
         }
     }
 
-    fun followPath(path: Path, runInverse: Boolean = false) = runBlocking {
+    fun followPath(path: Path) = runBlocking {
         for(coordinate in path){
-            runToPosition(coordinate, runInverse)
+            runToPosition(coordinate)
 
         }
     }

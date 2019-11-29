@@ -139,12 +139,6 @@ open class Chassis : Controller() {
         writeMotors(motorValues)
         lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
-        telemetry.addData("position", currentCoords)
-        telemetry.addData("topLeftPos", topLeftMotor.currentPosition)
-        telemetry.addData("topRightPos", topRightMotor.currentPosition)
-        telemetry.addData("downLeftPos", downLeftMotor.currentPosition)
-        telemetry.addData("downRightPos", downRightMotor.currentPosition)
-
     }
 
     fun writeMotors(values: MecanumMotorValues) {
@@ -194,8 +188,8 @@ open class Chassis : Controller() {
     fun updateCurrentCoords(timeStep: Double) {
         val globalVelocities = getGlobalVelocities()
 
-        currentCoords.x = currentCoords.x + (globalVelocities.vx * timeStep * 0.143)
-        currentCoords.y = currentCoords.y + (globalVelocities.vy * timeStep * 0.143)
+        currentCoords.x = currentCoords.x + (globalVelocities.vx * timeStep)
+        currentCoords.y = currentCoords.y + (globalVelocities.vy * timeStep)
     }
 
     fun getCurrentCords(): Coordinate {

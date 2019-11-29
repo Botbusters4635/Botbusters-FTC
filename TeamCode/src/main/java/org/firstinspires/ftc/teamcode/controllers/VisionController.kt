@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.core.Controller
 import org.firstinspires.ftc.teamcode.core.Coordinate
 import java.lang.String.format
 import java.util.ArrayList
+import kotlin.math.absoluteValue
 
 class VisionController : Controller() {
     lateinit var vuforia: VuforiaLocalizer
@@ -19,11 +20,14 @@ class VisionController : Controller() {
     var isVisible = false
 
     override fun init(hardwareMap: HardwareMap) {
+
         val cameraMonitorViewId = hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.packageName)
         val parameters = VuforiaLocalizer.Parameters(cameraMonitorViewId)
         parameters.vuforiaLicenseKey = "ASErNM3/////AAABmQ30vCYZm01JlyuwHXrdZGiEOn5z2wZ3z0Q9EHX2stCeX9ZyqkHxSWkw90Cnv6O/xSAi42GWir1yJiBExY43ZFuliHnTkfszjlmaSQCdpGjz11Os90Xtjf33x9jzuMLpmVnkTOuTkWbJmv/tnDfsoIBxJWNl0NTw3hd9e25sgmhRSPsjZ/cenBKpVkHinJxvqS1j8K3bjh9UiE6lcA7ND5SG81QQnI4FsOLaTzFMFHmU+t0qL7VJ5twoEkvpWqm3tbrC8CxD7ITrtQ2beRxwX5ENBLGfx1cfzurHKB04SADG1E1T5CESCL7Z7NbgGQM/RywNiDJTZCAb5A0jFbGn91tzH89bN+iQhlV+00q6rF4v"
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK
         vuforia = ClassFactory.getInstance().createVuforia(parameters)
+        com.vuforia.CameraDevice.getInstance().setFlashTorchMode(true)
+
 
         skystone = this.vuforia.loadTrackablesFromAsset("Skystone")
         val targetElement = skystone[0]
@@ -86,12 +90,11 @@ class VisionController : Controller() {
              * the last time that call was made, or if the trackable is not currently visible.
              * getRobotLocation() will return null if the trackable is not currently visible.
              */
-            telemetry.addData(trackable.name, if ((trackable.listener as VuforiaTrackableDefaultListener).isVisible) "Visible" else "Not Visible")    //
             val robotLocationTransform = (trackable.listener as VuforiaTrackableDefaultListener).updatedVuforiaCameraFromTarget
+            isVisible = (trackable.listener as VuforiaTrackableDefaultListener).isVisible
             if (robotLocationTransform != null) {
                 lastLocation = Coordinate(-robotLocationTransform[2, 3].toDouble(), robotLocationTransform[0, 3].toDouble())
-                isVisible = true
-            } else isVisible = false
+            }
         }
         /**
          * Provide feedback as to where the robot was last located (if we know).

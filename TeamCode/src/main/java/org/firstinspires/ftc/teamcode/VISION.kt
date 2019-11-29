@@ -28,17 +28,29 @@ class VISION : EctoLinearOpMode() {
 
     override fun runOpMode() {
         chassis.heading = 180.0
-
-        chassis.runToPosition(Coordinate(0.45, 0.35))
+        chassis.turnToAngle(180.0)
+        chassis.runToPosition(Coordinate(0.3, 0.35))
         chassis.turnToAngle(180.0)
 
-        while (isActive && !vision.isVisible ) {
-            chassis.movementTarget = MecanumMoveCommand(vy = 0.3, theta = 180.0)
-        }
-        while(vision.lastLocation.x.absoluteValue > 30){
-            chassis.movementTarget = MecanumMoveCommand(vy = 0.3, theta = 180.0)
-        }
+        while (isActive) {
+            var mult = 1.0
+            if(vision.isVisible){
+                runBlocking {
+                    delay(200)
+                }
+                mult = Math.copySign(1.0, vision.lastLocation.y)
 
+                if(vision.lastLocation.y.absoluteValue < 10) break
+            }
+            telemetry.addData("mult", mult)
+            telemetry.addData("visible", vision.isVisible)
+            telemetry.addData("x", vision.lastLocation.x)
+            telemetry.update()
+
+            chassis.movementTarget = MecanumMoveCommand(vy = mult * 0.3, theta = 180.0)
+
+
+        }
         chassis.movementTarget = MecanumMoveCommand(theta = 180.0)
     }
 }

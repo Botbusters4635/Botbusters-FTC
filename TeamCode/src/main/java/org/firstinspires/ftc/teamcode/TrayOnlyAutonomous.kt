@@ -21,7 +21,7 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
         /**
          * Asume que lo de los servos estará por atras
          */
-        chassis.runToPosition(Coordinate(0.5, 0.0), true)
+        chassis.runToPosition(Coordinate(0.5, 0.0))
         /***
          * Enable grabbing cosa
          */
@@ -37,7 +37,7 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
          * Girar para acomodarla y empujarla contra la zona
          */
         chassis.turnToAngle(-90.0)
-        chassis.runToPosition(Coordinate(chassis.getCurrentCords().x, chassis.getCurrentCords().y + 0.25), true)
+        chassis.runToPosition(Coordinate(chassis.getCurrentCords().x, chassis.getCurrentCords().y + 0.25))
 
         /**
          * Ir a estacionarse
