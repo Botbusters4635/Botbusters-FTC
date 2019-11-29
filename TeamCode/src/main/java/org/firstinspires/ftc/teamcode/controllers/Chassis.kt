@@ -148,10 +148,10 @@ open class Chassis : Controller() {
     }
 
     fun writeMotors(values: MecanumMotorValues) {
-//        topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
-//        topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
-//        downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
-//        downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
+        topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
+        topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
+        downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
+        downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
     }
 
     fun getLocalVelocities(): Twist2D {
