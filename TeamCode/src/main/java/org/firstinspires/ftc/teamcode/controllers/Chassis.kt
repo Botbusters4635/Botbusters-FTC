@@ -58,7 +58,7 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 
 
 open class Chassis : Controller() {
-    private val pidSettingsNormal = PIDSettings(kP = 0.03, kI = 0.00, kD = 0.0015, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.15, kI = 0.00, kD = 0.0025, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
     private val angularPID = PID(pidSettingsNormal)
 
@@ -69,7 +69,7 @@ open class Chassis : Controller() {
 
     private lateinit var imu: BNO055IMU
 
-    private var kinematics = MecanumKinematics(0.5, 0.5, 1.0)
+    private var kinematics = MecanumKinematics(0.25/2, 0.27/2, 0.1016)
 
     protected var currentCoords = Coordinate()
 
@@ -140,23 +140,26 @@ open class Chassis : Controller() {
         lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
         telemetry.addData("position", currentCoords)
-        telemetry.update()
+        telemetry.addData("topLeftPos", topLeftMotor.currentPosition)
+        telemetry.addData("topRightPos", topRightMotor.currentPosition)
+        telemetry.addData("downLeftPos", downLeftMotor.currentPosition)
+        telemetry.addData("downRightPos", downRightMotor.currentPosition)
 
     }
 
     fun writeMotors(values: MecanumMotorValues) {
-        topLeftMotor.power = values.topLeftSpeed
-        topRightMotor.power = values.topRightSpeed
-        downLeftMotor.power = values.downLeftSpeed
-        downRightMotor.power = values.downRightSpeed
+//        topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
+//        topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
+//        downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
+//        downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
     }
 
     fun getLocalVelocities(): Twist2D {
         val wheelsSpeed = MecanumMotorValues()
 
-        wheelsSpeed.topLeftSpeed = downLeftMotor.getVelocity(AngleUnit.RADIANS)
+        wheelsSpeed.topLeftSpeed = topLeftMotor.getVelocity(AngleUnit.RADIANS)
 
-        wheelsSpeed.topRightSpeed = downRightMotor.getVelocity(AngleUnit.RADIANS)
+        wheelsSpeed.topRightSpeed = topRightMotor.getVelocity(AngleUnit.RADIANS)
 
         wheelsSpeed.downLeftSpeed = downLeftMotor.getVelocity(AngleUnit.RADIANS)
 
@@ -181,8 +184,8 @@ open class Chassis : Controller() {
         /**
          * Removed Vy because tires slip, may give cleaner output for autonomous period
          */
-        globalVelocities.vx = localVelocities.vx * cos(headinginRadians) /*+ localVelocities.vy * sin(headinginRadians)*/
-        globalVelocities.vy = /*localVelocities.vy * cos(headinginRadians) + */localVelocities.vx * sin(headinginRadians)
+        globalVelocities.vx = localVelocities.vx * cos(headinginRadians) - localVelocities.vy * sin(headinginRadians)
+        globalVelocities.vy = localVelocities.vy * cos(headinginRadians) + localVelocities.vx * sin(headinginRadians)
 
         return globalVelocities
 

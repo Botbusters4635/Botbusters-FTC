@@ -43,9 +43,6 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
          * Ir a estacionarse
          */
         chassis.runToPosition(Coordinate(chassis.getCurrentCords().x, -0.7))
-
-
-
     }
 
 

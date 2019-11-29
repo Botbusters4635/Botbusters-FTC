@@ -53,14 +53,14 @@ enum class ArmState {
 }
 
 enum class ArmPosition(val coordinate: Coordinate) {
-    HOME(Coordinate(0.22, 0.1)), TOP(Coordinate(-0.26, 0.4)), MEDIUM(Coordinate(-0.26, 0.2)), LOW(Coordinate(-0.26, 0.1)), EXCHANGE(Coordinate(0.25, 0.32)), PASSBRIDGE(Coordinate(0.2, 0.05))
+    HOME(Coordinate(0.20, 0.08)), TOP(Coordinate(-0.26, 0.4)), MEDIUM(Coordinate(-0.26, 0.2)), LOW(Coordinate(-0.26, 0.1)), EXCHANGE(Coordinate(0.25, 0.32)), PASSBRIDGE(Coordinate(0.2, 0.05))
 }
 
 class Arm : Controller() {
     private var scope = CoroutineScope(Job())
 
     val lowerAnglePID = PID(PIDSettings(kP = 0.045, kI = 0.001, kD = 0.0))
-    val upperAnglePID = PID(PIDSettings(kP = 0.03, kI = 0.0, kD = 0.001))
+    val upperAnglePID = PID(PIDSettings(kP = 0.02, kI = 0.0, kD = 0.0005))
 
     lateinit var lowerMotor: DcMotor
     lateinit var upperMotor: DcMotor
@@ -110,7 +110,7 @@ class Arm : Controller() {
         turningServo = hardwareMap.get(Servo::class.java, "turningServo")
         clampServo.direction = Servo.Direction.REVERSE
         turningServo.direction = Servo.Direction.REVERSE
-
+        setClampPower(0.0)
     }
 
     fun moveToCoordinate(x: Double, y: Double) {
@@ -195,6 +195,8 @@ class Arm : Controller() {
 
         val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle)
         val upperOutput = upperAnglePID.update(currentAngles.upperAngle)
+        telemetry.addData("lowerAngle", currentAngles.lowerAngle)
+        telemetry.addData("upperAngle", currentAngles.upperAngle)
 
         lowerMotor.power = lowerOutput
         upperMotor.power = upperOutput
@@ -202,7 +204,7 @@ class Arm : Controller() {
 
 
     fun setClampPower(power: Double) {
-        val position = 1.0 - power * 0.3
+        val position = 1.0 - power * 0.2
         clampServo.position = position
 
     }

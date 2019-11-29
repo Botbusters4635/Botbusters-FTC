@@ -29,7 +29,7 @@ class VISION : EctoLinearOpMode() {
     override fun runOpMode() {
         chassis.heading = 180.0
 
-        chassis.runToPosition(Coordinate(0.45, 0.35), true)
+        chassis.runToPosition(Coordinate(0.45, 0.35))
         chassis.turnToAngle(180.0)
 
         while (isActive && !vision.isVisible ) {
@@ -39,9 +39,6 @@ class VISION : EctoLinearOpMode() {
             chassis.movementTarget = MecanumMoveCommand(vy = 0.3, theta = 180.0)
         }
 
-        runBlocking {
-            delay(250)
-        }
         chassis.movementTarget = MecanumMoveCommand(theta = 180.0)
     }
 }
