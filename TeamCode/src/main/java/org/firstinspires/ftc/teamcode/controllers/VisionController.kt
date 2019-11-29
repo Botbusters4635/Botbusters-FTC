@@ -7,14 +7,17 @@ import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix
 import org.firstinspires.ftc.robotcore.external.navigation.*
 import org.firstinspires.ftc.teamcode.ConceptVuforiaNavigation
 import org.firstinspires.ftc.teamcode.core.Controller
+import org.firstinspires.ftc.teamcode.core.Coordinate
 import java.lang.String.format
 import java.util.ArrayList
 
-class VisionController : Controller(){
+class VisionController : Controller() {
     lateinit var vuforia: VuforiaLocalizer
-    lateinit var stonesAndChips: VuforiaTrackables
-    lateinit var allTrackables: ArrayList <VuforiaTrackable>
-    var lastLocation = OpenGLMatrix()
+    lateinit var skystone: VuforiaTrackables
+    lateinit var allTrackables: ArrayList<VuforiaTrackable>
+    var lastLocation = Coordinate()
+    var isVisible = false
+
     override fun init(hardwareMap: HardwareMap) {
         val cameraMonitorViewId = hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.packageName)
         val parameters = VuforiaLocalizer.Parameters(cameraMonitorViewId)
@@ -22,15 +25,15 @@ class VisionController : Controller(){
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK
         vuforia = ClassFactory.getInstance().createVuforia(parameters)
 
-        stonesAndChips = this.vuforia.loadTrackablesFromAsset("StonesAndChips")
-        val redTarget = stonesAndChips[0]
-        redTarget.name = "RedTarget"  // Stones
+        skystone = this.vuforia.loadTrackablesFromAsset("Skystone")
+        val targetElement = skystone[0]
+        targetElement.name = "targetElement"  // Stones
 
-        val blueTarget = stonesAndChips[1]
-        blueTarget.name = "BlueTarget"  // Chips
+//        val blueTarget = stonesAndChips[1]
+//        blueTarget.name = "BlueTarget"  // Chips
 
-        allTrackables = ArrayList<VuforiaTrackable>()
-        allTrackables.addAll(stonesAndChips)
+        allTrackables = ArrayList()
+        allTrackables.addAll(skystone)
 
         val mmPerInch = 25.4f
         val mmBotWidth = 18 * mmPerInch            // ... or whatever is right for your robot
@@ -39,42 +42,43 @@ class VisionController : Controller(){
         val redTargetLocationOnField = OpenGLMatrix
                 /* Then we translate the target off to the RED WALL. Our translation here
                 is a negative translation in X.*/
-                .translation(-mmFTCFieldWidth / 2, 0f, 0f)
+                .translation(0f, 0f, 0f)
                 .multiplied(Orientation.getRotationMatrix(
                         /* First, in the fixed (field) coordinate system, we rotate 90deg in X, then 90 in Z */
                         AxesReference.EXTRINSIC, AxesOrder.XZX,
                         AngleUnit.DEGREES, 90f, 90f, 0f))
-        redTarget.location = redTargetLocationOnField
+        targetElement.location = redTargetLocationOnField
 
         /*
         * To place the Stones Target on the Blue Audience wall:
         * - First we rotate it 90 around the field's X axis to flip it upright
         * - Finally, we translate it along the Y axis towards the blue audience wall.
         */
-        val blueTargetLocationOnField = OpenGLMatrix
-                /* Then we translate the target off to the Blue Audience wall.
-                Our translation here is a positive translation in Y.*/
-                .translation(0f, mmFTCFieldWidth / 2, 0f)
-                .multiplied(Orientation.getRotationMatrix(
-                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
-                        AxesReference.EXTRINSIC, AxesOrder.XZX,
-                        AngleUnit.DEGREES, 90f, 0f, 0f))
-        blueTarget.location = blueTargetLocationOnField
+//        val blueTargetLocationOnField = OpenGLMatrix
+//                /* Then we translate the target off to the Blue Audience wall.
+//                Our translation here is a positive translation in Y.*/
+//                .translation(0f, mmFTCFieldWidth / 2, 0f)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        /* First, in the fixed (field) coordinate system, we rotate 90deg in X */
+//                        AxesReference.EXTRINSIC, AxesOrder.XZX,
+//                        AngleUnit.DEGREES, 90f, 0f, 0f))
+//        blueTarget.location = blueTargetLocationOnField
 
         val phoneLocationOnRobot = OpenGLMatrix
-                .translation(mmBotWidth / 2, 0f, 0f)
+                .translation(0f, 0f, 0f)
                 .multiplied(Orientation.getRotationMatrix(
                         AxesReference.EXTRINSIC, AxesOrder.YZY,
                         AngleUnit.DEGREES, -90f, 0f, 0f))
-        (redTarget.listener as VuforiaTrackableDefaultListener).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection)
-        (blueTarget.listener as VuforiaTrackableDefaultListener).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection)
+        (targetElement.listener as VuforiaTrackableDefaultListener).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection)
+//        (blueTarget.listener as VuforiaTrackableDefaultListener).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection)
 
 
     }
 
-    override fun start (){
-        stonesAndChips.activate()
+    override fun start() {
+        skystone.activate()
     }
+
     override fun update() {
         for (trackable in allTrackables) {
             /**
@@ -82,15 +86,15 @@ class VisionController : Controller(){
              * the last time that call was made, or if the trackable is not currently visible.
              * getRobotLocation() will return null if the trackable is not currently visible.
              */
-            telemetry.addData(trackable.getName(), if ((trackable.getListener() as VuforiaTrackableDefaultListener).isVisible) "Visible" else "Not Visible")    //
-
-            val robotLocationTransform = (trackable.getListener() as VuforiaTrackableDefaultListener).updatedRobotLocation
+            telemetry.addData(trackable.name, if ((trackable.listener as VuforiaTrackableDefaultListener).isVisible) "Visible" else "Not Visible")    //
+            val robotLocationTransform = (trackable.listener as VuforiaTrackableDefaultListener).updatedVuforiaCameraFromTarget
             if (robotLocationTransform != null) {
-                lastLocation = robotLocationTransform
-            }
+                lastLocation = Coordinate(-robotLocationTransform[2, 3].toDouble(), robotLocationTransform[0, 3].toDouble())
+                isVisible = true
+            } else isVisible = false
         }
         /**
          * Provide feedback as to where the robot was last located (if we know).
          */
-
+    }
 }

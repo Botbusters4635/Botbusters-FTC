@@ -30,7 +30,8 @@ data class MecanumMotorValues(var topLeftSpeed: Double = 0.0, var topRightSpeed:
         return result
     }
 }
-data class MecanumMoveCommand(var vx: Double = 0.0, var vy : Double = 0.0, var theta : Double = 0.0)
+
+data class MecanumMoveCommand(var vx: Double = 0.0, var vy: Double = 0.0, var theta: Double = 0.0)
 
 class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFromWheelToCenter: Double, var wheelRadius: Double) {
 
@@ -57,7 +58,7 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 
 
 open class Chassis : Controller() {
-    private val pidSettingsNormal = PIDSettings(kP = 0.15, kI = 0.00, kD = 0.0025, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.03, kI = 0.00, kD = 0.001, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
     private val angularPID = PID(pidSettingsNormal)
 
@@ -68,12 +69,26 @@ open class Chassis : Controller() {
 
     private lateinit var imu: BNO055IMU
 
-    private var kinematics = MecanumKinematics(0.25/2, 0.27/2, 0.1016)
+    private var kinematics = MecanumKinematics(0.5, 0.5, 1.0)
 
     protected var currentCoords = Coordinate()
 
     private var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
     var timeStep = 0.0
+
+    private var offset = 0.0
+
+    var heading: Double
+        set(value) {
+            offset = value - imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle.toDouble()
+        }
+        get() {
+            val currentHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle.toDouble() - offset
+
+            if (currentHeading > 180) return currentHeading - 360
+            else if (currentHeading < -180) return currentHeading + 360
+            else return currentHeading
+        }
 
     var movementTarget = MecanumMoveCommand()
 
@@ -84,7 +99,6 @@ open class Chassis : Controller() {
         topRightMotor = hardwareMap.get(DcMotor::class.java, "topRightMotor") as DcMotorEx
         downLeftMotor = hardwareMap.get(DcMotor::class.java, "downLeftMotor") as DcMotorEx
         downRightMotor = hardwareMap.get(DcMotor::class.java, "downRightMotor") as DcMotorEx
-
 
 
         topLeftMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
@@ -119,46 +133,37 @@ open class Chassis : Controller() {
         val motorValues: MecanumMotorValues = kinematics.calcInverseKinematics(
                 movementTarget.vx,
                 movementTarget.vy,
-                angularPID.update(getHeading())
+                angularPID.update(heading)
         )
 
         writeMotors(motorValues)
         lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
-        telemetry.addData("Current Coords", currentCoords)
+        telemetry.addData("position", currentCoords)
+        telemetry.update()
 
-    }
-
-
-    fun getHeading(): Double {
-        return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle.toDouble()
     }
 
     fun writeMotors(values: MecanumMotorValues) {
-//        topLeftMotor.power = values.topLeftSpeed
-//        topRightMotor.power = values.topRightSpeed
-//        downLeftMotor.power = values.downLeftSpeed
-//        downRightMotor.power = values.downRightSpeed
-
-        topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
-        topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
-        downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
-        downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
+        topLeftMotor.power = values.topLeftSpeed
+        topRightMotor.power = values.topRightSpeed
+        downLeftMotor.power = values.downLeftSpeed
+        downRightMotor.power = values.downRightSpeed
     }
 
     fun getLocalVelocities(): Twist2D {
         val wheelsSpeed = MecanumMotorValues()
 
-        wheelsSpeed.topLeftSpeed = topLeftMotor.getVelocity(AngleUnit.RADIANS)
+        wheelsSpeed.topLeftSpeed = downLeftMotor.getVelocity(AngleUnit.RADIANS)
 
-        wheelsSpeed.topRightSpeed = topRightMotor.getVelocity(AngleUnit.RADIANS)
+        wheelsSpeed.topRightSpeed = downRightMotor.getVelocity(AngleUnit.RADIANS)
 
         wheelsSpeed.downLeftSpeed = downLeftMotor.getVelocity(AngleUnit.RADIANS)
 
         wheelsSpeed.downRightSpeed = downRightMotor.getVelocity(AngleUnit.RADIANS)
 
         val localVelocities = kinematics.calcForwardKinematics(wheelsSpeed)
-        telemetry.addData("localVel", localVelocities)
+
         return localVelocities
     }
 
@@ -169,13 +174,15 @@ open class Chassis : Controller() {
     fun getGlobalVelocities(): Twist2D {
         val localVelocities = getLocalVelocities()
 
-        val headinginRadians = degreesToRadians(getHeading())
+        val headinginRadians = degreesToRadians(heading)
 
         val globalVelocities = Twist2D()
 
-
-        globalVelocities.vx = localVelocities.vx * cos(headinginRadians) - localVelocities.vy * sin(headinginRadians)
-        globalVelocities.vy = localVelocities.vy * cos(headinginRadians) + localVelocities.vx * sin(headinginRadians)
+        /**
+         * Removed Vy because tires slip, may give cleaner output for autonomous period
+         */
+        globalVelocities.vx = localVelocities.vx * cos(headinginRadians) /*+ localVelocities.vy * sin(headinginRadians)*/
+        globalVelocities.vy = /*localVelocities.vy * cos(headinginRadians) + */localVelocities.vx * sin(headinginRadians)
 
         return globalVelocities
 
@@ -184,8 +191,8 @@ open class Chassis : Controller() {
     fun updateCurrentCoords(timeStep: Double) {
         val globalVelocities = getGlobalVelocities()
 
-        currentCoords.x = currentCoords.x + (globalVelocities.vx * timeStep)
-        currentCoords.y = currentCoords.y + (globalVelocities.vy * timeStep)
+        currentCoords.x = currentCoords.x + (globalVelocities.vx * timeStep * 0.143)
+        currentCoords.y = currentCoords.y + (globalVelocities.vy * timeStep * 0.143)
     }
 
     fun getCurrentCords(): Coordinate {

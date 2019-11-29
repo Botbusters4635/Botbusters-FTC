@@ -9,6 +9,9 @@ import kotlinx.coroutines.*
 abstract class EctoLinearOpMode : EctoOpMode() {
     private var linearOpModeController = LinearOpModeController()
 
+    val isActive: Boolean
+    get() = linearOpModeController.isActive
+
     init {
         addController(linearOpModeController)
     }
@@ -20,6 +23,9 @@ abstract class EctoLinearOpMode : EctoOpMode() {
 
     protected inner class LinearOpModeController : Controller() {
         private var scope = CoroutineScope(Job())
+
+        val isActive: Boolean
+        get() = scope.isActive
 
         override fun init(hardwareMap: HardwareMap) {
         }
@@ -33,6 +39,7 @@ abstract class EctoLinearOpMode : EctoOpMode() {
 
         override fun update() {
             runBlocking {
+                telemetry.update()
                 delay(20)
             }
         }

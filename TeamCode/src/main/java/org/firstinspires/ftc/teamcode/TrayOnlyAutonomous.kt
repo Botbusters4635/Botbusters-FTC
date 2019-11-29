@@ -15,17 +15,13 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
         addController(chassis)
     }
 
-    override fun runOpMode() {
-        chassis.followPath(Path(
-                Coordinate(0.0, 0.0),
-                Coordinate(0.3, 0.0)
-        ))
 
+    override fun runOpMode() {
+        chassis.heading = 180.0
         /**
          * Asume que lo de los servos estará por atras
          */
-        chassis.turnToAngle(180.0)
-        chassis.runToPosition(Coordinate(0.5, 0.0))
+        chassis.runToPosition(Coordinate(0.5, 0.0), true)
         /***
          * Enable grabbing cosa
          */
@@ -41,12 +37,14 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
          * Girar para acomodarla y empujarla contra la zona
          */
         chassis.turnToAngle(-90.0)
-        chassis.runToPosition(Coordinate(chassis.getCurrentCords().x, chassis.getCurrentCords().y + 0.25))
+        chassis.runToPosition(Coordinate(chassis.getCurrentCords().x, chassis.getCurrentCords().y + 0.25), true)
 
         /**
          * Ir a estacionarse
          */
         chassis.runToPosition(Coordinate(chassis.getCurrentCords().x, -0.7))
+
+
 
     }
 
