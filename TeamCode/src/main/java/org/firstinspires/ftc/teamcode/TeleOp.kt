@@ -45,13 +45,14 @@ class TeleOp : EctoOpMode() {
         if (gamepad2.y)
             arm.moveToPosition(ArmPosition.TOP)
         else if (gamepad2.a)
-            arm.moveToPosition(ArmPosition.LOW)
+            arm.moveToPosition(ArmPosition.SLOW)
         else if (gamepad2.b)
             arm.moveToPosition(ArmPosition.MEDIUM)
         else if (gamepad2.x)
             arm.moveToPosition(ArmPosition.HOME)
         else if (gamepad2.right_bumper || (arm.targetCoordinate == ArmPosition.HOME.coordinate && intakePower != 0.0))
             arm.moveToPosition(ArmPosition.EXCHANGE)
+
 
         if(gamepad2.right_stick_button){
             arm.setClampPower(1.0)

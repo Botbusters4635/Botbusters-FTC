@@ -15,15 +15,15 @@ class PositionChassis : Chassis() {
 
     var targetCoords = Coordinate(0.0, 0.0)
 
-    val xPID = PID(PIDSettings(4.0, 0.0, 0.0))
-    val yPID = PID(PIDSettings(4.0, 0.0, 0.0))
+    val xPID = PID(PIDSettings(2.5, 0.0, 0.0))
+    val yPID = PID(PIDSettings(2.5, 0.0, 0.0))
 
-    val maxVelocityChange = 1
+    val maxVelocityChange = 0.5
 
     var currentVx = 0.0
     var currentVy = 0.0
 
-    var maxV = 1.0
+    var maxV = 0.5
 
     var followingPath = false
 

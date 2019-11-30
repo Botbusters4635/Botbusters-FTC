@@ -84,6 +84,7 @@ class VisionController : Controller() {
     }
 
     override fun update() {
+        var currentVisibility = false
         for (trackable in allTrackables) {
             /**
              * getUpdatedRobotLocation() will return null if no new information is available since
@@ -91,11 +92,13 @@ class VisionController : Controller() {
              * getRobotLocation() will return null if the trackable is not currently visible.
              */
             val robotLocationTransform = (trackable.listener as VuforiaTrackableDefaultListener).updatedVuforiaCameraFromTarget
-            isVisible = (trackable.listener as VuforiaTrackableDefaultListener).isVisible
+            val thingIsVisible = (trackable.listener as VuforiaTrackableDefaultListener).isVisible
+            currentVisibility = if (currentVisibility) true else thingIsVisible
             if (robotLocationTransform != null) {
                 lastLocation = Coordinate(-robotLocationTransform[2, 3].toDouble(), robotLocationTransform[0, 3].toDouble())
             }
         }
+        isVisible = currentVisibility
         /**
          * Provide feedback as to where the robot was last located (if we know).
          */
