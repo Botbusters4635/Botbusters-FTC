@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.teamcode.core.*
+import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -58,7 +59,7 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 
 
 open class Chassis : Controller() {
-    private val pidSettingsNormal = PIDSettings(kP = 0.15, kI = 0.00, kD = 0.0025, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.05, kI = 0.00, kD = 0.0015, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
     private val angularPID = PID(pidSettingsNormal)
 
@@ -72,10 +73,6 @@ open class Chassis : Controller() {
     private var kinematics = MecanumKinematics(0.25/2, 0.27/2, 0.0508)
 
     protected var currentCoords = Coordinate()
-
-    private var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
-    var timeStep = 0.0
-
     private var offset = 0.0
 
     var heading: Double
@@ -90,7 +87,20 @@ open class Chassis : Controller() {
             else return currentHeading
         }
 
-    var movementTarget = MecanumMoveCommand()
+    val maxV = 0.4
+
+    var movementTarget : MecanumMoveCommand = MecanumMoveCommand()
+        set(value) {
+            if(value.vx.absoluteValue > maxV){
+                value.vx = Math.copySign(maxV, value.vx)
+            }
+
+            if(value.vy.absoluteValue > maxV){
+                value.vy = Math.copySign(maxV, value.vy)
+            }
+
+            field = value
+        }
 
 
     override fun init(hardwareMap: HardwareMap) {
@@ -123,22 +133,18 @@ open class Chassis : Controller() {
     }
 
 
-    override fun update() {
-
-        timeStep = SystemClock.elapsedRealtime() / 1000.0 - lastTimeRun
-
+    override fun update(timeStep: Double) {
         updateCurrentCoords(timeStep)
         angularPID.target = movementTarget.theta
+
 
         val motorValues: MecanumMotorValues = kinematics.calcInverseKinematics(
                 movementTarget.vx,
                 movementTarget.vy,
-                angularPID.update(heading)
+                angularPID.update(heading, timeStep)
         )
 
         writeMotors(motorValues)
-        lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
-
     }
 
     fun writeMotors(values: MecanumMotorValues) {
@@ -188,8 +194,8 @@ open class Chassis : Controller() {
     fun updateCurrentCoords(timeStep: Double) {
         val globalVelocities = getGlobalVelocities()
 
-        currentCoords.x = currentCoords.x + (globalVelocities.vx * timeStep)
-        currentCoords.y = currentCoords.y + (globalVelocities.vy * timeStep)
+        currentCoords.x = currentCoords.x + (globalVelocities.vx * timeStep)*8.097165992
+        currentCoords.y = currentCoords.y + (globalVelocities.vy * timeStep)*8.097165992
     }
 
     fun getCurrentCords(): Coordinate {

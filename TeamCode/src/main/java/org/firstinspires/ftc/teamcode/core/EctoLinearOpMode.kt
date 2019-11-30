@@ -16,7 +16,7 @@ abstract class EctoLinearOpMode : EctoOpMode() {
         addController(linearOpModeController)
     }
 
-    override fun update() {
+    override fun update(timeStep: Double) {
     }
 
     abstract fun runOpMode()
@@ -37,10 +37,9 @@ abstract class EctoLinearOpMode : EctoOpMode() {
             }
         }
 
-        override fun update() {
+        override fun update(timeStep: Double) {
             runBlocking {
                 telemetry.update()
-                delay(20)
             }
         }
 

@@ -10,7 +10,7 @@ abstract class Controller {
 
     open fun start() {}
 
-    abstract fun update()
+    abstract fun update(timeStep: Double)
 
     open fun stop() {}
 }

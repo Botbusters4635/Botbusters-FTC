@@ -20,7 +20,7 @@ class Intake : Controller() {
         rightIntake = hardwareMap.get(DcMotor::class.java, "intakeRight")
     }
 
-    override fun update() {
+    override fun update(timeStep: Double) {
 
     }
 }

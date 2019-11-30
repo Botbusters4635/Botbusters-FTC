@@ -83,7 +83,7 @@ class VisionController : Controller() {
         skystone.activate()
     }
 
-    override fun update() {
+    override fun update(timeStep: Double) {
         var currentVisibility = false
         for (trackable in allTrackables) {
             /**

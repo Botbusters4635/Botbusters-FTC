@@ -16,13 +16,17 @@ class PID(var pidSettings: PIDSettings = PIDSettings()) {
     var iComponent = 0.0
     var dComponent = 0.0
 
-    var lastTimeUpdate =  SystemClock.elapsedRealtime() / 1000.0
     var lastError = 0.0
     var output = 0.0
 
-    fun update(reference: Double) : Double {
+    fun clear(){
+        lastError = 0.0
+        error = 0.0
+        accumulatedError = 0.0
+    }
 
-        val timeStep = SystemClock.elapsedRealtime() / 1000.0 - lastTimeUpdate
+    fun update(reference: Double, timeStep: Double) : Double {
+
 
         error = target - reference // Current input received from the producer
         if (pidSettings.continous) {
@@ -36,8 +40,10 @@ class PID(var pidSettings: PIDSettings = PIDSettings()) {
 
         accumulatedError += error * (timeStep)
 
-        val deltaError = (error - lastError) / (timeStep)
-
+        var deltaError = 0.0
+        if(timeStep > 0.0){
+            deltaError = (error - lastError) / (timeStep)
+        }
 
         pComponent = error * pidSettings.kP
         iComponent = accumulatedError * pidSettings.kI
@@ -46,7 +52,6 @@ class PID(var pidSettings: PIDSettings = PIDSettings()) {
         output = pComponent + iComponent + dComponent
 
         lastError = error
-        lastTimeUpdate =  SystemClock.elapsedRealtime() / 1000.0
 
         return output
 

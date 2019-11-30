@@ -1,16 +1,24 @@
 package org.firstinspires.ftc.teamcode.core
 
+import android.os.SystemClock
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.util.ElapsedTime
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 abstract class EctoOpMode: OpMode() {
     private val controllers: ArrayList<Controller> = arrayListOf()
+
+    private var lastTimeRun = 0.0
+    var initialTimeSet = false
+    val updateRate = 10 //Milliseconds
 
     protected fun addController(controller: Controller){
         controllers.add(controller)
     }
 
     final override fun init() {
-        telemetry.msTransmissionInterval = 20
+        telemetry.msTransmissionInterval = updateRate
         controllers.forEach {
             it.telemetry = telemetry
             it.init(hardwareMap)
@@ -18,13 +26,25 @@ abstract class EctoOpMode: OpMode() {
     }
 
     final override fun loop() {
-        controllers.forEach{
-            it.update()
+        if(!initialTimeSet){
+            lastTimeRun = runtime
+            initialTimeSet = true
+            return
         }
-        update()
+        val timeStep = runtime - lastTimeRun
+        controllers.forEach{
+            it.update(timeStep)
+        }
+        update(timeStep)
+
+        lastTimeRun = runtime
+        runBlocking {
+            delay(updateRate.toLong())
+        }
+
     }
 
-    abstract fun update()
+    abstract fun update(timeStep: Double)
 
     final override fun start() {
         controllers.forEach {

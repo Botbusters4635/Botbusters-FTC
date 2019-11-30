@@ -1,7 +1,16 @@
 package org.firstinspires.ftc.teamcode.core
 
+import kotlin.math.absoluteValue
+
 data class Coordinate(var x: Double = 0.0, var y: Double = 0.0){
-    fun closeTo(targetCoord: Coordinate, nearness: Double = 10.0): Boolean {
-        return this.x in (targetCoord.x - targetCoord.x * nearness / 100)..(targetCoord.x + targetCoord.x * nearness / 100) && this.y in (targetCoord.y - targetCoord.y * nearness / 100)..(targetCoord.y + targetCoord.y * nearness / 100)
+    fun closeTo(targetCoord: Coordinate, threshold: Double = 0.05): Boolean {
+
+        val deltaX = targetCoord.x - this.x
+        val deltaY = targetCoord.y - this.y
+
+        val xOnTarget = deltaX.absoluteValue < threshold
+        val yOnTarget = deltaY.absoluteValue < threshold
+
+        return xOnTarget && yOnTarget
     }
 }

@@ -1,15 +1,15 @@
 package org.firstinspires.ftc.teamcode.core
 
-class Path(vararg val coordinates: Coordinate): Iterable<Coordinate> {
+class Path(vararg val waypoints: Waypoint): Iterable<Waypoint> {
 
     val size: Int
-        get() = coordinates.size
+        get() = waypoints.size
 
-    operator fun get(index: Int): Coordinate {
-        return coordinates[index]
+    operator fun get(index: Int): Waypoint {
+        return waypoints[index]
     }
 
-    override fun iterator(): Iterator<Coordinate> {
-        return coordinates.iterator()
+    override fun iterator(): Iterator<Waypoint> {
+        return waypoints.iterator()
     }
 }

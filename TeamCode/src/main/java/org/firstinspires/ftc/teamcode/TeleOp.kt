@@ -12,9 +12,7 @@ class TeleOp : EctoOpMode() {
     val intake = Intake()
 
     var targetHeading = 0.0
-    val maxTargetHeadingRate = 90.0
-
-    private var lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
+    val maxTargetHeadingRate = 720.0
 
     init {
         addController(chassis)
@@ -22,9 +20,12 @@ class TeleOp : EctoOpMode() {
         addController(intake)
     }
 
-    override fun update() {
+    override fun update(timeStep: Double) {
+
         val desiredChange = -gamepad1.right_stick_x.toDouble()
-        targetHeading += desiredChange * 0.1 * maxTargetHeadingRate
+        targetHeading += (desiredChange * maxTargetHeadingRate) * timeStep
+
+
 
         if(targetHeading > 180.0){
             targetHeading -= 360
@@ -34,8 +35,9 @@ class TeleOp : EctoOpMode() {
             targetHeading += 360
         }
 
+        telemetry.addData("timeStep", timeStep)
 
-        val moveCommand = MecanumMoveCommand(vx = -gamepad1.left_stick_y.toDouble(), vy = -gamepad1.left_stick_x.toDouble(), theta = targetHeading)
+        val moveCommand = MecanumMoveCommand(vx = -gamepad1.left_stick_y.toDouble() * chassis.maxV, vy = -gamepad1.left_stick_x.toDouble() * chassis.maxV, theta = targetHeading)
         chassis.movementTarget = moveCommand
 
         val intakePower = gamepad2.left_trigger - gamepad2.right_trigger.toDouble()
@@ -51,7 +53,7 @@ class TeleOp : EctoOpMode() {
         else if (gamepad2.x)
             arm.moveToPosition(ArmPosition.HOME)
         else if (gamepad2.right_bumper || (arm.targetCoordinate == ArmPosition.HOME.coordinate && intakePower != 0.0))
-            arm.moveToPosition(ArmPosition.EXCHANGE)
+            arm.moveToPosition(ArmPosition.INTAKE)
 
 
         if(gamepad2.right_stick_button){
@@ -61,10 +63,10 @@ class TeleOp : EctoOpMode() {
         if(gamepad2.left_stick_button){
             arm.setClampPower(0.0)
         }
-
-        // Show the elapsed game time and wheel power.
-
-        lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
+//
+//        // Show the elapsed game time and wheel power.
+//
+//        lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
     }
 
