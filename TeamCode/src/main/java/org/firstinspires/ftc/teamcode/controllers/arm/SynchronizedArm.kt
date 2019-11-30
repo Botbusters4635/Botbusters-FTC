@@ -12,7 +12,7 @@ class SynchronizedArm : PositionArm() {
     private val clawTurnTime = 0.5 //Seconds needed for claw to turn to position
     private var clawTurning = false
 
-    var currentTargetCoord = Coordinate()
+    var currentTargetCoord = ArmPosition.HOME.coordinate
 
     val clamp = Clamp()
 
@@ -68,6 +68,7 @@ class SynchronizedArm : PositionArm() {
             }
         }
         telemetry.addData("servoPosition", clamp.angle)
+        telemetry.addData("currentState", currentState)
     }
 
     override fun moveToPosition(position: ArmPosition) {
