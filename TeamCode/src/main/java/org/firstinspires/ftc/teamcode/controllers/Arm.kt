@@ -166,7 +166,7 @@ class Arm : Controller() {
 
 
     override fun update(timeStep: Double) {
-        val currentAngles = getAngles()
+        val currentAngles = getAngles(true)
         val currentCoordinate = kinematics.calculateFowardKinematics(currentAngles)
 
         var currentTargetCoord = targetCoordinate
@@ -211,11 +211,11 @@ class Arm : Controller() {
 
         val targetAngles = kinematics.calculateInverseKinematics(currentTargetCoord)
 
-        lowerAnglePID.target = targetAngles.lowerAngle
-        upperAnglePID.target = targetAngles.upperAngle
+        lowerAnglePID.target = targetAngles.lowerAngle * 180.0 / Math.PI
+        upperAnglePID.target = targetAngles.upperAngle * 180.0 / Math.PI
 
-        val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle * 180.0 / Math.PI, timeStep)
-        val upperOutput = upperAnglePID.update(currentAngles.upperAngle  * 180.0 / Math.PI, timeStep)
+        val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle * 180.0 / Math.PI,  timeStep)
+        val upperOutput = upperAnglePID.update(currentAngles.upperAngle * 180.0 / Math.PI, timeStep)
 
         lowerMotor.power = lowerOutput
         upperMotor.power = upperOutput
