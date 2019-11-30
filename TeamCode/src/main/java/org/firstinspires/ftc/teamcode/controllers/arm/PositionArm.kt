@@ -1,73 +1,21 @@
-package org.firstinspires.ftc.teamcode.controllers
+package org.firstinspires.ftc.teamcode.controllers.arm
 
 import android.os.SystemClock
-import com.qualcomm.robotcore.hardware.*
-import kotlinx.coroutines.*
+import com.qualcomm.robotcore.hardware.AnalogInput
+import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.hardware.HardwareMap
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.runBlocking
 import org.firstinspires.ftc.teamcode.core.Controller
 import org.firstinspires.ftc.teamcode.core.Coordinate
 import org.firstinspires.ftc.teamcode.core.PID
 import org.firstinspires.ftc.teamcode.core.PIDSettings
 import kotlin.math.*
 
-data class ArmAngleValues(var lowerAngle: Double = 0.00, var upperAngle: Double = 0.00)
-
-
-class ArmKinematics(val armLenght1: Double, val armLength2: Double) {
-
-
-    fun calculateInverseKinematics(targetCoord: Coordinate): ArmAngleValues {
-        val values = ArmAngleValues()
-        var cosAngle = (targetCoord.x.pow(2) + targetCoord.y.pow(2) - armLenght1.pow(2) - armLength2.pow(2)) / (2 * armLenght1 * armLength2)
-
-        if (cosAngle > 1) {
-            cosAngle = 1.0
-        } else if (cosAngle < -1.0) {
-            cosAngle = -1.0
-        }
-
-
-        if (targetCoord.x > 0) {
-            values.upperAngle = -acos(cosAngle)
-            values.lowerAngle = atan2(targetCoord.y, targetCoord.x) + atan2((armLength2 * sin(abs(values.upperAngle))), (armLenght1 + armLength2 * cos(abs(values.upperAngle))))
-        } else {
-            values.upperAngle = acos(cosAngle)
-            values.lowerAngle = atan2(targetCoord.y, targetCoord.x) - atan2((armLength2 * sin(abs(values.upperAngle))), (armLenght1 + armLength2 * cos(abs(values.upperAngle))))
-        }
-
-        values.upperAngle *= 180.0 / Math.PI
-        values.lowerAngle *= 180.0 / Math.PI
-
-        return values
-
-    }
-
-    fun calculateFowardKinematics(armValues: ArmAngleValues): Coordinate {
-        val values2 = Coordinate()
-        armValues.lowerAngle *= Math.PI / 180.0
-        armValues.upperAngle *= Math.PI / 180.0
-
-        values2.x = cos(armValues.lowerAngle) * armLenght1 + cos(armValues.lowerAngle + armValues.upperAngle) * armLength2
-        values2.y = sin(armValues.lowerAngle) * armLenght1 + sin(armValues.lowerAngle + armValues.upperAngle) * armLength2
-
-        return values2
-    }
-
-
-}
-
-enum class ArmState {
-    GO_TARGET, EXCHANGE_BACK_TO_FRONT, EXCHANGE_FRONT_TO_BACK
-}
-
-enum class TURN_POS(val value: Double) {
-    OPEN(0.0), CLOSED(1.0), MIDDLE(0.5)
-}
-
-enum class ArmPosition(val coordinate: Coordinate) {
-    SLOW(Coordinate(-0.42, 0.2)), HOME(Coordinate(0.20, 0.08)), TOP(Coordinate(-0.26, 0.3)), MEDIUM(Coordinate(-0.26, 0.15)), LOW(Coordinate(-0.26, 0.05)), EXCHANGE(Coordinate(0.25, 0.32)),INTAKE(Coordinate(0.25, 0.28)),  PASSBRIDGE(Coordinate(0.2, 0.05))
-}
-
-class Arm : Controller() {
+class PositionArm : Arm() {
     private var scope = CoroutineScope(Job())
 
     val lowerAnglePID = PID(PIDSettings(kP = 0.045, kI = 0.001, kD = 0.0))
@@ -82,20 +30,17 @@ class Arm : Controller() {
     lateinit var intakeLeft: DcMotor
     lateinit var intakeRight: DcMotor
 
-    private lateinit var clampServo: Servo
-    private lateinit var turningServo: Servo
-
 
     var clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
     var clawTurnTime = 0.5 //Seconds needed for claw to turn to position
 
     var targetCoordinate = ArmPosition.HOME.coordinate
 
-    val currentCoordinate : Coordinate
-    get() {
-        val currentAngles = getAngles()
-        return kinematics.calculateFowardKinematics(currentAngles)
-    }
+    val currentCoordinate: Coordinate
+        get() {
+            val currentAngles = getAngles()
+            return kinematics.calculateFowardKinematics(currentAngles)
+        }
 
     val kinematics = ArmKinematics(armLenght1 = .26, armLength2 = .26)
 
@@ -123,10 +68,7 @@ class Arm : Controller() {
         intakeLeft.direction = DcMotorSimple.Direction.REVERSE
         intakeRight.direction = DcMotorSimple.Direction.REVERSE
 
-        clampServo = hardwareMap.get(Servo::class.java, "clampServo")
-        turningServo = hardwareMap.get(Servo::class.java, "turningServo")
-        clampServo.direction = Servo.Direction.REVERSE
-        turningServo.direction = Servo.Direction.REVERSE
+
         setClampPower(0.0)
     }
 
@@ -136,11 +78,11 @@ class Arm : Controller() {
 
 
         if (position.coordinate != targetCoordinate) {
-            if(currentCoordinate.x > 0.0 && position.coordinate.x < 0.0){
+            if (currentCoordinate.x > 0.0 && position.coordinate.x < 0.0) {
                 currentState = ArmState.EXCHANGE_FRONT_TO_BACK
-            }else if(currentCoordinate.x < 0.0 && position.coordinate.x > 0.0){
+            } else if (currentCoordinate.x < 0.0 && position.coordinate.x > 0.0) {
                 currentState = ArmState.EXCHANGE_BACK_TO_FRONT
-            }else{
+            } else {
                 currentState = ArmState.GO_TARGET
             }
         }
@@ -171,12 +113,12 @@ class Arm : Controller() {
         var currentTargetCoord = targetCoordinate
         when (currentState) {
             ArmState.EXCHANGE_FRONT_TO_BACK -> {
-                if(currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate)){
+                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate)) {
                     setServoHeading(180.0)
-                    if(!clawTurning){
+                    if (!clawTurning) {
                         clawTurning = true
                         clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
-                    }else if(SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > clawTurnTime){
+                    } else if (SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > clawTurnTime) {
                         clawTurning = false
                         servoPosition = 180.0
                         currentState = ArmState.GO_TARGET
@@ -185,12 +127,12 @@ class Arm : Controller() {
                 currentTargetCoord = ArmPosition.EXCHANGE.coordinate
             }
             ArmState.EXCHANGE_BACK_TO_FRONT -> {
-                if(currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate)){
+                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate)) {
                     setServoHeading(0.0)
-                    if(!clawTurning){
+                    if (!clawTurning) {
                         clawTurning = true
                         clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
-                    }else if(SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > clawTurnTime){
+                    } else if (SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > clawTurnTime) {
                         clawTurning = false
                         servoPosition = 0.0
                         currentState = ArmState.GO_TARGET
@@ -210,21 +152,11 @@ class Arm : Controller() {
         lowerAnglePID.target = targetAngles.lowerAngle
         upperAnglePID.target = targetAngles.upperAngle
 
-        val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle,  timeStep)
+        val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle, timeStep)
         val upperOutput = upperAnglePID.update(currentAngles.upperAngle, timeStep)
 
         lowerMotor.power = lowerOutput
         upperMotor.power = upperOutput
-    }
-
-    fun setClampPower(power: Double) {
-        val position = 1.0 - power * 0.2
-        clampServo.position = position
-
-    }
-
-    fun setServoHeading(degrees: Double) {
-        turningServo.position = (180.0- degrees) / 180.0
     }
 
     fun runToPositionCommand(position: ArmPosition) = runBlocking {
@@ -234,4 +166,5 @@ class Arm : Controller() {
         }
     }
 }
+
 

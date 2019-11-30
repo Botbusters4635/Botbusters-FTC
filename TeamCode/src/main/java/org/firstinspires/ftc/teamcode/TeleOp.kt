@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode
 
-import android.os.SystemClock
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.controllers.*
+import org.firstinspires.ftc.teamcode.controllers.arm.Arm
+import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
 import org.firstinspires.ftc.teamcode.core.EctoOpMode
 
 @TeleOp(name = "TeleOp")

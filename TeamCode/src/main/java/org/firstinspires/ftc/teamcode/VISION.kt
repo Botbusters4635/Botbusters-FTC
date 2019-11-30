@@ -4,9 +4,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.firstinspires.ftc.teamcode.controllers.*
+import org.firstinspires.ftc.teamcode.controllers.arm.Arm
+import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
 import org.firstinspires.ftc.teamcode.core.Coordinate
 import org.firstinspires.ftc.teamcode.core.EctoLinearOpMode
-import org.firstinspires.ftc.teamcode.core.EctoOpMode
 import kotlin.math.absoluteValue
 import kotlin.math.withSign
 
