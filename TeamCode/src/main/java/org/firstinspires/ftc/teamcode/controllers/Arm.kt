@@ -33,12 +33,19 @@ class ArmKinematics(val armLenght1: Double, val armLength2: Double) {
             values.upperAngle = acos(cosAngle)
             values.lowerAngle = atan2(targetCoord.y, targetCoord.x) - atan2((armLength2 * sin(abs(values.upperAngle))), (armLenght1 + armLength2 * cos(abs(values.upperAngle))))
         }
+
+        values.upperAngle *= 180.0 / Math.PI
+        values.lowerAngle *= 180.0 / Math.PI
+
         return values
 
     }
 
     fun calculateFowardKinematics(armValues: ArmAngleValues): Coordinate {
         val values2 = Coordinate()
+        armValues.lowerAngle *= Math.PI / 180.0
+        armValues.upperAngle *= Math.PI / 180.0
+
         values2.x = cos(armValues.lowerAngle) * armLenght1 + cos(armValues.lowerAngle + armValues.upperAngle) * armLength2
         values2.y = sin(armValues.lowerAngle) * armLenght1 + sin(armValues.lowerAngle + armValues.upperAngle) * armLength2
 
@@ -84,7 +91,11 @@ class Arm : Controller() {
 
     var targetCoordinate = ArmPosition.HOME.coordinate
 
-    var originCoordinate = Coordinate()
+    val currentCoordinate : Coordinate
+    get() {
+        val currentAngles = getAngles()
+        return kinematics.calculateFowardKinematics(currentAngles)
+    }
 
     val kinematics = ArmKinematics(armLenght1 = .26, armLength2 = .26)
 
@@ -119,10 +130,6 @@ class Arm : Controller() {
         setClampPower(0.0)
     }
 
-    fun moveToCoordinate(x: Double, y: Double) {
-        TODO("Implement later for vuforia")
-    }
-
     fun moveToPosition(position: ArmPosition) {
         val currentAngles = getAngles()
         val currentCoordinate = kinematics.calculateFowardKinematics(currentAngles)
@@ -141,17 +148,12 @@ class Arm : Controller() {
 
     }
 
-    fun getAngles(radians: Boolean = true): ArmAngleValues {
+    fun getAngles(): ArmAngleValues {
         val angles = ArmAngleValues()
 
         angles.lowerAngle = 165.0 - 49.0 * lowerAngle.voltage - 37.1 * Math.pow(lowerAngle.voltage, 2.0) + 26.1 * Math.pow(lowerAngle.voltage, 3.0) - 4.58 * Math.pow(lowerAngle.voltage, 4.0)
         val x = upperAngle.voltage
         angles.upperAngle = -1.66243031965927 * x.pow(3) - 9.090297864880776 * x.pow(2) + 130.359681271249 * x - 137.040643577643
-
-        if(radians){
-            angles.lowerAngle *= Math.PI / 180.0
-            angles.upperAngle *= Math.PI / 180.0
-        }
 
         return angles
     }
@@ -166,9 +168,6 @@ class Arm : Controller() {
 
 
     override fun update(timeStep: Double) {
-        val currentAngles = getAngles(true)
-        val currentCoordinate = kinematics.calculateFowardKinematics(currentAngles)
-
         var currentTargetCoord = targetCoordinate
         when (currentState) {
             ArmState.EXCHANGE_FRONT_TO_BACK -> {
@@ -204,18 +203,15 @@ class Arm : Controller() {
             }
         }
 
-        telemetry.addData("targetCoord", currentTargetCoord)
-        telemetry.addData("currentCoord", "%.2f %.2f", currentCoordinate.x, currentCoordinate.y)
-        telemetry.addData("Angles", getAngles())
-        telemetry.addData("state", currentState)
 
+        val currentAngles = getAngles()
         val targetAngles = kinematics.calculateInverseKinematics(currentTargetCoord)
 
-        lowerAnglePID.target = targetAngles.lowerAngle * 180.0 / Math.PI
-        upperAnglePID.target = targetAngles.upperAngle * 180.0 / Math.PI
+        lowerAnglePID.target = targetAngles.lowerAngle
+        upperAnglePID.target = targetAngles.upperAngle
 
-        val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle * 180.0 / Math.PI,  timeStep)
-        val upperOutput = upperAnglePID.update(currentAngles.upperAngle * 180.0 / Math.PI, timeStep)
+        val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle,  timeStep)
+        val upperOutput = upperAnglePID.update(currentAngles.upperAngle, timeStep)
 
         lowerMotor.power = lowerOutput
         upperMotor.power = upperOutput
@@ -233,12 +229,8 @@ class Arm : Controller() {
 
     fun runToPositionCommand(position: ArmPosition) = runBlocking {
         moveToPosition(position)
-        var currentAngles = getAngles()
-        var currentCoordinate = kinematics.calculateFowardKinematics(currentAngles)
-
         while (!currentCoordinate.closeTo(position.coordinate)) {
-            currentAngles = getAngles()
-            currentCoordinate = kinematics.calculateFowardKinematics(currentAngles)
+
         }
     }
 }
