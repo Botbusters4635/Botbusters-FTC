@@ -71,7 +71,7 @@ class Arm : Controller() {
     private var scope = CoroutineScope(Job())
 
     val lowerAnglePID = PID(PIDSettings(kP = 0.045, kI = 0.001, kD = 0.0))
-    val upperAnglePID = PID(PIDSettings(kP = 0.02, kI = 0.0, kD = 0.00012))
+    val upperAnglePID = PID(PIDSettings(kP = 0.015, kI = 0.00, kD = 0.0001))
 
     lateinit var lowerMotor: DcMotor
     lateinit var upperMotor: DcMotor
@@ -197,19 +197,7 @@ class Arm : Controller() {
                 currentTargetCoord = ArmPosition.EXCHANGE.coordinate
             }
             ArmState.GO_TARGET -> {
-                if(targetCoordinate.x > 0.0 && servoPosition != 0.0){
-                    setServoHeading(0.0)
-                    currentTargetCoord = ArmPosition.EXCHANGE.coordinate
-                    if(!clawTurning){
-                        clawTurning = true
-                        clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
-                    }else if(SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > clawTurnTime){
-                        clawTurning = false
-                        servoPosition = 0.0
-                    }
-                }else{
-                    currentTargetCoord = targetCoordinate
-                }
+                currentTargetCoord = targetCoordinate
             }
         }
         telemetry.addData("servoPosition", servoPosition)
