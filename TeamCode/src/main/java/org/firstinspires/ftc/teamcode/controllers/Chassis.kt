@@ -69,7 +69,7 @@ open class Chassis : Controller() {
 
     private lateinit var imu: BNO055IMU
 
-    private var kinematics = MecanumKinematics(0.25/2, 0.27/2, 0.1016)
+    private var kinematics = MecanumKinematics(0.25/2, 0.27/2, 0.0508)
 
     protected var currentCoords = Coordinate()
 
@@ -151,13 +151,13 @@ open class Chassis : Controller() {
     fun getLocalVelocities(): Twist2D {
         val wheelsSpeed = MecanumMotorValues()
 
-        wheelsSpeed.topLeftSpeed = topLeftMotor.getVelocity(AngleUnit.RADIANS)
+        wheelsSpeed.topLeftSpeed = topLeftMotor.getVelocity(AngleUnit.RADIANS) * 1.25
 
-        wheelsSpeed.topRightSpeed = topRightMotor.getVelocity(AngleUnit.RADIANS)
+        wheelsSpeed.topRightSpeed = topRightMotor.getVelocity(AngleUnit.RADIANS) * 1.25
 
-        wheelsSpeed.downLeftSpeed = downLeftMotor.getVelocity(AngleUnit.RADIANS)
+        wheelsSpeed.downLeftSpeed = downLeftMotor.getVelocity(AngleUnit.RADIANS) * 1.25
 
-        wheelsSpeed.downRightSpeed = downRightMotor.getVelocity(AngleUnit.RADIANS)
+        wheelsSpeed.downRightSpeed = downRightMotor.getVelocity(AngleUnit.RADIANS) * 1.25
 
         val localVelocities = kinematics.calcForwardKinematics(wheelsSpeed)
 
