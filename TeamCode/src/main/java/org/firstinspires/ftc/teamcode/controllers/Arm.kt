@@ -135,13 +135,11 @@ class Arm : Controller() {
         val currentCoordinate = kinematics.calculateFowardKinematics(currentAngles)
 
 
-        if (position.coordinate != targetCoordinate) {
+        if (position.coordinate != targetCoordinate && !clawTurning) {
             if(currentCoordinate.x > 0.0 && position.coordinate.x < 0.0){
                 currentState = ArmState.EXCHANGE_FRONT_TO_BACK
             }else if(currentCoordinate.x < 0.0 && position.coordinate.x > 0.0){
                 currentState = ArmState.EXCHANGE_BACK_TO_FRONT
-            }else{
-                currentState = ArmState.GO_TARGET
             }
         }
         targetCoordinate = position.coordinate
@@ -208,13 +206,13 @@ class Arm : Controller() {
                     }else if(SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > clawTurnTime){
                         clawTurning = false
                         servoPosition = 0.0
-                        currentState = ArmState.GO_TARGET
                     }
                 }else{
                     currentTargetCoord = targetCoordinate
                 }
             }
         }
+        telemetry.addData("servoPosition", servoPosition)
 
 
         val currentAngles = getAngles()
