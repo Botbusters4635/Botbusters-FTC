@@ -57,7 +57,7 @@ enum class TURN_POS(val value: Double) {
 }
 
 enum class ArmPosition(val coordinate: Coordinate) {
-    SLOW(Coordinate(-0.42, 0.2)), HOME(Coordinate(0.20, 0.08)), TOP(Coordinate(-0.26, 0.4)), MEDIUM(Coordinate(-0.32, 0.2)), LOW(Coordinate(-0.26, 0.1)), EXCHANGE(Coordinate(0.25, 0.32)), PASSBRIDGE(Coordinate(0.2, 0.05))
+    SLOW(Coordinate(-0.42, 0.2)), HOME(Coordinate(0.20, 0.08)), TOP(Coordinate(-0.26, 0.3)), MEDIUM(Coordinate(-0.26, 0.15)), LOW(Coordinate(-0.26, 0.05)), EXCHANGE(Coordinate(0.25, 0.32)), PASSBRIDGE(Coordinate(0.2, 0.05))
 }
 
 class Arm : Controller() {
@@ -210,7 +210,7 @@ class Arm : Controller() {
 
         val currentAngles = getAngles()
 
-        telemetry.addData("sudo rm -rf /", kinematics.calculateFowardKinematics(currentAngles.lowerAngle, currentAngles.upperAngle))
+        telemetry.addData("Angles", currentAngles)
 
         lowerAnglePID.target = lowerTarget
         upperAnglePID.target = upperTarget
