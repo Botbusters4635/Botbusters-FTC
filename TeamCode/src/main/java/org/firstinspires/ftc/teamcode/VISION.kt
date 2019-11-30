@@ -6,6 +6,8 @@ import kotlinx.coroutines.runBlocking
 import org.firstinspires.ftc.teamcode.controllers.*
 import org.firstinspires.ftc.teamcode.controllers.arm.Arm
 import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
+import org.firstinspires.ftc.teamcode.controllers.arm.PositionArm
+import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
 import org.firstinspires.ftc.teamcode.core.Coordinate
 import org.firstinspires.ftc.teamcode.core.EctoLinearOpMode
 import kotlin.math.absoluteValue
@@ -18,7 +20,7 @@ class VISION : EctoLinearOpMode() {
 
     val vision = VisionController()
     val chassis = PositionChassis()
-    val arm = Arm()
+    val arm = SynchronizedArm()
 
     init {
         addController(vision)
@@ -34,7 +36,7 @@ class VISION : EctoLinearOpMode() {
         alignWithTarget(SearchDirection.Right)
 
         arm.runToPositionCommand(ArmPosition.MEDIUM)
-        arm.setServoHeading(90.0)
+        arm.clamp.angle = 90.0
         runBlocking {
             delay(1000)
         }

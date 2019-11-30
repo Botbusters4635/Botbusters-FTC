@@ -9,13 +9,13 @@ class Clamp : Controller() {
     private lateinit var clampServo: Servo
     private lateinit var turningServo: Servo
 
-    var clampAngle: Double = 0.0
+    var angle: Double = 0.0
         set(value) {
             turningServo.position = (180 - value) / 180
             field = value
         }
 
-    var clampPower: Double = 0.0
+    var power: Double = 0.0
         set(value) {
             val position = 1.0 - value * 0.2
             clampServo.position = position

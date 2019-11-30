@@ -4,12 +4,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.controllers.*
 import org.firstinspires.ftc.teamcode.controllers.arm.Arm
 import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
+import org.firstinspires.ftc.teamcode.controllers.arm.PositionArm
+import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
 import org.firstinspires.ftc.teamcode.core.EctoOpMode
 
 @TeleOp(name = "TeleOp")
 class TeleOp : EctoOpMode() {
     val chassis = Chassis()
-    val arm = Arm()
+    val arm = SynchronizedArm()
     val intake = Intake()
 
     var targetHeading = 0.0
@@ -58,11 +60,11 @@ class TeleOp : EctoOpMode() {
 
 
         if(gamepad2.right_stick_button){
-            arm.setClampPower(1.0)
+            arm.clamp.power = 1.0
         }
 
         if(gamepad2.left_stick_button){
-            arm.setClampPower(0.0)
+            arm.clamp.power = 0.0
         }
 //
 //        // Show the elapsed game time and wheel power.
