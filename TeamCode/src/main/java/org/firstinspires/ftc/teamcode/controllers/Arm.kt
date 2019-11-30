@@ -199,7 +199,20 @@ class Arm : Controller() {
                 currentTargetCoord = ArmPosition.EXCHANGE.coordinate
             }
             ArmState.GO_TARGET -> {
-                currentTargetCoord = targetCoordinate
+                if(targetCoordinate.x > 0.0 && servoPosition != 0.0){
+                    setServoHeading(0.0)
+                    currentTargetCoord = ArmPosition.EXCHANGE.coordinate
+                    if(!clawTurning){
+                        clawTurning = true
+                        clawStartedTurning = SystemClock.elapsedRealtime() / 1000.0
+                    }else if(SystemClock.elapsedRealtime() / 1000.0 - clawStartedTurning > clawTurnTime){
+                        clawTurning = false
+                        servoPosition = 0.0
+                        currentState = ArmState.GO_TARGET
+                    }
+                }else{
+                    currentTargetCoord = targetCoordinate
+                }
             }
         }
 
