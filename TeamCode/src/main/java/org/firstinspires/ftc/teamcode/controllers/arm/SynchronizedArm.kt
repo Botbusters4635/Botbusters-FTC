@@ -67,8 +67,8 @@ class SynchronizedArm : PositionArm() {
                 targetCoordinate = currentTargetCoord
             }
         }
-        telemetry.addData("servoPosition", clamp.angle)
-        telemetry.addData("currentState", currentState)
+        telemetry.addData("x, y", "%.2f %.2f", currentCoordinate.x, currentCoordinate.y)
+
     }
 
     override fun moveToPosition(position: ArmPosition) {

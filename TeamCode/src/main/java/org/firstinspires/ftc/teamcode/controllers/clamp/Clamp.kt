@@ -17,7 +17,7 @@ class Clamp : Controller() {
 
     var power: Double = 0.0
         set(value) {
-            val position = 1.0 - value * 0.2
+            val position = 1.0 - value * 0.3
             clampServo.position = position
             field = value
         }

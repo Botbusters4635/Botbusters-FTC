@@ -59,9 +59,9 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 
 
 open class Chassis : Controller() {
-    private val pidSettingsNormal = PIDSettings(kP = 0.05, kI = 0.00, kD = 0.0015, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.05, kI = 0.00, kD = 0.001, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
-    private val angularPID = PID(pidSettingsNormal)
+    protected val angularPID = PID(pidSettingsNormal)
 
     private lateinit var topLeftMotor: DcMotorEx
     private lateinit var topRightMotor: DcMotorEx
@@ -87,7 +87,7 @@ open class Chassis : Controller() {
             else return currentHeading
         }
 
-    val maxV = 0.4
+    val maxV = 0.6
 
     var movementTarget : MecanumMoveCommand = MecanumMoveCommand()
         set(value) {

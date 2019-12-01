@@ -2,9 +2,7 @@ package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.controllers.*
-import org.firstinspires.ftc.teamcode.controllers.arm.Arm
 import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
-import org.firstinspires.ftc.teamcode.controllers.arm.PositionArm
 import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
 import org.firstinspires.ftc.teamcode.core.EctoOpMode
 
@@ -13,6 +11,7 @@ class TeleOp : EctoOpMode() {
     val chassis = Chassis()
     val arm = SynchronizedArm()
     val intake = Intake()
+    val trayHolder = TrayHolder()
 
     var targetHeading = 0.0
     val maxTargetHeadingRate = 720.0
@@ -21,6 +20,7 @@ class TeleOp : EctoOpMode() {
         addController(chassis)
         addController(arm)
         addController(intake)
+        addController(trayHolder)
     }
 
     override fun update(timeStep: Double) {
@@ -47,16 +47,41 @@ class TeleOp : EctoOpMode() {
         intake.power = intakePower
 
 
-        if (gamepad2.y)
-            arm.moveToPosition(ArmPosition.TOP)
-        else if (gamepad2.a)
-            arm.moveToPosition(ArmPosition.LOW)
-        else if (gamepad2.b)
-            arm.moveToPosition(ArmPosition.MEDIUM)
-        else if (gamepad2.x)
+        if(gamepad1.a){
+            arm.moveToPosition(ArmPosition.PASSBRIDGE)
+        }else if(gamepad1.x){
             arm.moveToPosition(ArmPosition.HOME)
-        else if (gamepad2.right_bumper || (arm.targetCoordinate == ArmPosition.HOME.coordinate && intakePower != 0.0))
-            arm.moveToPosition(ArmPosition.INTAKE)
+        }else{
+
+            if (gamepad2.a)
+                arm.moveToPosition(ArmPosition.FIRST_LEVEL)
+            else if (gamepad2.b)
+                arm.moveToPosition(ArmPosition.SECOND_LEVEL)
+            else if (gamepad2.y)
+                arm.moveToPosition(ArmPosition.THIRD_LEVEL)
+            else if (gamepad2.right_bumper)
+                arm.moveToPosition(ArmPosition.FOURTH_LEVEL)
+            else if (gamepad2.dpad_up){
+                arm.moveToPosition(ArmPosition.FIFTH_LEVEL)
+            }
+            else if (gamepad2.x)
+                arm.moveToPosition(ArmPosition.HOME)
+            else if (gamepad2.left_bumper || (arm.targetCoordinate == ArmPosition.HOME.coordinate && intakePower != 0.0))
+                arm.moveToPosition(ArmPosition.INTAKE)
+        }
+
+
+
+        if(gamepad1.right_bumper){
+            trayHolder.setPosition(TrayHolderPosition.Grab)
+        }
+
+        if(gamepad1.left_bumper){
+            trayHolder.setPosition(TrayHolderPosition.Release)
+        }
+
+
+
 
 
         if(gamepad2.right_stick_button){

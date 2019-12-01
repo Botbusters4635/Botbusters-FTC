@@ -19,6 +19,8 @@ class PID(var pidSettings: PIDSettings = PIDSettings()) {
     var lastError = 0.0
     var output = 0.0
 
+    var maxOutput = Double.NaN
+
     fun clear(){
         lastError = 0.0
         error = 0.0
@@ -50,6 +52,10 @@ class PID(var pidSettings: PIDSettings = PIDSettings()) {
         dComponent = deltaError * pidSettings.kD
 
         output = pComponent + iComponent + dComponent
+
+        if(!maxOutput.isNaN()){
+            output = output.coerceIn(-maxOutput, maxOutput)
+        }
 
         lastError = error
 

@@ -13,7 +13,7 @@ import kotlin.math.*
 
 open class Arm : Controller() {
     private val lowerAnglePID = PID(PIDSettings(kP = 0.045, kI = 0.001, kD = 0.0))
-    private val upperAnglePID = PID(PIDSettings(kP = 0.02, kI = 0.0, kD = 0.00015))
+    private val upperAnglePID = PID(PIDSettings(kP = 0.015, kI = 0.0, kD = 0.0001))
 
     private lateinit var lowerMotor: DcMotor
     private lateinit var upperMotor: DcMotor
@@ -61,6 +61,7 @@ open class Arm : Controller() {
 
         val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle, timeStep)
         val upperOutput = upperAnglePID.update(currentAngles.upperAngle, timeStep)
+
 
         lowerMotor.power = lowerOutput
         upperMotor.power = upperOutput
