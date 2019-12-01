@@ -58,7 +58,7 @@ class PositionChassis : Chassis() {
         super.update(timeStep)
     }
 
-    fun runToPosition(target: Coordinate) = runBlocking{
+    fun runToPositionBlocking(target: Coordinate) = runBlocking{
         targetCoords = target
         followingPath = true
 
@@ -68,7 +68,7 @@ class PositionChassis : Chassis() {
         followingPath = false
     }
 
-    fun turnToAngle(targetAngle: Double) = runBlocking {
+    fun turnToAngleBlocking(targetAngle: Double) = runBlocking {
         val startTime = SystemClock.elapsedRealtime() / 1000.0
         var currentTime: Double
         movementTarget.theta = targetAngle
@@ -97,9 +97,9 @@ class PositionChassis : Chassis() {
         }
     }
 
-    fun followPath(path: Path) = runBlocking {
+    fun followPathBlocking(path: Path) = runBlocking {
         for(waypoint in path){
-            runToPosition(waypoint)
+            runToPositionBlocking(waypoint)
 
         }
     }

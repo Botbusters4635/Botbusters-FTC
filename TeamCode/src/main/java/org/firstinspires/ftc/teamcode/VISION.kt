@@ -51,19 +51,19 @@ class VISION : EctoLinearOpMode() {
 //            }
 
 //        chassis.heading = 180.0
-//        chassis.turnToAngle(180.0)
-//        chassis.runToPosition(Coordinate(0.5, 0.0))
+//        chassis.turnToAngleBlocking(180.0)
+//        chassis.runToPositionBlocking(Coordinate(0.5, 0.0))
 
 
 
 //        alignWithTarget(SearchDirection.Right)
 //
-//        arm.runToPositionCommand(ArmPosition.SECOND_LEVEL)
+//        arm.runToPositionBlocking(ArmPosition.SECOND_LEVEL)
 //        arm.clamp.angle = 90.0
 //        runBlocking {
 //            delay(1000)
 //        }
-//        arm.runToPositionCommand(ArmPosition.SLOW)
+//        arm.runToPositionBlocking(ArmPosition.SLOW)
 //        runBlocking {
 //            delay(1000)
 //        }

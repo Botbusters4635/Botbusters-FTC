@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
 import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
 import org.firstinspires.ftc.teamcode.core.Coordinate
 import org.firstinspires.ftc.teamcode.core.EctoLinearOpMode
-import org.firstinspires.ftc.teamcode.core.Path
 
 @Autonomous(name = "TrayOnly", group = "ezpz")
 class TrayOnlyAutonomous : EctoLinearOpMode() {
@@ -26,7 +25,7 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
 
     override fun startMode() {
         chassis.heading = 180.0
-        chassis.turnToAngle(180.0)
+        chassis.turnToAngleBlocking(180.0)
         arm.moveToPosition(ArmPosition.INTAKE)
     }
 
@@ -34,7 +33,7 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
         /**
          * Asume que lo de los servos estará por atras
          */
-        chassis.runToPosition(Coordinate(0.7, 0.0))
+        chassis.runToPositionBlocking(Coordinate(0.7, 0.0))
         /***
          * Enable grabbing cosa
          */
@@ -47,25 +46,25 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
          * Mover charola más cerca a la zona
          */
 
-        chassis.runToPosition(Coordinate(0.5, 0.0))
+        chassis.runToPositionBlocking(Coordinate(0.5, 0.0))
 
 
         /**
          * Girar para acomodarla y empujarla contra la zona
          */
-        chassis.turnToAngle(90.0)
-        chassis.runToPosition(Coordinate(chassis.getCurrentCords().x, chassis.getCurrentCords().y - 0.25))
+        chassis.turnToAngleBlocking(90.0)
+        arm.moveToPosition(ArmPosition.PASSBRIDGE)
+        chassis.runToPositionBlocking(Coordinate(chassis.getCurrentCords().x, chassis.getCurrentCords().y - 0.25))
 
         trayHolder.setPosition(TrayHolderPosition.Release)
         runBlocking {
             delay(250)
         }
-        arm.runToPositionCommand(ArmPosition.PASSBRIDGE)
 
         /**
          * Ir a estacionarse
          */
-        chassis.runToPosition(Coordinate(chassis.getCurrentCords().x, 1.0))
+        chassis.runToPositionBlocking(Coordinate(chassis.getCurrentCords().x, 1.0))
     }
 
 

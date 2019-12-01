@@ -25,7 +25,7 @@ open class PositionArm : Arm() {
         targetCoordinate = position.coordinate
     }
 
-    fun runToPositionCommand(position: ArmPosition) = runBlocking {
+    fun runToPositionBlocking(position: ArmPosition) = runBlocking {
         moveToPosition(position)
         while (!currentCoordinate.closeTo(position.coordinate)) {
 
