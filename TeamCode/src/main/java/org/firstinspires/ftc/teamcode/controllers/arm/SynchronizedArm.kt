@@ -67,8 +67,6 @@ class SynchronizedArm : PositionArm() {
                 targetCoordinate = currentTargetCoord
             }
         }
-        telemetry.addData("x, y", "%.2f %.2f", currentCoordinate.x, currentCoordinate.y)
-
     }
 
     override fun moveToPosition(position: ArmPosition) {

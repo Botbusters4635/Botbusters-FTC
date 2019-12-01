@@ -91,7 +91,7 @@ class PositionChassis : Chassis() {
 
             currentTime = SystemClock.elapsedRealtime() / 1000.0 - startTime
 
-            if(currentTime > 10.0){
+            if(currentTime > 3.0){
                 break
             }
         }

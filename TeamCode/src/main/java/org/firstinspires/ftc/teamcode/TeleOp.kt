@@ -5,6 +5,11 @@ import org.firstinspires.ftc.teamcode.controllers.*
 import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
 import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
 import org.firstinspires.ftc.teamcode.core.EctoOpMode
+import com.qualcomm.robotcore.util.ReadWriteFile
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil
+import com.qualcomm.hardware.bosch.BNO055IMU
+
+
 
 @TeleOp(name = "TeleOp")
 class TeleOp : EctoOpMode() {
@@ -21,6 +26,11 @@ class TeleOp : EctoOpMode() {
         addController(arm)
         addController(intake)
         addController(trayHolder)
+
+    }
+
+    override fun startMode(){
+        arm.moveToPosition(ArmPosition.PASSBRIDGE)
     }
 
     override fun update(timeStep: Double) {
@@ -40,15 +50,31 @@ class TeleOp : EctoOpMode() {
 
         telemetry.addData("timeStep", timeStep)
 
-        val moveCommand = MecanumMoveCommand(vx = -gamepad1.left_stick_y.toDouble() * chassis.maxV, vy = -gamepad1.left_stick_x.toDouble() * chassis.maxV, theta = targetHeading)
+        val moveCommand = MecanumMoveCommand(vx = -gamepad1.left_stick_y.toDouble() * chassis.maxV * (1.0 - gamepad1.right_trigger), vy = -gamepad1.left_stick_x.toDouble() * chassis.maxV* (1.0 - gamepad1.right_trigger), theta = targetHeading)
         chassis.movementTarget = moveCommand
 
         val intakePower = gamepad2.left_trigger - gamepad2.right_trigger.toDouble()
         intake.power = intakePower
 
-
+//
         if(gamepad1.a){
             arm.moveToPosition(ArmPosition.PASSBRIDGE)
+
+
+//            // Get the calibration data
+//            val calibrationData = chassis.imu.readCalibrationData()
+//
+//            // Save the calibration data to a file. You can choose whatever file
+//            // name you wish here, but you'll want to indicate the same file name
+//            // when you initialize the IMU in an opmode in which it is used. If you
+//            // have more than one IMU on your robot, you'll of course want to use
+//            // different configuration file names for each.
+//            val filename = "AdafruitIMUCalibration.json"
+//            val file = AppUtil.getInstance().getSettingsFile(filename)
+//            ReadWriteFile.writeFile(file, calibrationData.serialize())
+//            telemetry.log().add("saved to '%s'", filename)
+
+
         }else if(gamepad1.x){
             arm.moveToPosition(ArmPosition.HOME)
         }else{
@@ -83,7 +109,7 @@ class TeleOp : EctoOpMode() {
 
 
 
-
+//
         if(gamepad2.right_stick_button){
             arm.clamp.power = 1.0
         }
@@ -91,10 +117,6 @@ class TeleOp : EctoOpMode() {
         if(gamepad2.left_stick_button){
             arm.clamp.power = 0.0
         }
-//
-//        // Show the elapsed game time and wheel power.
-//
-//        lastTimeRun = SystemClock.elapsedRealtime() / 1000.0
 
     }
 

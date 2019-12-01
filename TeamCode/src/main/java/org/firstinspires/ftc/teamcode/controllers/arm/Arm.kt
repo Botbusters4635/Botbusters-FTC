@@ -13,7 +13,7 @@ import kotlin.math.*
 
 open class Arm : Controller() {
     private val lowerAnglePID = PID(PIDSettings(kP = 0.045, kI = 0.001, kD = 0.0))
-    private val upperAnglePID = PID(PIDSettings(kP = 0.015, kI = 0.0, kD = 0.0001))
+    private val upperAnglePID = PID(PIDSettings(kP = 0.015, kI = 0.0, kD = 0.00004))
 
     private lateinit var lowerMotor: DcMotor
     private lateinit var upperMotor: DcMotor
@@ -53,9 +53,17 @@ open class Arm : Controller() {
 
         intakeLeft.direction = DcMotorSimple.Direction.REVERSE
         intakeRight.direction = DcMotorSimple.Direction.REVERSE
+
+        lowerAnglePID.target = currentAngles.lowerAngle
+        upperAnglePID.target = currentAngles.upperAngle
     }
 
     override fun update(timeStep: Double) {
+
+        if(currentAngles.lowerAngle < 70 && targetAngles.upperAngle < -30){
+            targetAngles.upperAngle = -30.0
+        }
+
         lowerAnglePID.target = targetAngles.lowerAngle
         upperAnglePID.target = targetAngles.upperAngle
 

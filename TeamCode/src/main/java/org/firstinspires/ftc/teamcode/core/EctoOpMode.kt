@@ -46,10 +46,15 @@ abstract class EctoOpMode: OpMode() {
 
     abstract fun update(timeStep: Double)
 
+    open fun startMode(){
+
+    }
+
     final override fun start() {
         controllers.forEach {
             it.start()
         }
+        startMode()
     }
 
     final override fun stop() {

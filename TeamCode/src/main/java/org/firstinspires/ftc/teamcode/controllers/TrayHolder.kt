@@ -21,15 +21,20 @@ class TrayHolder : Controller() {
         rightTrayHolder = hardwareMap.get(Servo::class.java, "rightTrayHolder")
     }
 
+    override fun start() {
+        setPosition(TrayHolderPosition.Release)
+    }
+
+
     fun setPosition(position: TrayHolderPosition){
         when (position){
             TrayHolderPosition.Grab -> {
-                leftTrayHolder.position = 0.3
-                rightTrayHolder.position = 1.0
+                leftTrayHolder.position = 0.28
+                rightTrayHolder.position = 0.82
             }
             TrayHolderPosition.Release -> {
-                leftTrayHolder.position = 1.0
-                rightTrayHolder.position = 0.3
+                leftTrayHolder.position = 0.9
+                rightTrayHolder.position = 0.2
             }
         }
     }

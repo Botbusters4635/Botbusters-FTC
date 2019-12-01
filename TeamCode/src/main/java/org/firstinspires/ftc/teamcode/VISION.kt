@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -15,7 +16,7 @@ import kotlin.math.absoluteValue
 import kotlin.math.withSign
 
 
-@TeleOp(name = "ads")
+@Autonomous(name = "ads")
 
 class VISION : EctoLinearOpMode() {
 
@@ -31,7 +32,9 @@ class VISION : EctoLinearOpMode() {
         addController(trayHolder)
     }
 
+    override fun startMode() {
 
+    }
     override fun runOpMode() {
 
 //            trayHolder.setPosition(TrayHolderPosition.Release)

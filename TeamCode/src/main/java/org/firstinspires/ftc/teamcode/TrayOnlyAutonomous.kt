@@ -6,6 +6,8 @@ import kotlinx.coroutines.runBlocking
 import org.firstinspires.ftc.teamcode.controllers.PositionChassis
 import org.firstinspires.ftc.teamcode.controllers.TrayHolder
 import org.firstinspires.ftc.teamcode.controllers.TrayHolderPosition
+import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
+import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
 import org.firstinspires.ftc.teamcode.core.Coordinate
 import org.firstinspires.ftc.teamcode.core.EctoLinearOpMode
 import org.firstinspires.ftc.teamcode.core.Path
@@ -14,17 +16,21 @@ import org.firstinspires.ftc.teamcode.core.Path
 class TrayOnlyAutonomous : EctoLinearOpMode() {
     val chassis = PositionChassis()
     val trayHolder = TrayHolder()
+    val arm = SynchronizedArm()
 
     init {
         addController(chassis)
         addController(trayHolder)
-
+        addController(arm)
     }
 
-
-    override fun runOpMode() {
+    override fun startMode() {
         chassis.heading = 180.0
         chassis.turnToAngle(180.0)
+        arm.moveToPosition(ArmPosition.INTAKE)
+    }
+
+    override fun runOpMode() {
         /**
          * Asume que lo de los servos estará por atras
          */
@@ -54,7 +60,6 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
         runBlocking {
             delay(1000)
         }
-
 
         /**
          * Ir a estacionarse

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.controllers
 
 import android.os.SystemClock
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
@@ -59,7 +60,7 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 
 
 open class Chassis : Controller() {
-    private val pidSettingsNormal = PIDSettings(kP = 0.05, kI = 0.00, kD = 0.001, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.08, kI = 0.00, kD = 0.00015, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
     protected val angularPID = PID(pidSettingsNormal)
 
@@ -68,7 +69,7 @@ open class Chassis : Controller() {
     private lateinit var downRightMotor: DcMotorEx
     private lateinit var downLeftMotor: DcMotorEx
 
-    private lateinit var imu: BNO055IMU
+    lateinit var imu: BNO055IMU
 
     private var kinematics = MecanumKinematics(0.25/2, 0.27/2, 0.0508)
 
@@ -123,13 +124,15 @@ open class Chassis : Controller() {
         // Get the IMU, configure it and initialize it.
         imu = hardwareMap.get(BNO055IMU::class.java, "imu")
         val parameters = BNO055IMU.Parameters()
-        parameters.mode = BNO055IMU.SensorMode.NDOF
+        parameters.mode = BNO055IMU.SensorMode.IMU
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES
         imu.initialize(parameters)
 
-        // Initialize the angularPID
+        val filename = "AdafruitIMUCalibration.json"
+        val file = AppUtil.getInstance().getSettingsFile(filename)
 
+        imu.writeCalibrationData(BNO055IMU.CalibrationData.deserialize(file.readText()))
     }
 
 
@@ -181,9 +184,6 @@ open class Chassis : Controller() {
 
         val globalVelocities = Twist2D()
 
-        /**
-         * Removed Vy because tires slip, may give cleaner output for autonomous period
-         */
         globalVelocities.vx = localVelocities.vx * cos(headinginRadians) - localVelocities.vy * sin(headinginRadians)
         globalVelocities.vy = localVelocities.vy * cos(headinginRadians) + localVelocities.vx * sin(headinginRadians)
 

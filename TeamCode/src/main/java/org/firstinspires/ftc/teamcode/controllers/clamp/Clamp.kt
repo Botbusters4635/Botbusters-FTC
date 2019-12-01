@@ -30,6 +30,10 @@ class Clamp : Controller() {
         turningServo.direction = Servo.Direction.REVERSE
     }
 
+    override fun start() {
+        power = 0.0
+    }
+
     override fun update(timeStep: Double) {
     }
 }
