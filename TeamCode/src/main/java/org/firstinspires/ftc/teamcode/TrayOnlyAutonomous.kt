@@ -40,7 +40,7 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
          */
         trayHolder.setPosition(TrayHolderPosition.Grab)
         runBlocking {
-            delay(1000)
+            delay(250)
         }
 
         /**
@@ -58,8 +58,9 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
 
         trayHolder.setPosition(TrayHolderPosition.Release)
         runBlocking {
-            delay(1000)
+            delay(250)
         }
+        arm.runToPositionCommand(ArmPosition.PASSBRIDGE)
 
         /**
          * Ir a estacionarse
