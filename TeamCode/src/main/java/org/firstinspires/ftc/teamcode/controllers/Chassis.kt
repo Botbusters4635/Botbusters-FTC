@@ -128,10 +128,10 @@ open class Chassis : Controller() {
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES
         imu.initialize(parameters)
 
-        val filename = "AdafruitIMUCalibration.json"
-        val file = AppUtil.getInstance().getSettingsFile(filename)
-
-        imu.writeCalibrationData(BNO055IMU.CalibrationData.deserialize(file.readText()))
+//        val filename = "AdafruitIMUCalibration.json"
+//        val file = AppUtil.getInstance().getSettingsFile(filename)
+//
+//        imu.writeCalibrationData(BNO055IMU.CalibrationData.deserialize(file.readText()))
 
         angularPID.deadzone = 0.1
     }
