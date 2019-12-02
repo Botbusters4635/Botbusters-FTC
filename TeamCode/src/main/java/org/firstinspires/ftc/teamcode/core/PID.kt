@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.core
 
-import android.os.SystemClock
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.*
+import kotlin.math.absoluteValue
 
 data class PIDSettings(val kP: Double = 0.0, val kI: Double = 0.0, val kD: Double = 0.0, val continous: Boolean = true, val lowerBound: Double = 0.0, val upperBound: Double = 0.0)
 
@@ -20,6 +18,8 @@ class PID(var pidSettings: PIDSettings = PIDSettings()) {
     var output = 0.0
 
     var maxOutput = Double.NaN
+    var deadzone = Double.NaN
+
 
     fun clear(){
         lastError = 0.0
@@ -55,6 +55,13 @@ class PID(var pidSettings: PIDSettings = PIDSettings()) {
 
         if(!maxOutput.isNaN()){
             output = output.coerceIn(-maxOutput, maxOutput)
+        }
+
+
+        if(!deadzone.isNaN()){
+            if(output.absoluteValue < deadzone){
+                output = 0.0
+            }
         }
 
         lastError = error

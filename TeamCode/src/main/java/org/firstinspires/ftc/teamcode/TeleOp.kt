@@ -87,9 +87,6 @@ class TeleOp : EctoOpMode() {
                 arm.moveToPosition(ArmPosition.THIRD_LEVEL)
             else if (gamepad2.right_bumper)
                 arm.moveToPosition(ArmPosition.FOURTH_LEVEL)
-            else if (gamepad2.dpad_up){
-                arm.moveToPosition(ArmPosition.FIFTH_LEVEL)
-            }
             else if (gamepad2.x)
                 arm.moveToPosition(ArmPosition.HOME)
             else if (gamepad2.left_bumper || (arm.targetCoordinate == ArmPosition.HOME.coordinate && intakePower != 0.0))

@@ -11,8 +11,8 @@ class Intake : Controller() {
     var power = 0.0
         set(value) {
             field = value
-            leftIntake.power = field
-            rightIntake.power = -field
+            leftIntake.power = field * 0.7
+            rightIntake.power = -field * 0.7
         }
 
     override fun init(hardwareMap: HardwareMap) {

@@ -15,12 +15,11 @@ enum class TURN_POS(val value: Double) {
 enum class ArmPosition(val coordinate: Coordinate) {
     SLOW(Coordinate(-0.42, 0.2)),
     HOME(Coordinate(0.20, 0.12)),
-    FIRST_LEVEL(Coordinate(-0.26, 0.05)),
-    SECOND_LEVEL(Coordinate(-0.26, 0.16)),
-    THIRD_LEVEL(Coordinate(-0.26, 0.3)),
-    FOURTH_LEVEL(Coordinate(-0.26, 0.37)),
-    FIFTH_LEVEL(Coordinate(-0.26, 0.40)),
-    EXCHANGE(Coordinate(0.25, 0.32)),
+    FIRST_LEVEL(Coordinate(-0.27, 0.1)),
+    SECOND_LEVEL(Coordinate(-0.27, 0.2)),
+    THIRD_LEVEL(Coordinate(-0.27, 0.33)),
+    FOURTH_LEVEL(Coordinate(-0.27, 0.48)),
+    EXCHANGE(Coordinate(0.25, 0.35)),
     INTAKE(Coordinate(0.25, 0.28)),
-    PASSBRIDGE(Coordinate(0.47, 0.17))
+    PASSBRIDGE(Coordinate(0.47, 0.15))
 }

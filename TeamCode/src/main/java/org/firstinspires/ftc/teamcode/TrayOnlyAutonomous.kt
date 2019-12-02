@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
 import org.firstinspires.ftc.teamcode.core.Coordinate
 import org.firstinspires.ftc.teamcode.core.EctoLinearOpMode
 
-@Autonomous(name = "TrayOnly", group = "ezpz")
+@Autonomous(name = "TrayOnly", group = "Red")
 class TrayOnlyAutonomous : EctoLinearOpMode() {
     val chassis = PositionChassis()
     val trayHolder = TrayHolder()

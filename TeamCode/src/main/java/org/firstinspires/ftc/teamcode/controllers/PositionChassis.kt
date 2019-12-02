@@ -18,7 +18,7 @@ class PositionChassis : Chassis() {
     val xPID = PID(PIDSettings(2.5, 0.0, 0.0))
     val yPID = PID(PIDSettings(2.5, 0.0, 0.0))
 
-    val maxAutoVx = 0.15
+    val maxAutoVx = 0.3
     val maxAutoVy = 0.1
     var followingPath = false
 
@@ -46,15 +46,13 @@ class PositionChassis : Chassis() {
                 targetVx = targetVx.coerceIn(-maxAutoVx, maxAutoVx)
                 targetVy = targetVy.coerceIn(-maxAutoVy, maxAutoVy)
 
-
-                telemetry.addData("currentVx", targetVx)
-                telemetry.addData("currentVy", targetVy)
                 val headingInRadians = degreesToRadians(heading)
 
                 movementTarget.vx = targetVx * Math.cos(headingInRadians) + targetVy * Math.sin(headingInRadians)
                 movementTarget.vy = targetVy * Math.cos(headingInRadians) - targetVx * Math.sin(headingInRadians)
             }
         }
+        telemetry.addData("x, y", "%.2f %.2f", currentCoords.x, currentCoords.y)
         super.update(timeStep)
     }
 
@@ -73,10 +71,10 @@ class PositionChassis : Chassis() {
         var currentTime: Double
         movementTarget.theta = targetAngle
 
-        var error = (heading - targetAngle).absoluteValue
+        var error = (targetAngle - heading)
 
-        while(error > 3 && isActive){
-            error = (heading - targetAngle).absoluteValue
+        while(error.absoluteValue > 2 && isActive){
+            error = (targetAngle - heading)
             if(error > 180.0){
                 error -= 360
             }
@@ -85,13 +83,13 @@ class PositionChassis : Chassis() {
                 error += 360
             }
 
-            telemetry.addData("error Angle", (heading - targetAngle).absoluteValue)
+            telemetry.addData("error Angle", (targetAngle - heading).absoluteValue)
             telemetry.addData("Target Angle", targetAngle)
             telemetry.addData("heading", heading)
 
             currentTime = SystemClock.elapsedRealtime() / 1000.0 - startTime
 
-            if(currentTime > 3.0){
+            if(currentTime > 10.0){
                 break
             }
         }
