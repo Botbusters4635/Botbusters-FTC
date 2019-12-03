@@ -16,7 +16,7 @@ class TeleOp : EctoOpMode() {
     val chassis = Chassis()
     val arm = SynchronizedArm()
     val intake = Intake()
-    val trayHolder = TrayHolder()
+//    val trayHolder = TrayHolder()
 
     var targetHeading = 0.0
     val maxTargetHeadingRate = 720.0
@@ -25,7 +25,7 @@ class TeleOp : EctoOpMode() {
         addController(chassis)
         addController(arm)
         addController(intake)
-        addController(trayHolder)
+//        addController(trayHolder)
 
     }
 
@@ -95,13 +95,13 @@ class TeleOp : EctoOpMode() {
 
 
 
-        if(gamepad1.right_bumper){
-            trayHolder.setPosition(TrayHolderPosition.Grab)
-        }
-
-        if(gamepad1.left_bumper){
-            trayHolder.setPosition(TrayHolderPosition.Release)
-        }
+//        if(gamepad1.right_bumper){
+//            trayHolder.setPosition(TrayHolderPosition.Grab)
+//        }
+//
+//        if(gamepad1.left_bumper){
+//            trayHolder.setPosition(TrayHolderPosition.Release)
+//        }
 
 
 

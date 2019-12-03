@@ -18,7 +18,7 @@ class PositionChassis : Chassis() {
     val xPID = PID(PIDSettings(2.5, 0.0, 0.0))
     val yPID = PID(PIDSettings(2.5, 0.0, 0.0))
 
-    val maxAutoVx = 0.3
+    val maxAutoVx = 0.4
     val maxAutoVy = 0.1
     var followingPath = false
 
