@@ -59,12 +59,12 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 
 
 open class Chassis : Controller() {
-    private val pidSettingsNormal = PIDSettings(kP = 0.04, kI = 0.00, kD = 0.00015, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.06, kI = 0.00, kD = 0.00015, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
     val angularPID = PID(pidSettingsNormal)
 
     private lateinit var topLeftMotor: DcMotorEx
-    private lateinit var topRightMotor: DcMotorEx
+    private lateinit var topRightMotor: DcMotorEx;
     private lateinit var downRightMotor: DcMotorEx
     private lateinit var downLeftMotor: DcMotorEx
 
@@ -148,20 +148,15 @@ open class Chassis : Controller() {
                 angularPID.update(heading, timeStep)
         )
 
-        telemetry.addData("downRightMotor", downRightMotor.currentPosition)
-        telemetry.addData("upRightMotor", topRightMotor.currentPosition)
-        telemetry.addData("downLeftMotor", downLeftMotor.currentPosition)
-        telemetry.addData("upLeftMotor", topLeftMotor.currentPosition)
-
 
         writeMotors(motorValues)
     }
 
     fun writeMotors(values: MecanumMotorValues) {
-//        topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
-//        topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
-//        downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
-//        downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
+        topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
+        topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
+        downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
+        downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
     }
 
     fun getLocalVelocities(): Twist2D {
