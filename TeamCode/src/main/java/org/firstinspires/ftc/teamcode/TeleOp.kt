@@ -18,7 +18,9 @@ class TeleOp : EctoOpMode() {
 //    val trayHolder = TrayHolder()
 
     var targetHeading = 0.0
-    val maxTargetHeadingRate = 720.0
+    val maxTargetHeadingRate = 1440.0
+
+    var usePID = false
 
     var currentSpeedLimiter = 0.0
 
@@ -61,7 +63,7 @@ class TeleOp : EctoOpMode() {
 
         telemetry.addData("timeStep", timeStep)
 
-        val moveCommand = MecanumMoveCommand(vx = -gamepad1.left_stick_y.toDouble() * chassis.maxV * (1.0 - currentSpeedLimiter), vy = -gamepad1.left_stick_x.toDouble() * chassis.maxV * (1.0 - currentSpeedLimiter), theta = targetHeading)
+        val moveCommand = MecanumMoveCommand(vx = -gamepad1.left_stick_y.toDouble() * chassis.maxV * (1.0 - currentSpeedLimiter), vy = -gamepad1.left_stick_x.toDouble() * chassis.maxV * (1.0 - currentSpeedLimiter), theta = targetHeading )
         chassis.movementTarget = moveCommand
 
         val intakePower = gamepad2.left_trigger - gamepad2.right_trigger.toDouble()

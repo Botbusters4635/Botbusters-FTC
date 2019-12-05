@@ -59,9 +59,17 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 
 
 open class Chassis : Controller() {
-    private val pidSettingsNormal = PIDSettings(kP = 0.06, kI = 0.00, kD = 0.00015, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.04, kI = 0.00, kD = 0.00025, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
-    val angularPID = PID(pidSettingsNormal)
+    private val angularPID = PID(pidSettingsNormal)
+
+    var angularSpeedTarget: Double = 0.0
+    set(value){
+        field = value
+        pidActive = false
+    }
+
+    var pidActive = true
 
     private lateinit var topLeftMotor: DcMotorEx
     private lateinit var topRightMotor: DcMotorEx;
@@ -139,24 +147,42 @@ open class Chassis : Controller() {
 
     override fun update(timeStep: Double) {
         updateCurrentCoords(timeStep)
-        angularPID.target = movementTarget.theta
 
+        var motorValues: MecanumMotorValues
 
-        val motorValues: MecanumMotorValues = kinematics.calcInverseKinematics(
-                movementTarget.vx,
-                movementTarget.vy,
-                angularPID.update(heading, timeStep)
-        )
-
-
+        if(pidActive){
+            angularPID.target = movementTarget.theta
+            motorValues = kinematics.calcInverseKinematics(
+                    movementTarget.vx,
+                    movementTarget.vy,
+                    angularPID.update(heading, timeStep)
+            )
+        } else {
+            motorValues = kinematics.calcInverseKinematics(
+                    movementTarget.vx,
+                    movementTarget.vy,
+                    angularSpeedTarget
+            )
+        }
         writeMotors(motorValues)
+
+        telemetry.addData("topLeft", topLeftMotor.currentPosition)
+        telemetry.addData("topRight", topRightMotor.currentPosition)
+        telemetry.addData("downLeft", downLeftMotor.currentPosition)
+        telemetry.addData("downRight", downRightMotor.currentPosition)
+
+
+
+
+
+
     }
 
     fun writeMotors(values: MecanumMotorValues) {
-        topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
-        topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
-        downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
-        downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
+     //   topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
+       // topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
+        //downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
+        //downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
     }
 
     fun getLocalVelocities(): Twist2D {

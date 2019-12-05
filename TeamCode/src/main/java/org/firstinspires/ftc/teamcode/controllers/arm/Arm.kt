@@ -70,7 +70,7 @@ open class Arm : Controller() {
         val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle, timeStep)
         val upperOutput = upperAnglePID.update(currentAngles.upperAngle, timeStep)
 
-        telemetry.addData("currentAngles", currentAngles)
+        //telemetry.addData("currentAngles", currentAngles)
         lowerMotor.power = lowerOutput
         upperMotor.power = upperOutput
     }
