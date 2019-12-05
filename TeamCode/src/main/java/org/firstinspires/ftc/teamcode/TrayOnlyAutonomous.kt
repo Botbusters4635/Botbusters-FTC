@@ -18,33 +18,34 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
 
     init {
         addController(chassis)
-        addController(arm)
     }
 
     override fun startMode() {
-        arm.moveToPosition(ArmPosition.PASSBRIDGE)
     }
 
     override fun runOpMode() {
 
-        chassis.runToPositionBlocking(Coordinate(0.3, 0.0))
+        chassis.runToPositionBlocking(Coordinate(0.5, 0.0))
 
-        chassis.maxAutoVx = 0.1
+        chassis.maxAutoVx = 0.2
 
-        chassis.runToPositionBlocking(Coordinate(0.44, 0.0))
+        chassis.runToPositionBlocking(Coordinate(0.7, 0.0))
+
+        arm.init(hardwareMap)
+
+        arm.start()
+
+        addController(arm)
+
+        arm.moveToPosition(ArmPosition.INTAKE)
+
+        runBlocking {
+            delay(1500)
+        }
 
         arm.moveToPosition(ArmPosition.HOME)
 
-        chassis.turnToAngleBlocking(5.0)
-
-        chassis.turnToAngleBlocking(-5.0)
-
-        chassis.turnToAngleBlocking(0.0)
-
-        runBlocking {
-            delay(1000)
-        }
-
+        chassis.maxAutoVx = 0.1
 //        chassis.maxAutoVx = 0.1
 
         chassis.runToPositionBlocking(Coordinate(-0.05, 0.0))
