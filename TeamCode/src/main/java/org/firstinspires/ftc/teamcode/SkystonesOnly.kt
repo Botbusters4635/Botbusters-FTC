@@ -34,7 +34,6 @@ class SkystonesOnly : EctoLinearOpMode() {
     override fun startMode() {
         chassis.heading = 180.0
         chassis.turnToAngleBlocking(180.0)
-        chassis.angularPID.maxOutput = 0.5
 
     }
     override fun runOpMode() {

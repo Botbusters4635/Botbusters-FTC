@@ -39,7 +39,7 @@ class TeleOp : EctoOpMode() {
     override fun update(timeStep: Double) {
 
         val desiredChange = -gamepad1.right_stick_x.toDouble()
-        targetHeading += (desiredChange * maxTargetHeadingRate) * timeStep
+        targetHeading += (desiredChange * maxTargetHeadingRate * (1.0 - currentSpeedLimiter)) * timeStep
 
 
 
@@ -52,9 +52,9 @@ class TeleOp : EctoOpMode() {
         }
 
         if (gamepad1.right_trigger > 0.3) {
-            currentSpeedLimiter = 0.6
+            currentSpeedLimiter = 0.9
         } else if (gamepad1.left_trigger > 0.3) {
-            currentSpeedLimiter = 0.2
+            currentSpeedLimiter = 0.6
         } else {
             currentSpeedLimiter = 0.0
         }

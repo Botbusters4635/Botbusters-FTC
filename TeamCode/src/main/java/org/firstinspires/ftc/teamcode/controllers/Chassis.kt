@@ -61,7 +61,7 @@ class MecanumKinematics(var xDistanceFromWheelToCenter: Double, var yDistanceFro
 open class Chassis : Controller() {
     private val pidSettingsNormal = PIDSettings(kP = 0.04, kI = 0.00, kD = 0.00025, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
-    private val angularPID = PID(pidSettingsNormal)
+    protected val angularPID = PID(pidSettingsNormal)
 
     var angularSpeedTarget: Double = 0.0
     set(value){
@@ -179,10 +179,10 @@ open class Chassis : Controller() {
     }
 
     fun writeMotors(values: MecanumMotorValues) {
-     //   topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
-       // topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
-        //downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
-        //downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
+        topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
+        topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
+        downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
+        downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
     }
 
     fun getLocalVelocities(): Twist2D {

@@ -22,47 +22,55 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
     }
 
     override fun startMode() {
-        chassis.heading = 180.0
-        chassis.turnToAngleBlocking(180.0)
-        arm.moveToPosition(ArmPosition.INTAKE)
+        arm.moveToPosition(ArmPosition.PASSBRIDGE)
     }
 
     override fun runOpMode() {
 
-        chassis.runToPositionBlocking(Coordinate(0.15, 0.0))
+        chassis.runToPositionBlocking(Coordinate(0.3, 0.0))
 
-        chassis.runToPositionBlocking(Coordinate(0.15, 0.22))
+        chassis.maxAutoVx = 0.1
 
-        chassis.runToPositionBlocking(Coordinate(0.87, 0.22))
+        chassis.runToPositionBlocking(Coordinate(0.44, 0.0))
 
-        chassis.turnToAngleBlocking(-145.0)
+        arm.moveToPosition(ArmPosition.HOME)
 
-        chassis.runToPositionBlocking(Coordinate(0.6, 0.15))
+        chassis.turnToAngleBlocking(5.0)
 
-        chassis.turnToAngleBlocking(180.0)
-
-        chassis.turnToAngleBlocking(-90.0)
-
-        chassis.runToPositionBlocking(Coordinate(0.7, -0.075))
-
-        chassis.turnToAngleBlocking(-90.0)
-
-        chassis.runToPositionBlocking(Coordinate(0.65, -0.075))
+        chassis.turnToAngleBlocking(-5.0)
 
         chassis.turnToAngleBlocking(0.0)
 
-        chassis.runToPositionBlocking(Coordinate(0.2, -0.075))
-
         runBlocking {
-            delay(5000)
+            delay(1000)
         }
+
+//        chassis.maxAutoVx = 0.1
+
+        chassis.runToPositionBlocking(Coordinate(-0.05, 0.0))
+
+//        chassis.turnToAngleBlocking(20.0)
+
+        chassis.turnToAngleBlocking(-90.0)
+
+        chassis.maxAutoVx = 0.6
+
+        chassis.runToPositionBlocking(Coordinate(-0.05, 0.2))
+
+        arm.runToPositionBlocking(ArmPosition.PASSBRIDGE)
+
+        chassis.runToPositionBlocking(Coordinate(-0.05, 0.6))
+
+        chassis.turnToAngleBlocking(45.0)
+
+    }
 
 //        chassis.runToPositionBlocking(Coordinate(0.75, 0.0))
 
 //        chassis.runToPositionBlocking(Coordinate(0.1, -0.5))
-        /***
-         * Enable grabbing cosa
-         */
+    /***
+     * Enable grabbing cosa
+     */
 //        trayHolder.setPosition(TrayHolderPosition.Grab)
 //        runBlocking {
 //            delay(250)
@@ -89,7 +97,6 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
 //         * Ir a estacionarse
 //         */
 //        chassis.runToPositionBlocking(Coordinate(chassis.getCurrentCords().x, 1.0))
-    }
-
-
 }
+
+
