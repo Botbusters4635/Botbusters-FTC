@@ -10,10 +10,9 @@ import org.firstinspires.ftc.teamcode.core.PIDSettings
 import kotlin.math.*
 
 
-
 open class Arm : Controller() {
-    private val lowerAnglePID = PID(PIDSettings(kP = 0.03, kI = 0.0, kD = 0.0))
-    private val upperAnglePID = PID(PIDSettings(kP = 0.015, kI = 0.0, kD = 0.0))
+    private val lowerAnglePID = PID(PIDSettings(kP = 0.03, kI = 0.0, kD = 0.0001))
+    private val upperAnglePID = PID(PIDSettings(kP = 0.015, kI = 0.0, kD = 0.0001))
 
     private lateinit var lowerMotor: DcMotor
     private lateinit var upperMotor: DcMotor
@@ -23,6 +22,9 @@ open class Arm : Controller() {
 
     private lateinit var intakeLeft: DcMotor
     private lateinit var intakeRight: DcMotor
+
+    var upperSpeedLimit = 0.6
+    var lowerSpeedLimit = 0.4
 
     var targetAngles = ArmAngleValues(0.0, 0.0)
 
@@ -60,9 +62,11 @@ open class Arm : Controller() {
 
     override fun update(timeStep: Double) {
 
-        if(currentAngles.lowerAngle < 80 && targetAngles.upperAngle < -30){
-            targetAngles.upperAngle = -30.0
+        if (currentAngles.lowerAngle < 80 && targetAngles.upperAngle < -35) {
+            targetAngles.upperAngle = -35.0
         }
+
+        if (targetAngles.lowerAngle < 35) targetAngles.lowerAngle = 35.0
 
         lowerAnglePID.target = targetAngles.lowerAngle
         upperAnglePID.target = targetAngles.upperAngle
@@ -75,8 +79,11 @@ open class Arm : Controller() {
         telemetry.addData("lowerAngle", currentAngles.lowerAngle)
         telemetry.addData("upperAngle", currentAngles.upperAngle)
 
-        lowerMotor.power = lowerOutput
-        upperMotor.power = upperOutput
+        telemetry.addData("lowerError", lowerAnglePID.error)
+        telemetry.addData("upperError", upperAnglePID.error)
+
+        lowerMotor.power = if(lowerOutput.absoluteValue > lowerSpeedLimit) lowerOutput.sign * lowerSpeedLimit else lowerOutput
+        upperMotor.power = if(upperOutput.absoluteValue > upperSpeedLimit) upperOutput.sign * upperSpeedLimit else upperOutput
     }
 }
 

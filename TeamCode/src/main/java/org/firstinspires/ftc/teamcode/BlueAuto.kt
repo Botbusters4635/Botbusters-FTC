@@ -16,34 +16,52 @@ class BlueAuto : EctoLinearOpMode() {
     val arm = SynchronizedArm()
     val intake = Intake()
     val clamp = Clamp()
+    val trayHolder = TrayHolder()
 
     init {
         addController(chassis)
         addController(arm)
         addController(intake)
         addController(clamp)
+        addController(trayHolder)
     }
 
     override fun startMode() {
         chassis.heading = 180.0
         chassis.turnToAngleBlocking(180.0)
+
     }
 
     override fun runOpMode() {
 
         chassis.maxAutoVx = 0.3
+        intake.power = 1.0
 
+        chassis.runToPositionBlocking(Coordinate(0.38, 0.1))
 
-        chassis.runToPositionBlocking(Coordinate(0.36, 0.0))
+        trayHolder.setPosition(TrayHolderPosition.Grab)
+
+        runBlocking {
+            delay(500)
+        }
 
         arm.moveToPosition(ArmPosition.INTAKE)
 
-//        chassis.maxAutoVx = 0.1
-        chassis.runToPositionBlocking(Coordinate(0.1, 0.0))
+        intake.power = 1.0
 
+//        chassis.maxAutoVx = 0.1
+        chassis.runToPositionBlocking(Coordinate(0.1, -x0.1))
+
+        intake.power = 0.0
 //        chassis.turnToAngleBlocking(20.0)
 
         chassis.turnToAngleBlocking(-90.0)
+
+        trayHolder.setPosition(TrayHolderPosition.Release)
+
+        runBlocking {
+            delay(500)
+        }
 
         chassis.maxAutoVx = 0.3
 
@@ -57,11 +75,11 @@ class BlueAuto : EctoLinearOpMode() {
 
         chassis.moveTimed(MecanumMoveCommand(vx = 0.25, theta = chassis.heading), 3.25)
 
+        intake.power = 0.0
+
         chassis.runToPositionBlocking(Coordinate(0.2, -0.66))
 
         chassis.turnToAngleBlocking(-90.0)
-
-        intake.power = 0.0
 
         //leAFFAE
 

@@ -36,20 +36,28 @@ class SynchronizedArm : PositionArm() {
 
         when (currentState) {
             ArmState.EXCHANGE_FRONT_TO_BACK -> {
-                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate)) {
+//                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate)) {
+//                    clamp.angle = 180.0
+
+//                }
+//                targetCoordinate = ArmPosition.EXCHANGE.coordinate7
+                if (currentAngles.lowerAngle + currentAngles.upperAngle >= 0) {
                     clamp.angle = 180.0
                     if (!clawTurning) {
+                        upperSpeedLimit = 0.0
+                        lowerSpeedLimit = 0.0
                         clawTurning = true
                         clawTurnStartTime = SystemClock.elapsedRealtime() / 1000.0
                     } else if (SystemClock.elapsedRealtime() / 1000.0 - clawTurnStartTime > clawTurnTime) {
                         clawTurning = false
-                        clamp.angle = 180.0
                         currentState = ArmState.GO_TARGET
                     }
                 }
-                targetCoordinate = ArmPosition.EXCHANGE.coordinate
+
             }
             ArmState.EXCHANGE_BACK_TO_FRONT -> {
+                upperSpeedLimit = 0.6
+                lowerSpeedLimit = 0.4
                 if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate)) {
                     clamp.angle = 0.0
                     if (!clawTurning) {
@@ -64,6 +72,8 @@ class SynchronizedArm : PositionArm() {
                 targetCoordinate = ArmPosition.EXCHANGE.coordinate
             }
             ArmState.GO_TARGET -> {
+                upperSpeedLimit = 0.6
+                lowerSpeedLimit = 0.4
                 targetCoordinate = currentTargetCoord
             }
         }
