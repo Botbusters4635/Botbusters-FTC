@@ -3,24 +3,27 @@ package org.firstinspires.ftc.teamcode
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.firstinspires.ftc.teamcode.controllers.PositionChassis
-import org.firstinspires.ftc.teamcode.controllers.TrayHolder
-import org.firstinspires.ftc.teamcode.controllers.TrayHolderPosition
+import org.firstinspires.ftc.teamcode.controllers.*
 import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
 import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
 import org.firstinspires.ftc.teamcode.core.Coordinate
 import org.firstinspires.ftc.teamcode.core.EctoLinearOpMode
 
-@Autonomous(name = "TrayOnly", group = "Red")
-class TrayOnlyAutonomous : EctoLinearOpMode() {
+@Autonomous(name = "RedAuto", group = "Red")
+class RedAuto : EctoLinearOpMode() {
     val chassis = PositionChassis()
     val arm = SynchronizedArm()
+    val intake = Intake()
 
     init {
         addController(chassis)
+        addController(arm)
+        addController(intake)
     }
 
     override fun startMode() {
+        chassis.heading = 180.0
+        chassis.turnToAngleBlocking(180.0)
     }
 
     override fun runOpMode() {
@@ -28,41 +31,38 @@ class TrayOnlyAutonomous : EctoLinearOpMode() {
         chassis.maxAutoVx = 0.3
 
 
-        chassis.runToPositionBlocking(Coordinate(0.7, 0.0))
-
-        arm.init(hardwareMap)
-
-        arm.start()
-
-        addController(arm)
+        chassis.runToPositionBlocking(Coordinate(0.36, 0.0))
 
         arm.moveToPosition(ArmPosition.INTAKE)
 
-        runBlocking {
-            delay(1500)
-        }
-
-        arm.moveToPosition(ArmPosition.HOME)
-
-        chassis.maxAutoVx = 0.1
 //        chassis.maxAutoVx = 0.1
-
         chassis.runToPositionBlocking(Coordinate(0.1, 0.0))
-        chassis.runToPositionBlocking(Coordinate(0.2, 0.0))
 
 //        chassis.turnToAngleBlocking(20.0)
 
-        chassis.turnToAngleBlocking(-90.0)
+        chassis.turnToAngleBlocking(90.0)
 
-        chassis.maxAutoVx = 0.6
-
-        chassis.runToPositionBlocking(Coordinate(0.2, 0.2))
+        chassis.maxAutoVx = 0.3
 
         arm.runToPositionBlocking(ArmPosition.PASSBRIDGE)
 
-        chassis.runToPositionBlocking(Coordinate(0.2, 0.5))
+        chassis.runToPositionBlocking(Coordinate(0.1, 0.58))
 
-        chassis.turnToAngleBlocking(45.0)
+        chassis.turnToAngleBlocking(50.0)
+
+        intake.power = -1.0
+
+        chassis.moveTimed(MecanumMoveCommand(vx = 0.2, theta = chassis.heading), 3.0)
+
+        chassis.runToPositionBlocking(Coordinate(0.2, 0.66))
+
+        intake.power = 0.0
+
+        chassis.runToPositionBlocking(Coordinate(0.2, -0.2))
+
+        arm.moveToPosition(ArmPosition.HOME)
+
+
 
     }
 

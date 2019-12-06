@@ -60,7 +60,7 @@ open class Arm : Controller() {
 
     override fun update(timeStep: Double) {
 
-        if(currentAngles.lowerAngle < 70 && targetAngles.upperAngle < -30){
+        if(currentAngles.lowerAngle < 80 && targetAngles.upperAngle < -30){
             targetAngles.upperAngle = -30.0
         }
 
@@ -71,6 +71,10 @@ open class Arm : Controller() {
         val upperOutput = upperAnglePID.update(currentAngles.upperAngle, timeStep)
 
         //telemetry.addData("currentAngles", currentAngles)
+
+        telemetry.addData("lowerAngle", currentAngles.lowerAngle)
+        telemetry.addData("upperAngle", currentAngles.upperAngle)
+
         lowerMotor.power = lowerOutput
         upperMotor.power = upperOutput
     }

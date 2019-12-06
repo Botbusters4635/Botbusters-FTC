@@ -166,10 +166,10 @@ open class Chassis : Controller() {
         }
         writeMotors(motorValues)
 
-        telemetry.addData("topLeft", topLeftMotor.currentPosition)
-        telemetry.addData("topRight", topRightMotor.currentPosition)
-        telemetry.addData("downLeft", downLeftMotor.currentPosition)
-        telemetry.addData("downRight", downRightMotor.currentPosition)
+//        telemetry.addData("topLeft", topLeftMotor.currentPosition)
+//        telemetry.addData("topRight", topRightMotor.currentPosition)
+//        telemetry.addData("downLeft", downLeftMotor.currentPosition)
+//        telemetry.addData("downRight", downRightMotor.currentPosition)
 
 
 

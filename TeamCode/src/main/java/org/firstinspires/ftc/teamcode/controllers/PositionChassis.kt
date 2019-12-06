@@ -19,7 +19,7 @@ class PositionChassis : Chassis() {
     val yPID = PID(PIDSettings(2.5, 0.0, 0.0))
 
     var maxAutoVx = 0.4
-    var maxAutoVy = 0.1
+    var maxAutoVy = 0.4
     var followingPath = false
 
     val distanceToTarget
@@ -29,9 +29,9 @@ class PositionChassis : Chassis() {
         get() = distanceToTarget < 0.05
 
     override fun update(timeStep: Double) {
-        movementTarget.vx = 0.0
-        movementTarget.vy = 0.0
-        angularPID.maxOutput = 1.5
+        angularPID.maxOutput = 0.7
+
+        super.update(timeStep)
 
         if(followingPath){
             if(onTarget){
@@ -53,7 +53,6 @@ class PositionChassis : Chassis() {
             }
         }
         telemetry.addData("x, y", "%.2f %.2f", currentCoords.x, currentCoords.y)
-        super.update(timeStep)
     }
 
     fun runToPositionBlocking(target: Coordinate) = runBlocking{
@@ -63,6 +62,8 @@ class PositionChassis : Chassis() {
         while(!onTarget && isActive){
 
         }
+        movementTarget.vx = 0.0
+        movementTarget.vy = 0.0
         followingPath = false
     }
 
@@ -94,7 +95,19 @@ class PositionChassis : Chassis() {
             }
         }
     }
+    fun moveTimed(command: MecanumMoveCommand, seconds: Double) = runBlocking{
+        val startTime = SystemClock.elapsedRealtime() / 1000.0
+        var currentTime = 0.0
+        movementTarget = command
 
+        while(currentTime < seconds && isActive){
+            currentTime = SystemClock.elapsedRealtime() / 1000.0 - startTime
+        }
+        movementTarget.vx = 0.0
+        movementTarget.vy = 0.0
+        angularPID.maxOutput = 1.5
+
+    }
     fun followPathBlocking(path: Path) = runBlocking {
         for(waypoint in path){
             runToPositionBlocking(waypoint)
