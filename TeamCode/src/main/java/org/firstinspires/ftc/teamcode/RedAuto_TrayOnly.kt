@@ -35,17 +35,18 @@ class RedAuto_TrayOnly : EctoLinearOpMode() {
     override fun runOpMode() {
         chassis.maxAutoVx = 0.3
         chassis.maxAutoVy = 0.3
+        chassis.maxAutoAngular = 0.9
 
-        intake.power = 1.0
+        intake.rightPower = 1.0
         arm.moveToPosition(ArmPosition.HOME)
 
-        chassis.runToPositionBlocking(Coordinate(0.39, -0.1))
+        chassis.runToPositionBlocking(Coordinate(0.4, -0.1))
 
         trayHolder.setPosition(TrayHolderPosition.Grab)
         runBlocking {
             delay(800)
         }
-        chassis.moveTimed(MecanumMoveCommand(vy = -0.15, theta = chassis.heading), 3.0)
+        chassis.moveTimed(MecanumMoveCommand(vy = -0.15, theta = chassis.heading), 4.0)
 
 
         arm.moveToPosition(ArmPosition.INTAKE)
@@ -66,7 +67,7 @@ class RedAuto_TrayOnly : EctoLinearOpMode() {
             delay(500)
         }
 
-        chassis.runToPositionBlocking(Coordinate(0.05, 0.58))
+        chassis.runToPositionBlocking(Coordinate(0.05, 0.60))
     }
 }
 
