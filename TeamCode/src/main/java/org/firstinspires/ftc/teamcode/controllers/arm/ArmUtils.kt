@@ -21,5 +21,5 @@ enum class ArmPosition(val coordinate: Coordinate) {
     FOURTH_LEVEL(Coordinate(-0.27, 0.48)),
     EXCHANGE(Coordinate(0.25, 0.35)),
     INTAKE(Coordinate(0.25, 0.28)),
-    PASSBRIDGE(Coordinate(0.47, 0.12))
+    PASSBRIDGE(Coordinate(0.47, 0.1))
 }
