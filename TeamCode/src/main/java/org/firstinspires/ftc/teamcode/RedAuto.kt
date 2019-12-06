@@ -35,17 +35,18 @@ class RedAuto : EctoLinearOpMode() {
     override fun runOpMode() {
         chassis.maxAutoVx = 0.3
         chassis.maxAutoVy = 0.3
+        chassis.maxAutoAngular = 0.9
 
-        intake.power = 1.0
+        intake.rightPower = 1.0
         arm.moveToPosition(ArmPosition.HOME)
 
-        chassis.runToPositionBlocking(Coordinate(0.39, -0.1))
+        chassis.runToPositionBlocking(Coordinate(0.4, -0.1))
 
         trayHolder.setPosition(TrayHolderPosition.Grab)
         runBlocking {
             delay(800)
         }
-        chassis.moveTimed(MecanumMoveCommand(vy = -0.15, theta = chassis.heading), 3.0)
+        chassis.moveTimed(MecanumMoveCommand(vy = -0.15, theta = chassis.heading), 4.0)
 
 
         arm.moveToPosition(ArmPosition.INTAKE)
@@ -66,18 +67,18 @@ class RedAuto : EctoLinearOpMode() {
             delay(500)
         }
 
-        chassis.runToPositionBlocking(Coordinate(0.05, 0.58))
+        chassis.runToPositionBlocking(Coordinate(0.05, 0.60))
 
-        chassis.turnToAngleBlocking(50.0)
+        chassis.turnToAngleBlocking(60.0)
 
-        intake.power = -1.0
+        intake.power = -0.7
 
         chassis.moveTimed(MecanumMoveCommand(vx = 0.25, theta = chassis.heading), 3.2)
         chassis.runToPositionBlocking(Coordinate(0.05, 0.66))
-        intake.power = 1.0
         chassis.turnToAngleBlocking(-90.0)
+        intake.power = 1.0
 
-        chassis.moveTimed(MecanumMoveCommand(vx = 3.0, theta = chassis.heading),  0.2)
+        chassis.moveTimed(MecanumMoveCommand(vx = 3.0, theta = chassis.heading),  0.5)
         chassis.moveTimed(MecanumMoveCommand(vx = -3.0, theta = chassis.heading), 0.5)
         chassis.runToPositionBlocking(Coordinate(0.05, 0.58))
 

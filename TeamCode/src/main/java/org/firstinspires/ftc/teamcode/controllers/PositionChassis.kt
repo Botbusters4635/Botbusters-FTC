@@ -20,6 +20,7 @@ class PositionChassis : Chassis() {
 
     var maxAutoVx = 0.4
     var maxAutoVy = 0.4
+    var maxAutoAngular = 0.7
     var followingPath = false
 
     val distanceToTarget
@@ -29,7 +30,7 @@ class PositionChassis : Chassis() {
         get() = distanceToTarget < 0.05
 
     override fun update(timeStep: Double) {
-        angularPID.maxOutput = 0.7
+        angularPID.maxOutput = maxAutoAngular
 
         super.update(timeStep)
 

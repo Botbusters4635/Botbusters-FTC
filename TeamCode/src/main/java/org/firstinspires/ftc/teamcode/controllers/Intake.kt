@@ -15,6 +15,21 @@ class Intake : Controller() {
             rightIntake.power = -field * 0.7
         }
 
+    var rightPower = 0.0
+    set(value) {
+        field = value
+        leftIntake.power = 0.0
+        rightIntake.power = -field * 0.7
+    }
+
+
+    var leftPower = 0.0
+    set(value) {
+        field = value
+        leftIntake.power = field * 0.7
+        rightIntake.power = 0.0
+    }
+
     override fun init(hardwareMap: HardwareMap) {
         leftIntake = hardwareMap.get(DcMotor::class.java, "intakeLeft")
         rightIntake = hardwareMap.get(DcMotor::class.java, "intakeRight")
