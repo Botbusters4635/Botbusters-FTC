@@ -74,7 +74,7 @@ class PositionChassis : Chassis() {
 
         var error = (targetAngle - heading)
 
-        while(error.absoluteValue > 2 && isActive){
+        while(error.absoluteValue > 5 && isActive){
             error = (targetAngle - heading)
             if(error > 180.0){
                 error -= 360

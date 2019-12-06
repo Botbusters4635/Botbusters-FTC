@@ -23,8 +23,8 @@ open class Arm : Controller() {
     private lateinit var intakeLeft: DcMotor
     private lateinit var intakeRight: DcMotor
 
-    var upperSpeedLimit = 0.6
-    var lowerSpeedLimit = 0.4
+    var upperSpeedLimit = 1.0
+    var lowerSpeedLimit = 1.0
 
     var targetAngles = ArmAngleValues(0.0, 0.0)
 

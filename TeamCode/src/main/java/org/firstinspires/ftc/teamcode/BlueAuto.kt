@@ -36,8 +36,9 @@ class BlueAuto : EctoLinearOpMode() {
 
         chassis.maxAutoVx = 0.3
         intake.power = 1.0
+        arm.moveToPosition(ArmPosition.HOME)
 
-        chassis.runToPositionBlocking(Coordinate(0.38, 0.1))
+        chassis.runToPositionBlocking(Coordinate(0.39, 0.1))
 
         trayHolder.setPosition(TrayHolderPosition.Grab)
 
@@ -50,10 +51,11 @@ class BlueAuto : EctoLinearOpMode() {
         intake.power = 1.0
 
 //        chassis.maxAutoVx = 0.1
-        chassis.runToPositionBlocking(Coordinate(0.1, -x0.1))
+        chassis.runToPositionBlocking(Coordinate(0.1, -0.1))
 
         intake.power = 0.0
 //        chassis.turnToAngleBlocking(20.0)
+        arm.moveToPosition(ArmPosition.PASSBRIDGE)
 
         chassis.turnToAngleBlocking(-90.0)
 
@@ -65,39 +67,26 @@ class BlueAuto : EctoLinearOpMode() {
 
         chassis.maxAutoVx = 0.3
 
-        arm.runToPositionBlocking(ArmPosition.PASSBRIDGE)
 
-        chassis.runToPositionBlocking(Coordinate(0.1, -0.46))
+        chassis.runToPositionBlocking(Coordinate(0.1, -0.58))
 
         chassis.turnToAngleBlocking(-50.0)
 
         intake.power = -1.0
 
-        chassis.moveTimed(MecanumMoveCommand(vx = 0.25, theta = chassis.heading), 3.25)
+        chassis.moveTimed(MecanumMoveCommand(vx = 0.25, theta = chassis.heading), 3.2)
 
-        intake.power = 0.0
+        intake.power = 1.0
 
-        chassis.runToPositionBlocking(Coordinate(0.2, -0.66))
+        chassis.runToPositionBlocking(Coordinate(0.1, -0.66))
+//        intake.power = 1.0
+        chassis.turnToAngleBlocking(90.0)
 
-        chassis.turnToAngleBlocking(-90.0)
 
         //leAFFAE
-
-        chassis.runToPositionBlocking(Coordinate(0.2, -0.1))
-
-        arm.runToPositionBlocking(ArmPosition.HOME)
-
-        clamp.power = 1.0
-
-        runBlocking {
-            delay(500)
-        }
-
-        arm.runToPositionBlocking(ArmPosition.SECOND_LEVEL)
-
-        clamp.power = 0.0
-
-        arm.runToPositionBlocking(ArmPosition.PASSBRIDGE)
+        chassis.moveTimed(MecanumMoveCommand(vx = 2.6, theta = chassis.heading),  0.5)
+        chassis.moveTimed(MecanumMoveCommand(vx = 2.6, theta = chassis.heading), 0.5)
+        chassis.runToPositionBlocking(Coordinate(0.1, -0.58))
 
     }
 
