@@ -1,16 +1,12 @@
 package org.firstinspires.ftc.teamcode.controllers
 
 import com.qualcomm.robotcore.hardware.HardwareMap
-import com.qualcomm.robotcore.util.RobotLog
 import org.firstinspires.ftc.robotcore.external.ClassFactory
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix
 import org.firstinspires.ftc.robotcore.external.navigation.*
-import org.firstinspires.ftc.teamcode.ConceptVuforiaNavigation
 import org.firstinspires.ftc.teamcode.core.Controller
 import org.firstinspires.ftc.teamcode.core.Coordinate
-import java.lang.String.format
 import java.util.ArrayList
-import kotlin.math.absoluteValue
 
 class VisionController : Controller() {
     lateinit var vuforia: VuforiaLocalizer

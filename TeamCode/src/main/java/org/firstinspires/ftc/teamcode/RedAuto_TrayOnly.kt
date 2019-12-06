@@ -10,8 +10,8 @@ import org.firstinspires.ftc.teamcode.controllers.clamp.Clamp
 import org.firstinspires.ftc.teamcode.core.Coordinate
 import org.firstinspires.ftc.teamcode.core.EctoLinearOpMode
 
-@Autonomous(name = "RedAuto", group = "Red")
-class RedAuto : EctoLinearOpMode() {
+@Autonomous(name = "RedAuto_TrayOnly", group = "Red")
+class RedAuto_TrayOnly : EctoLinearOpMode() {
     val chassis = PositionChassis()
     val arm = SynchronizedArm()
     val intake = Intake()
@@ -33,26 +33,24 @@ class RedAuto : EctoLinearOpMode() {
     }
 
     override fun runOpMode() {
-        chassis.maxAutoVx = 0.3
-        chassis.maxAutoVy = 0.3
 
+        chassis.maxAutoVx = 0.3
         intake.power = 1.0
         arm.moveToPosition(ArmPosition.HOME)
 
         chassis.runToPositionBlocking(Coordinate(0.39, -0.1))
 
         trayHolder.setPosition(TrayHolderPosition.Grab)
-        runBlocking {
-            delay(800)
-        }
-        chassis.moveTimed(MecanumMoveCommand(vy = -0.15, theta = chassis.heading), 3.0)
 
+        runBlocking {
+            delay(500)
+        }
 
         arm.moveToPosition(ArmPosition.INTAKE)
 
         intake.power = 1.0
 
-        chassis.runToPositionBlocking(Coordinate(0.15, chassis.getCurrentCords().y))
+        chassis.runToPositionBlocking(Coordinate(0.1, 0.1))
 
         intake.power = 0.0
 
@@ -66,21 +64,10 @@ class RedAuto : EctoLinearOpMode() {
             delay(500)
         }
 
-        chassis.runToPositionBlocking(Coordinate(0.05, 0.58))
+        chassis.maxAutoVx = 0.3
 
-        chassis.turnToAngleBlocking(50.0)
 
-        intake.power = -1.0
-
-        chassis.moveTimed(MecanumMoveCommand(vx = 0.25, theta = chassis.heading), 3.2)
-        chassis.runToPositionBlocking(Coordinate(0.05, 0.66))
-        intake.power = 1.0
-        chassis.turnToAngleBlocking(-90.0)
-
-        chassis.moveTimed(MecanumMoveCommand(vx = 3.0, theta = chassis.heading),  0.2)
-        chassis.moveTimed(MecanumMoveCommand(vx = -3.0, theta = chassis.heading), 0.5)
-        chassis.runToPositionBlocking(Coordinate(0.05, 0.58))
-
+        chassis.runToPositionBlocking(Coordinate(0.1, 0.58))
     }
 }
 

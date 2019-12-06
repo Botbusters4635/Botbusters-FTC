@@ -50,11 +50,10 @@ class BlueAuto : EctoLinearOpMode() {
 
         intake.power = 1.0
 
-//        chassis.maxAutoVx = 0.1
         chassis.runToPositionBlocking(Coordinate(0.1, -0.1))
 
         intake.power = 0.0
-//        chassis.turnToAngleBlocking(20.0)
+
         arm.moveToPosition(ArmPosition.PASSBRIDGE)
 
         chassis.turnToAngleBlocking(-90.0)
@@ -79,49 +78,13 @@ class BlueAuto : EctoLinearOpMode() {
         intake.power = 1.0
 
         chassis.runToPositionBlocking(Coordinate(0.1, -0.66))
-//        intake.power = 1.0
         chassis.turnToAngleBlocking(90.0)
 
-
-        //leAFFAE
         chassis.moveTimed(MecanumMoveCommand(vx = 2.6, theta = chassis.heading),  0.5)
         chassis.moveTimed(MecanumMoveCommand(vx = 2.6, theta = chassis.heading), 0.5)
         chassis.runToPositionBlocking(Coordinate(0.1, -0.58))
 
     }
-
-//        chassis.runToPositionBlocking(Coordinate(0.75, 0.0))
-
-//        chassis.runToPositionBlocking(Coordinate(0.1, -0.5))
-    /***
-     * Enable grabbing cosa
-     */
-//        trayHolder.setPosition(TrayHolderPosition.Grab)
-//        runBlocking {
-//            delay(250)
-//        }
-//
-//        /**q
-//
-//        chassis.runToPositionBlocking(Coordinate(0.5, 0.0))
-//
-//
-//        /**
-//         * Girar para acomodarla y empujarla contra la zona
-//         */
-//        chassis.turnToAngleBlocking(90.0)
-//        arm.moveToPosition(ArmPosition.PASSBRIDGE)
-//        chassis.runToPositionBlocking(Coordinate(chassis.getCurrentCords().x, chassis.getCurrentCords().y - 0.25))
-//
-//        trayHolder.setPosition(TrayHolderPosition.Release)
-//        runBlocking {
-//            delay(250)
-//        }
-//
-//        /**
-//         * Ir a estacionarse
-//         */
-//        chassis.runToPositionBlocking(Coordinate(chassis.getCurrentCords().x, 1.0))
 }
 
 
