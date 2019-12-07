@@ -104,6 +104,8 @@ class TeleOp : EctoOpMode() {
                 arm.moveToPosition(ArmPosition.HOME)
             else if (gamepad2.left_bumper || (arm.targetCoordinate == ArmPosition.HOME.coordinate && intakePower != 0.0))
                 arm.moveToPosition(ArmPosition.INTAKE)
+            else if(gamepad2.right_stick_button)
+                arm.moveToPosition(ArmPosition.HOME_CAP)
         }
 
 
@@ -114,8 +116,6 @@ class TeleOp : EctoOpMode() {
         if(gamepad1.left_bumper){
             trayHolder.setPosition(TrayHolderPosition.Release)
         }
-
-
 //
         if (gamepad2.dpad_up) {
             arm.clamp.power = 1.0

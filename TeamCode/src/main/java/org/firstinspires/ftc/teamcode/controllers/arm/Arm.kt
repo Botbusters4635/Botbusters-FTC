@@ -62,8 +62,8 @@ open class Arm : Controller() {
 
     override fun update(timeStep: Double) {
 
-        if (currentAngles.lowerAngle < 80 && targetAngles.upperAngle < -35) {
-            targetAngles.upperAngle = -35.0
+        if (currentAngles.lowerAngle < 80 && targetAngles.upperAngle < -45) {
+            targetAngles.upperAngle = -45.0
         }
 
         if (targetAngles.lowerAngle < 35) targetAngles.lowerAngle = 35.0
