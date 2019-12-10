@@ -46,8 +46,7 @@ class RedAuto : EctoLinearOpMode() {
         runBlocking {
             delay(800)
         }
-        chassis.moveTimed(MecanumMoveCommand(vy = -0.15, theta = chassis.heading), 4.0)
-
+        chassis.moveTimed(MecanumMoveCommand(vy = -0.15, theta = chassis.heading), 3.35)
 
         arm.moveToPosition(ArmPosition.INTAKE)
 
@@ -74,13 +73,14 @@ class RedAuto : EctoLinearOpMode() {
         intake.power = -0.7
 
         chassis.moveTimed(MecanumMoveCommand(vx = 0.25, theta = chassis.heading), 3.2)
-        chassis.runToPositionBlocking(Coordinate(0.05, 0.66))
+        chassis.runToPositionBlocking(Coordinate(-0.05, 0.66))
         chassis.turnToAngleBlocking(-90.0)
         intake.power = 1.0
 
         chassis.moveTimed(MecanumMoveCommand(vx = 3.0, theta = chassis.heading),  0.5)
         chassis.moveTimed(MecanumMoveCommand(vx = -3.0, theta = chassis.heading), 0.5)
         chassis.runToPositionBlocking(Coordinate(0.05, 0.58))
+        chassis.runToPositionBlocking(Coordinate(0.3, 0.58))
 
     }
 }

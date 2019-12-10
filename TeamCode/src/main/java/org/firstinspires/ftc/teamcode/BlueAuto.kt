@@ -50,7 +50,7 @@ class BlueAuto : EctoLinearOpMode() {
 
         intake.power = 1.0
 
-        chassis.runToPositionBlocking(Coordinate(0.1, -0.1))
+        chassis.runToPositionBlocking(Coordinate(0.2, -0.1))
 
         intake.power = 0.0
 
@@ -73,7 +73,7 @@ class BlueAuto : EctoLinearOpMode() {
 
         intake.power = -1.0
 
-        chassis.moveTimed(MecanumMoveCommand(vx = 0.25, theta = chassis.heading), 3.2)
+        chassis.moveTimed(MecanumMoveCommand(vx = 0.15, theta = chassis.heading), 3.2)
 
         intake.power = 1.0
 

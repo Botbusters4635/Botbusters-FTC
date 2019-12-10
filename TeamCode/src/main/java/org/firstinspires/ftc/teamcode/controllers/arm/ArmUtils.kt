@@ -17,10 +17,10 @@ enum class ArmPosition(val coordinate: Coordinate) {
     HOME_CAP(Coordinate(0.20, 0.06)),
     HOME(Coordinate(0.20, 0.1)),
     FIRST_LEVEL(Coordinate(-0.27, 0.1)),
-    SECOND_LEVEL(Coordinate(-0.3, 0.2)),
+    SECOND_LEVEL(Coordinate(-0.3, 0.2375)),
     THIRD_LEVEL(Coordinate(-0.3, 0.33)),
     FOURTH_LEVEL(Coordinate(-0.27, 0.48)),
     EXCHANGE(Coordinate(0.25, 0.35)),
     INTAKE(Coordinate(0.25, 0.28)),
-    PASSBRIDGE(Coordinate(0.47, 0.1))
+    PASSBRIDGE(Coordinate(0.48, 0.12))
 }
