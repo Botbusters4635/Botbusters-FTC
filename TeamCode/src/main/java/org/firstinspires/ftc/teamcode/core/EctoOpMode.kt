@@ -40,7 +40,7 @@ abstract class EctoOpMode : OpMode() {
         update(timeStep)
 
         runBlocking {
-            delay(updateRate.toLong())
+            delay( (updateRate.toLong() - timeStep.toLong()).coerceAtLeast(0.0.toLong()))
         }
 
     }
