@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.controllers
 
+import android.os.SystemClock
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.robotcore.hardware.*
@@ -64,10 +65,10 @@ open class Chassis : Controller() {
     protected val angularPID = PID(pidSettingsNormal)
 
     var angularSpeedTarget: Double = 0.0
-    set(value){
-        field = value
-        pidActive = false
-    }
+        set(value) {
+            field = value
+            pidActive = false
+        }
 
     var pidActive = true
 
@@ -78,32 +79,43 @@ open class Chassis : Controller() {
 
     lateinit var imu: BNO055IMU
 
-    private var kinematics = MecanumKinematics(0.25/2, 0.27/2, 0.0508)
+    private var kinematics = MecanumKinematics(0.25 / 2, 0.27 / 2, 0.0508)
 
     protected var currentCoords = Coordinate()
     private var offset = 0.0
 
+    var lastHeadingReading = 0.0
+    var lastTimeHeadingWasRead = SystemClock.elapsedRealtime() / 1000
     var heading: Double
         set(value) {
             offset = value - imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle.toDouble()
         }
         get() {
-            val currentHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle.toDouble() - offset
+            if (SystemClock.elapsedRealtime() / 1000 - lastTimeHeadingWasRead > 0.02) {
 
-            if (currentHeading > 180) return currentHeading - 360
-            else if (currentHeading < -180) return currentHeading + 360
-            else return currentHeading
+                val currentHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle.toDouble() - offset
+
+                lastHeadingReading =
+                        if (currentHeading > 180)
+                            currentHeading - 360
+                        else if (currentHeading < -180)
+                            currentHeading + 360
+                        else
+                            currentHeading
+                lastTimeHeadingWasRead = SystemClock.elapsedRealtime() / 1000
+            }
+            return lastHeadingReading
         }
 
     val maxV = 0.6
 
-    var movementTarget : MecanumMoveCommand = MecanumMoveCommand()
+    var movementTarget: MecanumMoveCommand = MecanumMoveCommand()
         set(value) {
-            if(value.vx.absoluteValue > maxV){
+            if (value.vx.absoluteValue > maxV) {
                 value.vx = Math.copySign(maxV, value.vx)
             }
 
-            if(value.vy.absoluteValue > maxV){
+            if (value.vy.absoluteValue > maxV) {
                 value.vy = Math.copySign(maxV, value.vy)
             }
 
@@ -150,7 +162,7 @@ open class Chassis : Controller() {
 
         var motorValues: MecanumMotorValues
 
-        if(pidActive){
+        if (pidActive) {
             angularPID.target = movementTarget.theta
             motorValues = kinematics.calcInverseKinematics(
                     movementTarget.vx,
@@ -172,17 +184,19 @@ open class Chassis : Controller() {
 //        telemetry.addData("downRight", downRightMotor.currentPosition)
 
 
-
-
-
-
     }
 
+    var lastTimeWritten = SystemClock.elapsedRealtime() / 1000
+
     fun writeMotors(values: MecanumMotorValues) {
-        topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
-        topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
-        downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
-        downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
+        if (SystemClock.elapsedRealtime() / 1000 - lastTimeWritten > 0.02) {
+            topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
+            topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
+            downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
+            downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
+
+            lastTimeWritten = SystemClock.elapsedRealtime()
+        }
     }
 
     fun getLocalVelocities(): Twist2D {
@@ -222,8 +236,8 @@ open class Chassis : Controller() {
     fun updateCurrentCoords(timeStep: Double) {
         val globalVelocities = getGlobalVelocities()
 
-        currentCoords.x = currentCoords.x + (globalVelocities.vx * timeStep)*8.097165992
-        currentCoords.y = currentCoords.y + (globalVelocities.vy * timeStep)*8.097165992
+        currentCoords.x = currentCoords.x + (globalVelocities.vx * timeStep) * 8.097165992
+        currentCoords.y = currentCoords.y + (globalVelocities.vy * timeStep) * 8.097165992
     }
 
     fun getCurrentCords(): Coordinate {

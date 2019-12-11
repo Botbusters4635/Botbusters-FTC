@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.core.EctoOpMode
 import com.qualcomm.robotcore.util.ReadWriteFile
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil
 import com.qualcomm.hardware.bosch.BNO055IMU
+import org.firstinspires.ftc.teamcode.motionProfiles.SCurveMotionProfile
 
 
 @TeleOp(name = "TeleOp")
@@ -24,6 +25,7 @@ class TeleOp : EctoOpMode() {
 
     var currentSpeedLimiter = 0.0
 
+
     init {
         addController(chassis)
         addController(arm)
@@ -33,11 +35,10 @@ class TeleOp : EctoOpMode() {
     }
 
     override fun startMode() {
-        arm.moveToPosition(ArmPosition.PASSBRIDGE)
+//        arm.moveToPosition(ArmPosition.PASSBRIDGE)
     }
 
     override fun update(timeStep: Double) {
-
         val desiredChange = -gamepad1.right_stick_x.toDouble()
         targetHeading += (desiredChange * maxTargetHeadingRate * (1.0 - currentSpeedLimiter)) * timeStep
 

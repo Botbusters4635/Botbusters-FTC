@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.controllers.arm
 
+import android.os.SystemClock
 import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.teamcode.core.Controller
 import org.firstinspires.ftc.teamcode.core.PID
@@ -38,29 +39,42 @@ open class Arm : Controller() {
     var lowerSpeedLimit = 1.0
 
     var upperAngleTarget = 0.0
-    set(value) {
-        field = value
-        upperMotionProfile = generateMotionProfile(field - currentAngles.upperAngle)
-        upperMotionActive = true
-        upperMotionStartTime = System.nanoTime().toDouble()
-    }
+        set(value) {
+            if(value != field){
+                telemetry.addData("aaa", 2)
+                field = value
+                upperMotionProfile = generateMotionProfile(field - currentAngles.upperAngle)
+                upperMotionActive = true
+                upperMotionStartTime = SystemClock.elapsedRealtime() / 1000.0
+            }
+        }
     var lowerAngleTarget = 0.0
-    set(value) {
-        field = value
-        upperMotionProfile = generateMotionProfile(field - currentAngles.upperAngle)
-        lowerMotionActive = true
-        lowerMotionStartTime = System.nanoTime().toDouble()
-    }
+        set(value) {
+            if(value != field){
+                telemetry.addData("bbb", 1)
+                field = value
+                upperMotionProfile = generateMotionProfile(field - currentAngles.upperAngle)
+                lowerMotionActive = true
+                lowerMotionStartTime = SystemClock.elapsedRealtime() / 1000.0
+            }
+        }
+
+    private var lastTimeAnglesRead = SystemClock.elapsedRealtime() / 1000.0
+    private var lastAngleReading = ArmAngleValues()
 
     val currentAngles: ArmAngleValues
         get() {
-            val angles = ArmAngleValues()
+            if (SystemClock.elapsedRealtime() / 1000.0 - lastTimeAnglesRead > 0.02) {
+                val angles = ArmAngleValues()
+//
+                angles.lowerAngle = 165.0 - 49.0 * lowerAngle.voltage - 37.1 * Math.pow(lowerAngle.voltage, 2.0) + 26.1 * Math.pow(lowerAngle.voltage, 3.0) - 4.58 * Math.pow(lowerAngle.voltage, 4.0)
+                val x = upperAngle.voltage
+                angles.upperAngle = -1.66243031965927 * x.pow(3) - 9.090297864880776 * x.pow(2) + 130.359681271249 * x - 137.040643577643
 
-            angles.lowerAngle = 165.0 - 49.0 * lowerAngle.voltage - 37.1 * Math.pow(lowerAngle.voltage, 2.0) + 26.1 * Math.pow(lowerAngle.voltage, 3.0) - 4.58 * Math.pow(lowerAngle.voltage, 4.0)
-            val x = upperAngle.voltage
-            angles.upperAngle = -1.66243031965927 * x.pow(3) - 9.090297864880776 * x.pow(2) + 130.359681271249 * x - 137.040643577643
-
-            return angles
+                lastAngleReading = angles
+                lastTimeAnglesRead = SystemClock.elapsedRealtime() / 1000.0
+            }
+            return lastAngleReading
         }
 
     fun generateMotionProfile(throwValue: Double): SCurveMotionProfile {
@@ -90,42 +104,64 @@ open class Arm : Controller() {
 
     override fun update(timeStep: Double) {
 
-        if (currentAngles.lowerAngle < 80 && upperAngleTarget < -45) {
-            upperAngleTarget = -45.0
-        }
+//        if (currentAngles.lowerAngle < 80 && upperAngleTarget < -45) {
+//            upperAngleTarget = -45.0
+//        }
+//
+//
+//        if (lowerAngleTarget < 35) lowerAngleTarget = 35.0
 
-
-        if (lowerAngleTarget < 35) lowerAngleTarget = 35.0
-
-        if(upperMotionActive){
-            val upperTimeDelta = System.nanoTime() - upperMotionStartTime
-            lowerAnglePID.target = upperMotionProfile.getPosition(upperTimeDelta)
-            if(upperMotionProfile.getTimeNeeded() < upperTimeDelta){
+        if (upperMotionActive) {
+            val upperTimeDelta = SystemClock.elapsedRealtime() / 1000 - upperMotionStartTime
+            upperAnglePID.target = upperMotionProfile.getPosition(upperTimeDelta)
+            if (upperMotionProfile.getTimeNeeded() < upperTimeDelta) {
                 upperMotionActive = false
             }
         }
+        telemetry.addData("highstart", upperMotionStartTime)
 
-        if(lowerMotionActive){
-            val lowerTimeDelta = System.nanoTime() - lowerMotionStartTime
+        if (lowerMotionActive) {
+            val lowerTimeDelta = SystemClock.elapsedRealtime() / 1000 - lowerMotionStartTime
             lowerAnglePID.target = lowerMotionProfile.getPosition(lowerTimeDelta)
-            if(lowerMotionProfile.getTimeNeeded() < lowerTimeDelta){
+            if (lowerMotionProfile.getTimeNeeded() < lowerTimeDelta) {
                 lowerMotionActive = false
             }
         }
+        telemetry.addData("lowstart", lowerMotionStartTime)
 
         val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle, timeStep)
         val upperOutput = upperAnglePID.update(currentAngles.upperAngle, timeStep)
+//
+//        telemetry.addData("lowerAngle", currentAngles.lowerAngle)
+//        telemetry.addData("upperAngle", currentAngles.upperAngle)
+//
+//        telemetry.addData("lowerTarget", lowerAnglePID.target)
+//        telemetry.addData("upperTarget", upperAnglePID.target)
 
-        //telemetry.addData("currentAngles", currentAngles)
+//
+//        telemetry.addData("lower", lowerMotionProfile.getTimeNeeded())
+//        telemetry.addData("upper", upperMotionProfile.getTimeNeeded())
+//        telemetry.addData("upperMotion", upperMotionActive)
+//        telemetry.addData("lowerMotion", lowerMotionActive)
 
-        telemetry.addData("lowerAngle", currentAngles.lowerAngle)
-        telemetry.addData("upperAngle", currentAngles.upperAngle)
 
-        telemetry.addData("lowerError", lowerAnglePID.error)
-        telemetry.addData("upperError", upperAnglePID.error)
+        val lowerFinalOutput = if (lowerOutput.absoluteValue > lowerSpeedLimit) lowerOutput.sign * lowerSpeedLimit else lowerOutput
+        val upperFinalOutput = if (upperOutput.absoluteValue > upperSpeedLimit) upperOutput.sign * upperSpeedLimit else upperOutput
+        writeMotors(lowerFinalOutput, upperFinalOutput)
 
-        lowerMotor.power = if (lowerOutput.absoluteValue > lowerSpeedLimit) lowerOutput.sign * lowerSpeedLimit else lowerOutput
-        upperMotor.power = if (upperOutput.absoluteValue > upperSpeedLimit) upperOutput.sign * upperSpeedLimit else upperOutput
+    }
+
+    var lastMotorWrite = SystemClock.elapsedRealtime() / 1000
+
+
+    fun writeMotors(lowerPower: Double, upperPower: Double){
+        if(SystemClock.elapsedRealtime() / 1000 - lastMotorWrite > 0.02){
+            lowerMotor.power = lowerPower
+            upperMotor.power = upperPower
+
+            lastMotorWrite = SystemClock.elapsedRealtime() / 1000
+        }
+
     }
 }
 
