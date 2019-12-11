@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.controllers.arm
 
-import android.os.SystemClock
 import com.qualcomm.robotcore.hardware.*
-import kotlinx.coroutines.*
 import org.firstinspires.ftc.teamcode.core.Controller
-import org.firstinspires.ftc.teamcode.core.Coordinate
 import org.firstinspires.ftc.teamcode.core.PID
 import org.firstinspires.ftc.teamcode.core.PIDSettings
+import org.firstinspires.ftc.teamcode.motionProfiles.SCurveMotionProfile
 import kotlin.math.*
 
 
@@ -23,10 +21,36 @@ open class Arm : Controller() {
     private lateinit var intakeLeft: DcMotor
     private lateinit var intakeRight: DcMotor
 
+    // Motion profile stuff
+
+    private var upperMotionStartTime = 0.0
+    private var lowerMotionStartTime = 0.0
+
+    private var lowerMotionProfile = generateMotionProfile(0.0)
+    private var upperMotionProfile = generateMotionProfile(0.0)
+
+    private var upperMotionActive = false
+    private var lowerMotionActive = false
+
+    // End of motion profile stuff
+
     var upperSpeedLimit = 1.0
     var lowerSpeedLimit = 1.0
 
-    var targetAngles = ArmAngleValues(0.0, 0.0)
+    var upperAngleTarget = 0.0
+    set(value) {
+        field = value
+        upperMotionProfile = generateMotionProfile(field - currentAngles.upperAngle)
+        upperMotionActive = true
+        upperMotionStartTime = System.nanoTime().toDouble()
+    }
+    var lowerAngleTarget = 0.0
+    set(value) {
+        field = value
+        upperMotionProfile = generateMotionProfile(field - currentAngles.upperAngle)
+        lowerMotionActive = true
+        lowerMotionStartTime = System.nanoTime().toDouble()
+    }
 
     val currentAngles: ArmAngleValues
         get() {
@@ -38,6 +62,10 @@ open class Arm : Controller() {
 
             return angles
         }
+
+    fun generateMotionProfile(throwValue: Double): SCurveMotionProfile {
+        return SCurveMotionProfile(100.0, 360.0, throwValue, 1.0)
+    }
 
     override fun init(hardwareMap: HardwareMap) {
         lowerMotor = hardwareMap.get(DcMotor::class.java, "lowerMotor")
@@ -62,14 +90,28 @@ open class Arm : Controller() {
 
     override fun update(timeStep: Double) {
 
-        if (currentAngles.lowerAngle < 80 && targetAngles.upperAngle < -45) {
-            targetAngles.upperAngle = -45.0
+        if (currentAngles.lowerAngle < 80 && upperAngleTarget < -45) {
+            upperAngleTarget = -45.0
         }
 
-        if (targetAngles.lowerAngle < 35) targetAngles.lowerAngle = 35.0
 
-        lowerAnglePID.target = targetAngles.lowerAngle
-        upperAnglePID.target = targetAngles.upperAngle
+        if (lowerAngleTarget < 35) lowerAngleTarget = 35.0
+
+        if(upperMotionActive){
+            val upperTimeDelta = System.nanoTime() - upperMotionStartTime
+            lowerAnglePID.target = upperMotionProfile.getPosition(upperTimeDelta)
+            if(upperMotionProfile.getTimeNeeded() < upperTimeDelta){
+                upperMotionActive = false
+            }
+        }
+
+        if(lowerMotionActive){
+            val lowerTimeDelta = System.nanoTime() - lowerMotionStartTime
+            lowerAnglePID.target = lowerMotionProfile.getPosition(lowerTimeDelta)
+            if(lowerMotionProfile.getTimeNeeded() < lowerTimeDelta){
+                lowerMotionActive = false
+            }
+        }
 
         val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle, timeStep)
         val upperOutput = upperAnglePID.update(currentAngles.upperAngle, timeStep)
@@ -82,8 +124,8 @@ open class Arm : Controller() {
         telemetry.addData("lowerError", lowerAnglePID.error)
         telemetry.addData("upperError", upperAnglePID.error)
 
-        lowerMotor.power = if(lowerOutput.absoluteValue > lowerSpeedLimit) lowerOutput.sign * lowerSpeedLimit else lowerOutput
-        upperMotor.power = if(upperOutput.absoluteValue > upperSpeedLimit) upperOutput.sign * upperSpeedLimit else upperOutput
+        lowerMotor.power = if (lowerOutput.absoluteValue > lowerSpeedLimit) lowerOutput.sign * lowerSpeedLimit else lowerOutput
+        upperMotor.power = if (upperOutput.absoluteValue > upperSpeedLimit) upperOutput.sign * upperSpeedLimit else upperOutput
     }
 }
 

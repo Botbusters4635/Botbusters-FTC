@@ -12,7 +12,9 @@ open class PositionArm : Arm() {
 
     var targetCoordinate = ArmPosition.HOME.coordinate
         set(value) {
-            targetAngles = kinematics.calculateInverseKinematics(value)
+            val targetAngles = kinematics.calculateInverseKinematics(value)
+            lowerAngleTarget = targetAngles.lowerAngle
+            upperAngleTarget = targetAngles.upperAngle
             field = value
         }
 

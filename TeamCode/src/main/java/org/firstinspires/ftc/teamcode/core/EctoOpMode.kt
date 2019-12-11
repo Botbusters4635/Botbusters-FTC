@@ -6,15 +6,16 @@ import com.qualcomm.robotcore.util.ElapsedTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
-abstract class EctoOpMode: OpMode() {
+abstract class EctoOpMode : OpMode() {
     private val controllers: ArrayList<Controller> = arrayListOf()
+    private val lastTimeRun: ArrayList<Double> = arrayListOf(0.0)
 
-    private var lastTimeRun = 0.0
     var initialTimeSet = false
     val updateRate = 10 //Milliseconds
 
-    protected fun addController(controller: Controller){
+    protected fun addController(controller: Controller) {
         controllers.add(controller)
+        lastTimeRun.add(0.0)
     }
 
     final override fun init() {
@@ -26,18 +27,18 @@ abstract class EctoOpMode: OpMode() {
     }
 
     final override fun loop() {
-        if(!initialTimeSet){
-            lastTimeRun = runtime
-            initialTimeSet = true
-            return
+        controllers.withIndex().forEach {
+            val timeStep = runtime - lastTimeRun[it.index + 1]
+            lastTimeRun[it.index + 1] = runtime
+            it.value.update(timeStep)
         }
-        val timeStep = runtime - lastTimeRun
-        controllers.forEach{
-            it.update(timeStep)
-        }
+
+        val timeStep = runtime - lastTimeRun[0]
+
+        lastTimeRun[0] = runtime
+
         update(timeStep)
 
-        lastTimeRun = runtime
         runBlocking {
             delay(updateRate.toLong())
         }
@@ -46,13 +47,15 @@ abstract class EctoOpMode: OpMode() {
 
     abstract fun update(timeStep: Double)
 
-    open fun startMode(){
+    open fun startMode() {
 
     }
 
     final override fun start() {
-        controllers.forEach {
-            it.start()
+        lastTimeRun[0] = runtime
+        controllers.withIndex().forEach {
+            it.value.start()
+            lastTimeRun[it.index + 1] = runtime
         }
         startMode()
     }
