@@ -28,8 +28,6 @@ class PID(var pidSettings: PIDSettings = PIDSettings()) {
     }
 
     fun update(reference: Double, timeStep: Double) : Double {
-
-
         error = target - reference // Current input received from the producer
         if (pidSettings.continous) {
             if (error > pidSettings.upperBound) {

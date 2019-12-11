@@ -186,16 +186,16 @@ open class Chassis : Controller() {
 
     }
 
-    var lastTimeWritten = SystemClock.elapsedRealtime() / 1000
+    var lastTimeWritten = SystemClock.elapsedRealtime() / 1000.0
 
     fun writeMotors(values: MecanumMotorValues) {
-        if (SystemClock.elapsedRealtime() / 1000 - lastTimeWritten > 0.02) {
+        if (SystemClock.elapsedRealtime() / 1000.0 - lastTimeWritten > 0.02) {
             topLeftMotor.setVelocity(values.topLeftSpeed, AngleUnit.RADIANS)
             topRightMotor.setVelocity(values.topRightSpeed, AngleUnit.RADIANS)
             downLeftMotor.setVelocity(values.downLeftSpeed, AngleUnit.RADIANS)
             downRightMotor.setVelocity(values.downRightSpeed, AngleUnit.RADIANS)
 
-            lastTimeWritten = SystemClock.elapsedRealtime()
+            lastTimeWritten = SystemClock.elapsedRealtime() / 1000.0
         }
     }
 

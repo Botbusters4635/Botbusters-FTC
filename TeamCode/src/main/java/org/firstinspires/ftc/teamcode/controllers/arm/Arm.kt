@@ -112,7 +112,7 @@ open class Arm : Controller() {
 //        if (lowerAngleTarget < 35) lowerAngleTarget = 35.0
 
         if (upperMotionActive) {
-            val upperTimeDelta = SystemClock.elapsedRealtime() / 1000 - upperMotionStartTime
+            val upperTimeDelta = SystemClock.elapsedRealtime() / 1000.0 - upperMotionStartTime
             upperAnglePID.target = upperMotionProfile.getPosition(upperTimeDelta)
             if (upperMotionProfile.getTimeNeeded() < upperTimeDelta) {
                 upperMotionActive = false
@@ -121,7 +121,7 @@ open class Arm : Controller() {
         telemetry.addData("highstart", upperMotionStartTime)
 
         if (lowerMotionActive) {
-            val lowerTimeDelta = SystemClock.elapsedRealtime() / 1000 - lowerMotionStartTime
+            val lowerTimeDelta = SystemClock.elapsedRealtime() / 1000.0 - lowerMotionStartTime
             lowerAnglePID.target = lowerMotionProfile.getPosition(lowerTimeDelta)
             if (lowerMotionProfile.getTimeNeeded() < lowerTimeDelta) {
                 lowerMotionActive = false
@@ -151,15 +151,15 @@ open class Arm : Controller() {
 
     }
 
-    var lastMotorWrite = SystemClock.elapsedRealtime() / 1000
+    var lastMotorWrite = SystemClock.elapsedRealtime() / 1000.0
 
 
     fun writeMotors(lowerPower: Double, upperPower: Double){
-        if(SystemClock.elapsedRealtime() / 1000 - lastMotorWrite > 0.02){
+        if(SystemClock.elapsedRealtime() / 1000.0 - lastMotorWrite > 0.02){
             lowerMotor.power = lowerPower
             upperMotor.power = upperPower
 
-            lastMotorWrite = SystemClock.elapsedRealtime() / 1000
+            lastMotorWrite = SystemClock.elapsedRealtime() / 1000.0
         }
 
     }
