@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.controllers
 
 import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.controllers.motors.EctoDcMotor
 import org.firstinspires.ftc.teamcode.core.Controller
@@ -12,6 +13,8 @@ class Intake : Controller() {
     override fun init(hardwareMap: HardwareMap) {
         controllers.add(leftIntake)
         controllers.add(rightIntake)
+
+
     }
 
     var power = 0.0

@@ -92,11 +92,15 @@ class EctoDcMotor(val name: String) : Controller() {
     private val directionCacher = ValueCacher(DcMotorSimple.Direction.FORWARD)
     private var lastReceivedDirection = DcMotorSimple.Direction.FORWARD
     var direction: DcMotorSimple.Direction
-        get() = motorBase.direction
-        //            directionCacher.cachedGet {
-//        }()
-        set(value) {
-            motorBase.direction = value
+        get() = directionCacher.cachedGet {
+                        motorBase.direction
+            }()
+
+        set(value) = runBlocking {
+            if (lastReceivedDirection != value) {
+                directionChannel.send(value)
+                lastReceivedDirection = value
+            }
         }
 //            runBlocking {
 //            if (lastReceivedDirection != value) {
@@ -135,9 +139,9 @@ override fun update(timeStep: Double) = runBlocking {
     if (!targetPosChannel.isEmpty) {
         motorBase.targetPosition = targetPosChannel.receive()
     }
-//        if (!directionChannel.isEmpty) {
-//            motorBase.direction = directionChannel.receive()
-//        }
+        if (!directionChannel.isEmpty) {
+            motorBase.direction = directionChannel.receive()
+        }
     if (!zeroPowerBehaviorChannel.isEmpty) {
         motorBase.zeroPowerBehavior = zeroPowerBehaviorChannel.receive()
     }

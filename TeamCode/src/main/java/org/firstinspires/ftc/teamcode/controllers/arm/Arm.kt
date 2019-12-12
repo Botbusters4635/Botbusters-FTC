@@ -15,7 +15,7 @@ import kotlin.math.*
 
 open class Arm : Controller() {
     private val lowerAnglePID = PID(PIDSettings(kP = 0.04, kI = 0.0, kD = 0.000))
-    private val upperAnglePID = PID(PIDSettings(kP = 0.00, kI = 0.0, kD = 0.000))
+    private val upperAnglePID = PID(PIDSettings(kP = 0.02, kI = 0.0, kD = 0.000))
 
     private val lowerMotor = EctoDcMotor("lowerMotor")
     private val upperMotor = EctoDcMotor("upperMotor")
@@ -36,10 +36,10 @@ open class Arm : Controller() {
 
     // End of motion profile stuff
 
-    var upperSpeedLimit = 0.5
+    var upperSpeedLimit = 1.0
     var lowerSpeedLimit = 0.5
 
-    var upperAngleTarget = 0.0
+    var upperAngleTarget = -40.0
         set(value) {
             if (value != field) {
                 telemetry.addData("aaa", 2)
@@ -49,7 +49,7 @@ open class Arm : Controller() {
                 upperMotionStartTime = SystemClock.elapsedRealtime() / 1000.0
             }
         }
-    var lowerAngleTarget = 110.0
+    var lowerAngleTarget = 90.0
         set(value) {
             if (value != field) {
                 telemetry.addData("bbb", 1)
@@ -68,9 +68,9 @@ open class Arm : Controller() {
         get() = currentAngleCacher.cachedGet{
             val angles = ArmAngleValues()
 //
-            angles.lowerAngle = 165.0 - 49.0 * lowerAngle.voltage - 37.1 * Math.pow(lowerAngle.voltage, 2.0) + 26.1 * Math.pow(lowerAngle.voltage, 3.0) - 4.58 * Math.pow(lowerAngle.voltage, 4.0)
+            angles.lowerAngle = 165.0 - 49.0 * lowerAngle.voltage - 37.1 * Math.pow(lowerAngle.voltage, 2.0) + 26.1 * Math.pow(lowerAngle.voltage, 3.0) - 4.58 * Math.pow(lowerAngle.voltage, 4.0) - 10.0
             val x = upperAngle.voltage
-            angles.upperAngle = -1.66243031965927 * x.pow(3) - 9.090297864880776 * x.pow(2) + 130.359681271249 * x - 137.040643577643
+            angles.upperAngle = -1.66243031965927 * x.pow(3) - 9.090297864880776 * x.pow(2) + 130.359681271249 * x - 137.040643577643 + 15.0
 
             angles
         }()
@@ -86,63 +86,51 @@ open class Arm : Controller() {
         controllers.add(lowerMotor)
         controllers.add(upperMotor)
 
-        lowerMotor.direction = DcMotorSimple.Direction.REVERSE
-        upperMotor.direction = DcMotorSimple.Direction.REVERSE
+//        lowerMotor.direction = DcMotorSimple.Direction.REVERSE
+//        upperMotor.direction = DcMotorSimple.Direction.REVERSE
     }
 
     override fun update(timeStep: Double) {
-        measureTimeAndPrint(telemetry, "arm update") {
+        var currentLowerTarget = lowerAngleTarget
+        var currentUpperTarget = upperAngleTarget
 
-            //            if (upperMotionActive) {
-//                val upperTimeDelta = SystemClock.elapsedRealtime() / 1000.0 - upperMotionStartTime
-//                upperAnglePID.target = upperMotionProfile.getPosition(upperTimeDelta)
-//                if (upperMotionProfile.getTimeNeeded() < upperTimeDelta) {
-//                    upperMotionActive = false
-//                }
-//            }
-//            telemetry.addData("highstart", upperMotionStartTime)
+        if (currentAngles.lowerAngle < 80 && currentUpperTarget < -45) {
+            currentUpperTarget = -45.0
+        }
+
+        if (currentLowerTarget < 35) currentLowerTarget = 35.0
+
+
+        lowerAnglePID.target = currentLowerTarget
+
+        upperAnglePID.target = currentUpperTarget
+
+        val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle, timeStep)
+        val upperOutput = upperAnglePID.update(currentAngles.upperAngle, timeStep)
 //
-//            if (lowerMotionActive) {
-//                val lowerTimeDelta = SystemClock.elapsedRealtime() / 1000.0 - lowerMotionStartTime
-//                lowerAnglePID.target = lowerMotionProfile.getPosition(lowerTimeDelta)
-//                if (lowerMotionProfile.getTimeNeeded() < lowerTimeDelta) {
-//                    lowerMotionActive = false
-//                }
-//            }
-//            telemetry.addData("lowstart", lowerMotionStartTime)
-
-            lowerAnglePID.target = lowerAngleTarget
-
-            upperAnglePID.target = upperAngleTarget
-
-            val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle, timeStep)
-            val upperOutput = upperAnglePID.update(currentAngles.upperAngle, timeStep)
-//
-            telemetry.addData("lowerAngle", currentAngles.lowerAngle)
-            telemetry.addData("upperAngle", currentAngles.upperAngle)
+        telemetry.addData("lowerAngle", currentAngles.lowerAngle)
+        telemetry.addData("upperAngle", currentAngles.upperAngle)
 //
         telemetry.addData("lowerTarget", lowerAnglePID.target)
         telemetry.addData("upperTarget", upperAnglePID.target)
+        telemetry.addData("upperOutRaw", upperOutput)
 
+
+//        val lowerFinalOutput = if (lowerOutput.absoluteValue > lowerSpeedLimit) lowerOutput.sign * lowerSpeedLimit else lowerOutput
 //
-//        telemetry.addData("lower", lowerMotionProfile.getTimeNeeded())
-//        telemetry.addData("upper", upperMotionProfile.getTimeNeeded())
-//        telemetry.addData("upperMotion", upperMotionActive)
-//        telemetry.addData("lowerMotion", lowerMotionActive)
+//        val upperFinalOutput = if (upperOutput.absoluteValue > upperSpeedLimit) upperOutput.sign * upperSpeedLimit else upperOutput
+
+        val lowerFinalOutput = lowerOutput
+
+        val upperFinalOutput = upperOutput
+
+        telemetry.addData("upperOut", upperFinalOutput)
+        telemetry.addData("lowerOut", lowerFinalOutput)
+        telemetry.addData("lowerErr", lowerAnglePID.error)
+        telemetry.addData("upperErr", upperAnglePID.error)
 
 
-            val lowerFinalOutput = if (lowerOutput.absoluteValue > lowerSpeedLimit) lowerOutput.sign * lowerSpeedLimit else lowerOutput
-
-            val upperFinalOutput = if (upperOutput.absoluteValue > upperSpeedLimit) upperOutput.sign * upperSpeedLimit else upperOutput
-
-            telemetry.addData("upperOut", upperFinalOutput)
-            telemetry.addData("lowerOut", lowerFinalOutput)
-            telemetry.addData("lowerErr", lowerAnglePID.error)
-            telemetry.addData("upperErr", upperAnglePID.error)
-
-
-            writeMotors(lowerFinalOutput, upperFinalOutput)
-        }
+        writeMotors(-lowerFinalOutput, -upperFinalOutput)
 
     }
 
