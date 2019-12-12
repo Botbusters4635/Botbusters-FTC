@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.controllers.*
-import org.firstinspires.ftc.teamcode.controllers.arm.Arm
 import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
 import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
 import org.firstinspires.ftc.teamcode.core.EctoOpMode
@@ -18,7 +17,7 @@ class TeleOp : EctoOpMode() {
     val trayHolder = TrayHolder()
 
     var targetHeading = 0.0
-    val maxTargetHeadingRate = 180.0
+    val maxTargetHeadingRate = 361.0
 
     var usePID = false
 
@@ -33,7 +32,7 @@ class TeleOp : EctoOpMode() {
     }
 
     override fun startMode() {
-        arm.moveToPosition(ArmPosition.HOME)
+        arm.moveToPosition(ArmPosition.HOGAR)
     }
 
     override fun update(timeStep: Double) {
@@ -88,7 +87,7 @@ class TeleOp : EctoOpMode() {
 
 
         } else if (gamepad1.x) {
-            arm.moveToPosition(ArmPosition.HOME)
+            arm.moveToPosition(ArmPosition.HOGAR)
         } else {
 //
             if (gamepad2.a)
@@ -100,8 +99,8 @@ class TeleOp : EctoOpMode() {
             else if (gamepad2.right_bumper)
                 arm.moveToPosition(ArmPosition.FOURTH_LEVEL)
             else if (gamepad2.x)
-                arm.moveToPosition(ArmPosition.HOME)
-            else if (gamepad2.left_bumper || (arm.targetCoordinate == ArmPosition.HOME.coordinate && intakePower != 0.0))
+                arm.moveToPosition(ArmPosition.HOGAR)
+            else if (gamepad2.left_bumper || (arm.targetCoordinate == ArmPosition.HOGAR.coordinate && intakePower != 0.0))
                 arm.moveToPosition(ArmPosition.INTAKE)
             else if(gamepad2.right_stick_button)
                 arm.moveToPosition(ArmPosition.HOME_CAP)

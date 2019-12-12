@@ -37,7 +37,7 @@ class BlueAuto_TrayOnly : EctoLinearOpMode() {
 
         chassis.maxAutoVx = 0.3
         intake.power = 1.0
-        arm.moveToPosition(ArmPosition.HOME)
+        arm.moveToPosition(ArmPosition.HOGAR)
 
         chassis.runToPositionBlocking(Coordinate(0.39, 0.1))
 

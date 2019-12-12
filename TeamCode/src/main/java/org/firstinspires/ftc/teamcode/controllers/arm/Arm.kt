@@ -15,7 +15,7 @@ import kotlin.math.*
 
 open class Arm : Controller() {
     private val lowerAnglePID = PID(PIDSettings(kP = 0.04, kI = 0.0, kD = 0.000))
-    private val upperAnglePID = PID(PIDSettings(kP = 0.02, kI = 0.0, kD = 0.000))
+    private val upperAnglePID = PID(PIDSettings(kP = 0.023, kI = 0.0, kD = 0.00008))
 
     private val lowerMotor = EctoDcMotor("lowerMotor")
     private val upperMotor = EctoDcMotor("upperMotor")
@@ -24,6 +24,9 @@ open class Arm : Controller() {
     private lateinit var upperAngle: AnalogInput
 
     // Motion profile stuff
+
+    private val upperMotorSpeedLimit = 0.85
+    private val lowerMotorSpeedLimit = 0.85
 
     private var upperMotionStartTime = 0.0
     private var lowerMotionStartTime = 0.0
@@ -94,7 +97,7 @@ open class Arm : Controller() {
         var currentLowerTarget = lowerAngleTarget
         var currentUpperTarget = upperAngleTarget
 
-        if (currentAngles.lowerAngle < 80 && currentUpperTarget < -45) {
+        if (currentAngles.lowerAngle < 65 && currentUpperTarget < -45) {
             currentUpperTarget = -45.0
         }
 
@@ -136,8 +139,8 @@ open class Arm : Controller() {
 
 
     fun writeMotors(lowerPower: Double, upperPower: Double) {
-        lowerMotor.power = lowerPower
-        upperMotor.power = upperPower
+        lowerMotor.power = lowerPower * lowerMotorSpeedLimit
+        upperMotor.power = upperPower * upperMotorSpeedLimit
 
     }
 }

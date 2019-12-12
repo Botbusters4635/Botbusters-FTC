@@ -93,59 +93,53 @@ class EctoDcMotor(val name: String) : Controller() {
     private var lastReceivedDirection = DcMotorSimple.Direction.FORWARD
     var direction: DcMotorSimple.Direction
         get() = directionCacher.cachedGet {
-                        motorBase.direction
-            }()
-
+            motorBase.direction
+        }()
         set(value) = runBlocking {
             if (lastReceivedDirection != value) {
                 directionChannel.send(value)
                 lastReceivedDirection = value
             }
         }
-//            runBlocking {
-//            if (lastReceivedDirection != value) {
-//                directionChannel.send(value)
-//                lastReceivedDirection = value
-//            }
 
 
-// Motor zero power behavior
-private val zeroPowerBehaviorChannel = Channel<DcMotor.ZeroPowerBehavior>(CONFLATED)
-private val zeroPowerBehaviorCacher = ValueCacher(DcMotor.ZeroPowerBehavior.BRAKE)
-private var lastReceivedZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-var zeroPowerBehavior: DcMotor.ZeroPowerBehavior
-    get() = zeroPowerBehaviorCacher.cachedGet {
-        motorBase.zeroPowerBehavior
-    }()
-    set(value) = runBlocking {
-        if (lastReceivedZeroPowerBehavior != value) {
-            zeroPowerBehaviorChannel.send(value)
-            lastReceivedZeroPowerBehavior = value
+    // Motor zero power behavior
+    private val zeroPowerBehaviorChannel = Channel<DcMotor.ZeroPowerBehavior>(CONFLATED)
+    private val zeroPowerBehaviorCacher = ValueCacher(DcMotor.ZeroPowerBehavior.BRAKE)
+    private var lastReceivedZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+    var zeroPowerBehavior: DcMotor.ZeroPowerBehavior
+        get() = zeroPowerBehaviorCacher.cachedGet {
+            motorBase.zeroPowerBehavior
+        }()
+        set(value) = runBlocking {
+            if (lastReceivedZeroPowerBehavior != value) {
+                zeroPowerBehaviorChannel.send(value)
+                lastReceivedZeroPowerBehavior = value
+            }
         }
-    }
 
 
-@ExperimentalCoroutinesApi
-override fun update(timeStep: Double) = runBlocking {
-    if (!velocityChannel.isEmpty) {
-        motorBase.setVelocity(velocityChannel.receive(), AngleUnit.RADIANS)
-    }
-    if (!modeChannel.isEmpty) {
-        motorBase.mode = modeChannel.receive()
-    }
-    if (!powerChannel.isEmpty) {
-        motorBase.power = powerChannel.receive()
-    }
-    if (!targetPosChannel.isEmpty) {
-        motorBase.targetPosition = targetPosChannel.receive()
-    }
+    @ExperimentalCoroutinesApi
+    override fun update(timeStep: Double) = runBlocking {
+        if (!velocityChannel.isEmpty) {
+            motorBase.setVelocity(velocityChannel.receive(), AngleUnit.RADIANS)
+        }
+        if (!modeChannel.isEmpty) {
+            motorBase.mode = modeChannel.receive()
+        }
+        if (!powerChannel.isEmpty) {
+            motorBase.power = powerChannel.receive()
+        }
+        if (!targetPosChannel.isEmpty) {
+            motorBase.targetPosition = targetPosChannel.receive()
+        }
         if (!directionChannel.isEmpty) {
             motorBase.direction = directionChannel.receive()
         }
-    if (!zeroPowerBehaviorChannel.isEmpty) {
-        motorBase.zeroPowerBehavior = zeroPowerBehaviorChannel.receive()
+        if (!zeroPowerBehaviorChannel.isEmpty) {
+            motorBase.zeroPowerBehavior = zeroPowerBehaviorChannel.receive()
+        }
     }
-}
 
 }
 

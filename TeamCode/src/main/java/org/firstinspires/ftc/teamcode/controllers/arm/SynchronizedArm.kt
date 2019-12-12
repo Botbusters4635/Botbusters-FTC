@@ -8,10 +8,10 @@ class SynchronizedArm : PositionArm() {
     private var currentState = ArmState.GO_TARGET
 
     private var clawTurnStartTime = SystemClock.elapsedRealtime() / 1000.0
-    private val clawTurnTime = 3.0 //Seconds needed for claw to turn to position
+    private val clawTurnTime = 0.7 //Seconds needed for claw to turn to position
     private var clawTurning = false
 
-    var currentTargetCoord = ArmPosition.HOME.coordinate
+    var currentTargetCoord = ArmPosition.HOGAR.coordinate
 
     val clamp = Clamp()
 
@@ -29,9 +29,12 @@ class SynchronizedArm : PositionArm() {
     override fun update(timeStep: Double) {
         super.update(timeStep)
 
+        telemetry.addData("currentState", currentState)
+        telemetry.addData("targetCoord", targetCoordinate)
+
         when (currentState) {
             ArmState.EXCHANGE_FRONT_TO_BACK -> {
-                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate)) {
+                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate, 0.1)) {
                     clamp.angle = 180.0
                     if (!clawTurning) {
                         clawTurning = true
@@ -41,11 +44,13 @@ class SynchronizedArm : PositionArm() {
                         clamp.angle = 180.0
                         currentState = ArmState.GO_TARGET
                     }
+                } else {
+                    targetCoordinate = ArmPosition.EXCHANGE.coordinate
+
                 }
-                targetCoordinate = ArmPosition.EXCHANGE.coordinate
             }
             ArmState.EXCHANGE_BACK_TO_FRONT -> {
-                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate)) {
+                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate, 0.1)) {
                     clamp.angle = 0.0
                     if (!clawTurning) {
                         clawTurning = true
@@ -55,8 +60,10 @@ class SynchronizedArm : PositionArm() {
                         clamp.angle = 0.0
                         currentState = ArmState.GO_TARGET
                     }
+                } else {
+                    targetCoordinate = ArmPosition.EXCHANGE.coordinate
+
                 }
-                targetCoordinate = ArmPosition.EXCHANGE.coordinate
             }
             ArmState.GO_TARGET -> {
                 targetCoordinate = currentTargetCoord
@@ -66,13 +73,13 @@ class SynchronizedArm : PositionArm() {
 
     override fun moveToPosition(position: ArmPosition) {
         if (position.coordinate != targetCoordinate && !clawTurning) {
-            if(currentCoordinate.x > 0.0 && position.coordinate.x < 0.0){
+            currentTargetCoord = position.coordinate
+            val targetAngles = kinematics.calculateInverseKinematics(currentTargetCoord)
+            if (currentAngles.lowerAngle + currentAngles.upperAngle < 5.0 &&  targetAngles.lowerAngle + targetAngles.upperAngle > 5.0) {
                 currentState = ArmState.EXCHANGE_FRONT_TO_BACK
-            }else if(currentCoordinate.x < 0.0 && position.coordinate.x > 0.0){
+            } else if(currentAngles.lowerAngle + currentAngles.upperAngle > 5.0 &&  targetAngles.lowerAngle + targetAngles.upperAngle < 5.0) {
                 currentState = ArmState.EXCHANGE_BACK_TO_FRONT
             }
         }
-
-        super.moveToPosition(position)
     }
 }

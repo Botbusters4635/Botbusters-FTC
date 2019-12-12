@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
@@ -16,7 +15,7 @@ class PresentArm: EctoLinearOpMode() {
     }
 
     override fun startMode() {
-        arm.runToPositionBlocking(ArmPosition.HOME)
+        arm.runToPositionBlocking(ArmPosition.HOGAR)
     }
 
     override fun runOpMode() {
@@ -24,6 +23,6 @@ class PresentArm: EctoLinearOpMode() {
         runBlocking {
             delay(500)
         }
-        arm.runToPositionBlocking(ArmPosition.HOME)
+        arm.runToPositionBlocking(ArmPosition.HOGAR)
     }
 }

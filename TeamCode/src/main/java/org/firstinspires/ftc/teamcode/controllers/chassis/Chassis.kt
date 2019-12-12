@@ -16,7 +16,7 @@ import kotlin.math.sin
 
 
 open class Chassis : Controller() {
-    private val pidSettingsNormal = PIDSettings(kP = 0.0775, kI = 0.00, kD = 0.005, continous = true, lowerBound = -180.0, upperBound = 180.0)
+    private val pidSettingsNormal = PIDSettings(kP = 0.075, kI = 0.00, kD = 0.005, continous = true, lowerBound = -180.0, upperBound = 180.0)
 
     protected val angularPID = PID(pidSettingsNormal)
 
@@ -125,10 +125,6 @@ open class Chassis : Controller() {
             )
         }
         writeMotors(motorValues)
-        telemetry.addData("heading", heading)
-        telemetry.addData("error", angularPID.error)
-        telemetry.addData("targetHeading", angularPID.target)
-        telemetry.addData("motorspeed", downLeftMotor.velocity)
     }
 
     fun writeMotors(values: MecanumMotorValues) {

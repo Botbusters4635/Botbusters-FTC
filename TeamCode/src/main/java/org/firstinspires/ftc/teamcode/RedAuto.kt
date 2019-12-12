@@ -40,7 +40,7 @@ class RedAuto : EctoLinearOpMode() {
         chassis.maxAutoAngular = 0.9
 
         intake.rightPower = 1.0
-        arm.moveToPosition(ArmPosition.HOME)
+        arm.moveToPosition(ArmPosition.HOGAR)
 
         chassis.runToPositionBlocking(Coordinate(0.4, -0.1))
 
