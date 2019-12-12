@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.controllers.arm
 import android.os.SystemClock
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.controllers.clamp.Clamp
-import org.firstinspires.ftc.teamcode.core.Coordinate
 
 class SynchronizedArm : PositionArm() {
     private var currentState = ArmState.GO_TARGET
@@ -16,12 +15,10 @@ class SynchronizedArm : PositionArm() {
 
     val clamp = Clamp()
 
+
     override fun init(hardwareMap: HardwareMap) {
         super.init(hardwareMap)
-
-        // This shouldn't be here, it should me managed by a helper class.
-        clamp.init(hardwareMap)
-
+        controllers.add(clamp)
         clamp.power = 0.0
     }
 

@@ -29,5 +29,4 @@ repositories {
 
 apply from: 'build.release.gradle'
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

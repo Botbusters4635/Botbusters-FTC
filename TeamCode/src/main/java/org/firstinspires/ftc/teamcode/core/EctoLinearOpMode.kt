@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.core
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlinx.coroutines.*
 
 
@@ -13,7 +10,7 @@ abstract class EctoLinearOpMode : EctoOpMode() {
     get() = linearOpModeController.isActive
 
     init {
-        addController(linearOpModeController)
+        controllers.add(linearOpModeController)
     }
 
     override fun update(timeStep: Double) {
@@ -27,8 +24,7 @@ abstract class EctoLinearOpMode : EctoOpMode() {
         val isActive: Boolean
         get() = scope.isActive
 
-        override fun init(hardwareMap: HardwareMap) {
-        }
+
 
         override fun start() {
             scope.launch {
@@ -43,9 +39,9 @@ abstract class EctoLinearOpMode : EctoOpMode() {
             }
         }
 
-        override fun stop() {
-            scope.coroutineContext.cancelChildren()
-        }
+//        override fun stop() {
+//            scope.coroutineContext.cancelChildren()
+//        }
 
     }
 }

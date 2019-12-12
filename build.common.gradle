@@ -19,6 +19,8 @@ import java.util.regex.Pattern
 
 apply plugin: 'com.android.application'
 
+
+
 android {
 
     compileSdkVersion 28
@@ -35,6 +37,7 @@ android {
     aaptOptions {
         noCompress "tflite"
     }
+
 
     defaultConfig {
         applicationId 'com.qualcomm.ftcrobotcontroller'
@@ -68,6 +71,8 @@ android {
         //
         versionCode vCode
         versionName vName
+
+        multiDexEnabled true
     }
 
     // Advanced user code might just want to use Vuforia directly, so we set up the libs as needed
@@ -106,4 +111,5 @@ repositories {
         dirs rootProject.file('libs')
     }
 }
+
 apply from: 'build.release.gradle'

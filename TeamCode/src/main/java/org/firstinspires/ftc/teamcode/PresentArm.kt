@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.core.EctoLinearOpMode
 class PresentArm: EctoLinearOpMode() {
     val arm = SynchronizedArm()
     init {
-        addController(arm)
+        controllers.add(arm)
     }
 
     override fun startMode() {

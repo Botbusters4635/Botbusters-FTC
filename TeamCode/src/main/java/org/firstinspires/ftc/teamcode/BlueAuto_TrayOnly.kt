@@ -6,6 +6,7 @@ import kotlinx.coroutines.runBlocking
 import org.firstinspires.ftc.teamcode.controllers.*
 import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
 import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
+import org.firstinspires.ftc.teamcode.controllers.chassis.PositionChassis
 import org.firstinspires.ftc.teamcode.controllers.clamp.Clamp
 import org.firstinspires.ftc.teamcode.core.Coordinate
 import org.firstinspires.ftc.teamcode.core.EctoLinearOpMode
@@ -19,11 +20,11 @@ class BlueAuto_TrayOnly : EctoLinearOpMode() {
     val trayHolder = TrayHolder()
 
     init {
-        addController(chassis)
-        addController(arm)
-        addController(intake)
-        addController(clamp)
-        addController(trayHolder)
+        controllers.add(chassis)
+        controllers.add(arm)
+        controllers.add(intake)
+        controllers.add(clamp)
+        controllers.add(trayHolder)
     }
 
     override fun startMode() {

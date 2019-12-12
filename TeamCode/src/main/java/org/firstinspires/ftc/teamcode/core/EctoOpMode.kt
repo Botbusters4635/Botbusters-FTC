@@ -7,35 +7,29 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 abstract class EctoOpMode : OpMode() {
-    private val controllers: ArrayList<Controller> = arrayListOf()
-    private val lastTimeRun: ArrayList<Double> = arrayListOf(0.0)
 
-    var initialTimeSet = false
+    var lastTimeRun = 0.0
+
     val updateRate = 10 //Milliseconds
 
-    protected fun addController(controller: Controller) {
-        controllers.add(controller)
-        lastTimeRun.add(0.0)
-    }
+    val controllers = ControllerManager()
+
+    open fun init_impl() {}
 
     final override fun init() {
+        init_impl()
         telemetry.msTransmissionInterval = updateRate
-        controllers.forEach {
-            it.telemetry = telemetry
-            it.init(hardwareMap)
-        }
+        controllers.telemetry = telemetry
+        controllers.hardwareMap = hardwareMap
+        controllers.init()
     }
 
     final override fun loop() {
-        controllers.withIndex().forEach {
-            val timeStep = runtime - lastTimeRun[it.index + 1]
-            lastTimeRun[it.index + 1] = runtime
-            it.value.update(timeStep)
-        }
+        controllers.update()
 
-        val timeStep = runtime - lastTimeRun[0]
+        val timeStep = runtime - lastTimeRun
 
-        lastTimeRun[0] = runtime
+        lastTimeRun = runtime
 
         update(timeStep)
 
@@ -52,17 +46,12 @@ abstract class EctoOpMode : OpMode() {
     }
 
     final override fun start() {
-        lastTimeRun[0] = runtime
-        controllers.withIndex().forEach {
-            it.value.start()
-            lastTimeRun[it.index + 1] = runtime
-        }
+        lastTimeRun = runtime
+        controllers.start()
         startMode()
     }
 
     final override fun stop() {
-        controllers.forEach {
-            it.stop()
-        }
+        controllers.stop()
     }
 }

@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode.LinearOpModes
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import org.firstinspires.ftc.teamcode.controllers.Chassis
 import org.firstinspires.ftc.teamcode.controllers.Intake
-import org.firstinspires.ftc.teamcode.controllers.MecanumMoveCommand
-import org.firstinspires.ftc.teamcode.controllers.PositionChassis
+import org.firstinspires.ftc.teamcode.controllers.chassis.MecanumMoveCommand
+import org.firstinspires.ftc.teamcode.controllers.chassis.PositionChassis
 import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
 import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
 import org.firstinspires.ftc.teamcode.core.Coordinate
@@ -20,9 +17,9 @@ class OnlyGrabBlue : EctoLinearOpMode() {
     val intake = Intake()
 
     init {
-        addController(chassis)
-        addController(arm)
-        addController(intake)
+        controllers.add(chassis)
+        controllers.add(arm)
+        controllers.add(intake)
     }
 
     override fun startMode() {
