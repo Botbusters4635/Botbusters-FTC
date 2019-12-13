@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.core
 
 import kotlin.math.absoluteValue
 
-data class PIDSettings(val kP: Double = 0.0, val kI: Double = 0.0, val kD: Double = 0.0, val continous: Boolean = true, val lowerBound: Double = 0.0, val upperBound: Double = 0.0)
+data class PIDSettings(val kP: Double = 0.0, val kI: Double = 0.0, val kD: Double = 0.0, val continous: Boolean = true, val lowerBound: Double = 0.0, val upperBound: Double = 0.0, val iClearZone : Double = 0.0)
 
 class PID(var pidSettings: PIDSettings = PIDSettings()) {
     var target: Double = 0.0
@@ -19,6 +19,7 @@ class PID(var pidSettings: PIDSettings = PIDSettings()) {
 
     var maxOutput = Double.NaN
     var deadzone = Double.NaN
+    var deltaError = 0.0
 
 
     fun clear(){
@@ -40,9 +41,14 @@ class PID(var pidSettings: PIDSettings = PIDSettings()) {
 
         accumulatedError += error * (timeStep)
 
-        var deltaError = 0.0
+        deltaError = 0.0
         if(timeStep > 0.0){
             deltaError = (error - lastError) / (timeStep)
+        }
+
+
+        if(error.absoluteValue < pidSettings.iClearZone){
+            accumulatedError = 0.0
         }
 
         pComponent = error * pidSettings.kP

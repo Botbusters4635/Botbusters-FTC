@@ -5,7 +5,7 @@ import kotlin.math.sqrt
 import kotlin.math.pow
 import kotlin.math.sign
 
-class SCurveMotionProfile (var Vm: Double , var Am : Double, var Throw : Double, var gamma : Double){
+class SCurveMotionProfile (var Vm: Double , var Am : Double, var Throw : Double, var gamma : Double, var startPos : Double){
     val Sgn = Throw.sign * 1.0
     val Yf = abs(Throw)
     val Ys = Yf/2.0
@@ -22,7 +22,7 @@ class SCurveMotionProfile (var Vm: Double , var Am : Double, var Throw : Double,
     val Tt = 2.0 * Ts
 
     fun getPosition(time : Double) : Double{
-        return Sgn * position_base(time)
+        return startPos + Sgn * position_base(time)
     }
 
     fun getVelocity(time : Double ) : Double{
