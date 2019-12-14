@@ -43,7 +43,7 @@ class TeleOp : EctoOpMode() {
         if (gamepad1.right_trigger > 0.3) {
             currentSpeedLimiter = 0.9
         } else if (gamepad1.left_trigger > 0.3) {
-            currentSpeedLimiter = 0.6
+            currentSpeedLimiter = 0.7
         } else {
             currentSpeedLimiter = 0.0
         }
@@ -79,7 +79,7 @@ class TeleOp : EctoOpMode() {
             targetHeading = chassis.heading
 
             val moveCommand = MecanumMoveCommand(vx = -gamepad1.left_stick_y.toDouble() * chassis.maxV * (1.0 - currentSpeedLimiter), vy = -gamepad1.left_stick_x.toDouble() * chassis.maxV * (1.0 - currentSpeedLimiter))
-            chassis.angularSpeedTarget = -gamepad1.right_stick_x.toDouble() * Math.PI * 1.5
+            chassis.angularSpeedTarget = -gamepad1.right_stick_x.toDouble() * Math.PI * 1.5 * (1.0 - currentSpeedLimiter)
             chassis.movementTarget = moveCommand
         }
 

@@ -23,8 +23,8 @@ class Intake : Controller() {
     var power = 0.0
         set(value) {
             field = value
-            leftIntake.power = field * 0.8
-            rightIntake.power = -field * 0.8
+            leftIntake.power = field * 0.45
+            rightIntake.power = -field * 0.45
         }
 
     var rightPower = 0.0

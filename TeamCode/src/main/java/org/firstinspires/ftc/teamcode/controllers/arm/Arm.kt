@@ -13,7 +13,7 @@ import kotlin.math.*
 
 open class Arm : Controller() {
     private val lowerAnglePID = PID(PIDSettings(kP = 0.05, kI = 0.0, kD = 0.000))
-    private val upperAnglePID = PID(PIDSettings(kP = 0.01857, kI = 0.008, kD = 0.000012, iClearZone = 5.0))
+    private val upperAnglePID = PID(PIDSettings(kP = 0.01857, kI = 0.008, kD = 0.0000013, iClearZone = 5.0))
 
     private val lowerMotor = EctoDcMotor("lowerMotor")
     private val upperMotor = EctoDcMotor("upperMotor")
@@ -63,7 +63,7 @@ open class Arm : Controller() {
 
 
     fun generateMotionProfile(throwValue: Double, startPos : Double): SCurveMotionProfile {
-        return SCurveMotionProfile(400.0, 200.0, throwValue, 1.0, startPos)
+        return SCurveMotionProfile(800.0, 300.0, throwValue, 1.0, startPos)
     }
 
     override fun init(hardwareMap: HardwareMap) {
@@ -80,7 +80,7 @@ open class Arm : Controller() {
         var currentLowerTarget = lowerAngleTarget
         var currentUpperTarget = upperAngleTarget
 
-        if (currentAngles.lowerAngle < 65 && currentUpperTarget < -45) {
+        if (currentAngles.lowerAngle < 75 && currentUpperTarget < -45) {
             currentUpperTarget = -45.0
         }
 

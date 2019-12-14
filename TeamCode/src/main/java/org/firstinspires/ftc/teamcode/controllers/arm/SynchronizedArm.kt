@@ -35,7 +35,7 @@ class SynchronizedArm : PositionArm() {
         when (currentState) {
             ArmState.EXCHANGE_FRONT_TO_BACK -> {
                 targetCoordinate = ArmPosition.EXCHANGE.coordinate
-                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate, 0.05)) {
+                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate)) {
                     clamp.angle = 180.0
                     if (!clawTurning) {
                         clawTurning = true
@@ -52,7 +52,7 @@ class SynchronizedArm : PositionArm() {
             }
             ArmState.EXCHANGE_BACK_TO_FRONT -> {
                 targetCoordinate = ArmPosition.EXCHANGE.coordinate
-                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate, 0.05)) {
+                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate)) {
                     clamp.angle = 0.0
                     if (!clawTurning) {
                         clawTurning = true
