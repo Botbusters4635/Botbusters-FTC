@@ -8,13 +8,14 @@ import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
 import org.firstinspires.ftc.teamcode.core.EctoOpMode
 import org.firstinspires.ftc.teamcode.controllers.chassis.Chassis
 import org.firstinspires.ftc.teamcode.controllers.chassis.MecanumMoveCommand
+import org.firstinspires.ftc.teamcode.controllers.tongue.Tongue
 
 
 @TeleOp(name = "TeleOp")
 class TeleOp : EctoOpMode() {
     val chassis = Chassis()
     val arm = SynchronizedArm()
-//    val arm = Arm()
+    val tongue = Tongue()
 
     val intake = Intake()
     val trayHolder = TrayHolder()
@@ -31,6 +32,7 @@ class TeleOp : EctoOpMode() {
         controllers.add(chassis)
         controllers.add(arm)
         controllers.add(intake)
+        controllers.add(tongue)
         controllers.add(trayHolder)
     }
 
@@ -83,40 +85,19 @@ class TeleOp : EctoOpMode() {
             chassis.movementTarget = moveCommand
         }
 
-//
-
-//
-//
         telemetry.addData("timeStep", timeStep)
-//
 
-//
         val intakePower = gamepad2.left_trigger - gamepad2.right_trigger.toDouble()
         intake.power = intakePower
 
-//
         if (gamepad1.a) {
            arm.moveToPosition(ArmPosition.PASSBRIDGE)
-
-
-//            // Get the calibration data
-//            val calibrationData = chassis.imu.readCalibrationData()
-//
-//            // Save the calibration data to a file. You can choose whatever file
-//            // name you wish here, but you'll want to indicate the same file name
-//            // when you initialize the IMU in an opmode in which it is used. If you
-//            // have more than one IMU on your robot, you'll of course want to use
-//            // different configuration file names for each.
-//            val filename = "AdafruitIMUCalibration.json"
-//            val file = AppUtil.getInstance().getSettingsFile(filename)
-//            ReadWriteFile.writeFile(file, calibrationData.serialize())
-//            telemetry.log().add("saved to '%s'", filename)
 
 
         } else if (gamepad1.x) {
             arm.moveToPosition(ArmPosition.HOGAR)
         } else {
-//
+
             if (gamepad2.a)
                 arm.moveToPosition(ArmPosition.FIRST_LEVEL)
             else if (gamepad2.b)
@@ -133,6 +114,11 @@ class TeleOp : EctoOpMode() {
                 arm.moveToPosition(ArmPosition.HOME_CAP)
         }
 
+        if(gamepad1.dpad_up){
+            tongue.lick()
+        }else{
+            tongue.dontLick()
+        }
 
         if(gamepad1.right_bumper){
             trayHolder.setPosition(TrayHolderPosition.Grab)
