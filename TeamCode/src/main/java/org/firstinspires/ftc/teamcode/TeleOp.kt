@@ -114,7 +114,7 @@ class TeleOp : EctoOpMode() {
                 arm.moveToPosition(ArmPosition.HOME_CAP)
         }
 
-        if(gamepad1.dpad_up){
+        if(gamepad2.dpad_right){
             tongue.lick()
         }else{
             tongue.dontLick()
