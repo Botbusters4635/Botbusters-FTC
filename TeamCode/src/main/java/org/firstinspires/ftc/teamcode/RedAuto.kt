@@ -42,7 +42,7 @@ class RedAuto : EctoLinearOpMode() {
         intake.rightPower = 1.0
         arm.moveToPosition(ArmPosition.HOGAR)
 
-        chassis.runToPositionBlocking(Coordinate(0.4, -0.1))
+        chassis.runToPositionBlocking(Coordinate(0.6, -0.1))
 
         trayHolder.setPosition(TrayHolderPosition.Grab)
         runBlocking {

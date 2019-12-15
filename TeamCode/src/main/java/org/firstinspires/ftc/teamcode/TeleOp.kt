@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
 import org.firstinspires.ftc.teamcode.core.EctoOpMode
 import org.firstinspires.ftc.teamcode.controllers.chassis.Chassis
 import org.firstinspires.ftc.teamcode.controllers.chassis.MecanumMoveCommand
+import org.firstinspires.ftc.teamcode.controllers.chassis.PositionChassis
 
 
 @TeleOp(name = "TeleOp")
@@ -35,7 +36,7 @@ class TeleOp : EctoOpMode() {
     }
 
     override fun startMode() {
-        arm.moveToPosition(ArmPosition.INTAKE)
+        arm.moveToPosition(ArmPosition.PASSBRIDGE)
     }
 
     override fun update(timeStep: Double) {

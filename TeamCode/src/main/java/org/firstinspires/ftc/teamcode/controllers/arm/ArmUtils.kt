@@ -20,6 +20,7 @@ enum class ArmPosition(val coordinate: Coordinate) {
     SECOND_LEVEL(Coordinate(-0.29, 0.31)),
     THIRD_LEVEL(Coordinate(-0.29, 0.4)),
     FOURTH_LEVEL(Coordinate(-0.29, 0.63)),
+
     EXCHANGE(Coordinate(0.25, 0.35)),
     INTAKE(Coordinate(0.25, 0.28)),
     PASSBRIDGE(Coordinate(0.48, 0.12))

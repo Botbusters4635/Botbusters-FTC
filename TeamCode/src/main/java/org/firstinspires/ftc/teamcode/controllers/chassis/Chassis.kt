@@ -146,6 +146,8 @@ open class Chassis : Controller() {
 
         wheelsSpeed.downRightSpeed = downRightMotor.velocity * 1.25
 
+        telemetry.addData("ws", wheelsSpeed)
+
         return kinematics.calcForwardKinematics(wheelsSpeed)
     }
 
@@ -170,8 +172,8 @@ open class Chassis : Controller() {
     fun updateCurrentCoords(timeStep: Double) {
         val globalVelocities = getGlobalVelocities()
 
-        currentCoords.x = currentCoords.x + (globalVelocities.vx * timeStep) * 8.097165992
-        currentCoords.y = currentCoords.y + (globalVelocities.vy * timeStep) * 8.097165992
+        currentCoords.x = currentCoords.x + (globalVelocities.vx * timeStep)
+        currentCoords.y = currentCoords.y + (globalVelocities.vy * timeStep)
     }
 
     fun getCurrentCords(): Coordinate {

@@ -53,7 +53,8 @@ class PositionChassis : Chassis() {
                 movementTarget.vy = targetVy * Math.cos(headingInRadians) - targetVx * Math.sin(headingInRadians)
             }
         }
-        telemetry.addData("x, y", "%.2f %.2f", targetCoords.x, targetCoords.y)
+        telemetry.addData("x, y", "%.2f %.2f", currentCoords.x, currentCoords.y)
+        telemetry.addData("heading", heading)
     }
 
     fun runToPositionBlocking(target: Coordinate) = runBlocking{

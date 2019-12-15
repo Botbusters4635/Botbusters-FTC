@@ -34,7 +34,8 @@ class SynchronizedArm : PositionArm() {
 
         when (currentState) {
             ArmState.EXCHANGE_FRONT_TO_BACK -> {
-                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate, 0.1)) {
+                targetCoordinate = ArmPosition.EXCHANGE.coordinate
+                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate, 0.05)) {
                     clamp.angle = 180.0
                     if (!clawTurning) {
                         clawTurning = true
@@ -42,15 +43,16 @@ class SynchronizedArm : PositionArm() {
                     } else if (SystemClock.elapsedRealtime() / 1000.0 - clawTurnStartTime > clawTurnTime) {
                         clawTurning = false
                         clamp.angle = 180.0
+
                         currentState = ArmState.GO_TARGET
                     }
-                } else {
-                    targetCoordinate = ArmPosition.EXCHANGE.coordinate
-
                 }
+
+
             }
             ArmState.EXCHANGE_BACK_TO_FRONT -> {
-                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate, 0.1)) {
+                targetCoordinate = ArmPosition.EXCHANGE.coordinate
+                if (currentCoordinate.closeTo(ArmPosition.EXCHANGE.coordinate, 0.05)) {
                     clamp.angle = 0.0
                     if (!clawTurning) {
                         clawTurning = true
@@ -60,10 +62,9 @@ class SynchronizedArm : PositionArm() {
                         clamp.angle = 0.0
                         currentState = ArmState.GO_TARGET
                     }
-                } else {
-                    targetCoordinate = ArmPosition.EXCHANGE.coordinate
-
                 }
+
+
             }
             ArmState.GO_TARGET -> {
                 targetCoordinate = currentTargetCoord
@@ -75,9 +76,9 @@ class SynchronizedArm : PositionArm() {
         if (position.coordinate != targetCoordinate && !clawTurning) {
             currentTargetCoord = position.coordinate
             val targetAngles = kinematics.calculateInverseKinematics(currentTargetCoord)
-            if (currentAngles.lowerAngle + currentAngles.upperAngle < 5.0 &&  targetAngles.lowerAngle + targetAngles.upperAngle > 5.0) {
+            if (currentAngles.lowerAngle + currentAngles.upperAngle < 5.0 && targetAngles.lowerAngle + targetAngles.upperAngle > 5.0) {
                 currentState = ArmState.EXCHANGE_FRONT_TO_BACK
-            } else if(currentAngles.lowerAngle + currentAngles.upperAngle > 5.0 &&  targetAngles.lowerAngle + targetAngles.upperAngle < 5.0) {
+            } else if (currentAngles.lowerAngle + currentAngles.upperAngle > 5.0 && targetAngles.lowerAngle + targetAngles.upperAngle < 5.0) {
                 currentState = ArmState.EXCHANGE_BACK_TO_FRONT
             }
         }
