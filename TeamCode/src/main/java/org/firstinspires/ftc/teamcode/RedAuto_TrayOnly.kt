@@ -55,7 +55,7 @@ class RedAuto_TrayOnly : EctoLinearOpMode() {
 
         intake.power = 1.0
 
-        chassis.runToPositionBlocking(Coordinate(0.275, chassis.getCurrentCords().y))
+        chassis.runToPositionBlocking(Coordinate(0.325, chassis.getCurrentCords().y))
 
         intake.power = 0.0
 
