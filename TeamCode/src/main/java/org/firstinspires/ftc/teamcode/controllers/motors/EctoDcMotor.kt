@@ -33,7 +33,7 @@ class EctoDcMotor(val name: String) : Controller() {
     private var lastReceivedVelocity = 0.0
     var velocity: Double
         get() = velocityCacher.cachedGet {
-            motorBase.velocity
+            motorBase.getVelocity(AngleUnit.RADIANS)
         }()
         set(value) = runBlocking {
             if (lastReceivedVelocity != value) {

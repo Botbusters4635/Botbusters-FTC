@@ -43,10 +43,10 @@ class SynchronizedArm : PositionArm() {
                     } else if (SystemClock.elapsedRealtime() / 1000.0 - clawTurnStartTime > clawTurnTime) {
                         clawTurning = false
                         clamp.angle = 180.0
+
                         currentState = ArmState.GO_TARGET
                     }
                 }
-
 
 
             }

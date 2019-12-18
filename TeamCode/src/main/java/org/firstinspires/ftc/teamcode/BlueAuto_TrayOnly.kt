@@ -6,6 +6,7 @@ import kotlinx.coroutines.runBlocking
 import org.firstinspires.ftc.teamcode.controllers.*
 import org.firstinspires.ftc.teamcode.controllers.arm.ArmPosition
 import org.firstinspires.ftc.teamcode.controllers.arm.SynchronizedArm
+import org.firstinspires.ftc.teamcode.controllers.chassis.MecanumMoveCommand
 import org.firstinspires.ftc.teamcode.controllers.chassis.PositionChassis
 import org.firstinspires.ftc.teamcode.controllers.clamp.Clamp
 import org.firstinspires.ftc.teamcode.core.Coordinate
@@ -34,24 +35,27 @@ class BlueAuto_TrayOnly : EctoLinearOpMode() {
     }
 
     override fun runOpMode() {
-
         chassis.maxAutoVx = 0.3
-        intake.power = 1.0
+        chassis.maxAutoVy = 0.3
+        chassis.maxAutoAngular = 0.9
+
+        intake.rightPower = 1.0
         arm.moveToPosition(ArmPosition.HOGAR)
 
-        chassis.runToPositionBlocking(Coordinate(0.39, 0.1))
+        chassis.runToPositionBlocking(Coordinate(0.6, 0.1))
 
         trayHolder.setPosition(TrayHolderPosition.Grab)
-
         runBlocking {
-            delay(500)
+            delay(800)
         }
+        chassis.moveTimed(MecanumMoveCommand(vy = 0.15, theta = chassis.heading), 3.35)
+
 
         arm.moveToPosition(ArmPosition.INTAKE)
 
         intake.power = 1.0
 
-        chassis.runToPositionBlocking(Coordinate(0.1, -0.1))
+        chassis.runToPositionBlocking(Coordinate(0.375, chassis.getCurrentCords().y))
 
         intake.power = 0.0
 
@@ -61,15 +65,15 @@ class BlueAuto_TrayOnly : EctoLinearOpMode() {
 
         trayHolder.setPosition(TrayHolderPosition.Release)
 
+//        chassis.moveTimed(MecanumMoveCommand(vx = -2.0, theta = 90.0), 0.75)
+
         runBlocking {
             delay(500)
         }
 
-        chassis.maxAutoVx = 0.3
+        chassis.runToPositionBlocking(Coordinate(0.25, 0.1))
 
-
-        chassis.runToPositionBlocking(Coordinate(0.1, -0.58))
-
+        chassis.runToPositionBlocking(Coordinate(0.25, -0.7))
     }
 }
 

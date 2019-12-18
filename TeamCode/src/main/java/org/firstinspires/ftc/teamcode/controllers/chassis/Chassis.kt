@@ -146,6 +146,8 @@ open class Chassis : Controller() {
 
         wheelsSpeed.downRightSpeed = downRightMotor.velocity * 1.25
 
+        telemetry.addData("ws", wheelsSpeed)
+
         return kinematics.calcForwardKinematics(wheelsSpeed)
     }
 

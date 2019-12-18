@@ -115,13 +115,13 @@ open class Arm : Controller() {
         val lowerOutput = lowerAnglePID.update(currentAngles.lowerAngle, timeStep)
         val upperOutput = upperAnglePID.update(currentAngles.upperAngle, timeStep)
 //
-        telemetry.addData("lowerAngle", currentAngles.lowerAngle)
-        telemetry.addData("upperAngle", currentAngles.upperAngle)
-//
-        telemetry.addData("lowerTarget", lowerAnglePID.target)
-        telemetry.addData("upperTarget", upperAnglePID.target)
-        telemetry.addData("upperOutRaw", upperOutput)
-        telemetry.addData("upperDeltaError", upperAnglePID.deltaError)
+//        telemetry.addData("lowerAngle", currentAngles.lowerAngle)
+//        telemetry.addData("upperAngle", currentAngles.upperAngle)
+////
+//        telemetry.addData("lowerTarget", lowerAnglePID.target)
+//        telemetry.addData("upperTarget", upperAnglePID.target)
+//        telemetry.addData("upperOutRaw", upperOutput)
+//        telemetry.addData("upperDeltaError", upperAnglePID.deltaError)
 
 
         val lowerFinalOutput = if (lowerOutput.absoluteValue > lowerSpeedLimit) lowerOutput.sign * lowerSpeedLimit else lowerOutput
@@ -129,10 +129,10 @@ open class Arm : Controller() {
         val upperFinalOutput = if (upperOutput.absoluteValue > upperSpeedLimit) upperOutput.sign * upperSpeedLimit else upperOutput
 
 
-        telemetry.addData("upperOut", -upperFinalOutput)
-        telemetry.addData("lowerOut", -lowerFinalOutput)
-        telemetry.addData("lowerErr", lowerAnglePID.error)
-        telemetry.addData("upperErr", upperAnglePID.error)
+//        telemetry.addData("upperOut", -upperFinalOutput)
+//        telemetry.addData("lowerOut", -lowerFinalOutput)
+//        telemetry.addData("lowerErr", lowerAnglePID.error)
+//        telemetry.addData("upperErr", upperAnglePID.error)
 
 
         writeMotors(-lowerFinalOutput, -upperFinalOutput)
